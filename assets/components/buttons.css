@@ -1,0 +1,190 @@
+/* ─────────────────────────────────────────────────────────────
+   MoneyHero Group — Button Component
+   Component class only. All values reference semantic tokens
+   defined in ../tokens.css.
+
+   Synced to Figma file: MHG Alpha Design System (82tOs1i8NmsLWxZkHTzB80)
+   ───────────────────────────────────────────────────────────── */
+
+.mhg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--button-gap);
+
+  box-sizing: border-box;
+  height: var(--button-size-regular);
+  padding: 0 var(--button-padding-regular-x);
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+
+  background: var(--buttons-primary);
+  color: var(--text-on-dark);
+
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-button-1);
+  line-height: var(--line-height-button-1);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-decoration: none;
+
+  cursor: pointer;
+  user-select: none;
+  appearance: none;
+  transition:
+    background-color .15s ease,
+    border-color     .15s ease,
+    color            .15s ease;
+}
+
+.mhg-btn:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-primary-hover);
+}
+
+.mhg-btn:focus-visible {
+  outline: 2px solid var(--buttons-primary);
+  outline-offset: 2px;
+}
+
+.mhg-btn:disabled,
+.mhg-btn[aria-disabled="true"] {
+  background: var(--buttons-disable);
+  color: var(--text-on-dark);
+  border-color: transparent;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Variants ── */
+
+.mhg-btn--primary {
+  background: var(--buttons-primary);
+  color: var(--text-on-dark);
+  border-color: transparent;
+}
+.mhg-btn--primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-primary-hover);
+}
+
+.mhg-btn--secondary {
+  background: var(--buttons-secondary);
+  color: var(--buttons-secondary-text);
+  border-color: transparent;
+}
+.mhg-btn--secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-secondary-hover);
+  color: var(--text-on-dark);
+}
+
+.mhg-btn--cta {
+  background: var(--buttons-cta);
+  color: var(--text-on-dark);
+  border-color: transparent;
+}
+.mhg-btn--cta:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-cta-hover);
+}
+
+.mhg-btn--neutral {
+  background: var(--buttons-neutral);
+  color: var(--text-on-dark);
+  border-color: transparent;
+}
+.mhg-btn--neutral:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-neutral-hover);
+}
+
+/* Outline — neutral gray border (default).
+   For brand-tinted outline emphasis, use .mhg-btn--outline-primary. */
+.mhg-btn--outline {
+  background: var(--buttons-base);
+  color: var(--text-primary);
+  border-color: var(--borders-default);
+}
+.mhg-btn--outline:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--fill-alternative-1);
+  color: var(--text-primary);
+  border-color: var(--text-secondary-lighter);
+}
+.mhg-btn--outline:disabled,
+.mhg-btn--outline[aria-disabled="true"] {
+  background: var(--buttons-base);
+  color: var(--buttons-disable);
+  border-color: var(--borders-default);
+}
+
+.mhg-btn--outline-primary {
+  background: var(--buttons-base);
+  color: var(--buttons-primary);
+  border-color: var(--buttons-primary);
+}
+.mhg-btn--outline-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-outline-hover-bg);
+  color: var(--buttons-primary-hover);
+  border-color: var(--buttons-primary-hover);
+}
+.mhg-btn--outline-primary:disabled,
+.mhg-btn--outline-primary[aria-disabled="true"] {
+  background: var(--buttons-base);
+  color: var(--buttons-disable);
+  border-color: var(--buttons-disable);
+}
+
+.mhg-btn--ghost {
+  background: transparent;
+  color: var(--buttons-primary);
+  border-color: transparent;
+}
+.mhg-btn--ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--buttons-outline-hover-bg);
+  color: var(--buttons-primary-hover);
+}
+.mhg-btn--ghost:disabled,
+.mhg-btn--ghost[aria-disabled="true"] {
+  background: transparent;
+  color: var(--buttons-disable);
+}
+
+/* ── Sizes ── */
+
+.mhg-btn--small {
+  height: var(--button-size-small);
+  padding: 0 var(--button-padding-small-x);
+  font-size: var(--font-size-button-2);
+  line-height: var(--line-height-button-2);
+}
+
+/* ── Icon modifiers ── */
+
+.mhg-btn--icon {
+  padding: 0 var(--button-padding-regular-x-icon);
+}
+.mhg-btn--icon.mhg-btn--small {
+  padding: 0 var(--button-padding-small-x-icon);
+}
+
+.mhg-btn--icon-only {
+  width: var(--button-size-regular);
+  padding: 0;
+}
+.mhg-btn--icon-only.mhg-btn--small {
+  width: var(--button-size-small);
+}
+
+.mhg-btn__icon {
+  flex-shrink: 0;
+  width: var(--button-icon-regular);
+  height: var(--button-icon-regular);
+}
+.mhg-btn--small .mhg-btn__icon {
+  width: var(--button-icon-small);
+  height: var(--button-icon-small);
+}
+
+/* ── Layout modifier ── */
+
+.mhg-btn--block {
+  display: flex;
+  width: 100%;
+}
