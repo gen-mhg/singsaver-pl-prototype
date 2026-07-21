@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en" class="brand-singsaver">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SingSaver Personal Loans — prototype v20</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/grid.css">
+<link rel="stylesheet" href="assets/components/buttons.css">
+<style>
+  body { background: var(--fill-base); color: var(--text-primary); margin:0; }
+  .vtag { background:#0f172a; color:#fff; font-size:11px; text-align:center; padding:4px; }
+  /* Site header + nav (matches live) */
+  .site { position:static; background:var(--fill-card); border-bottom:1px solid var(--borders-default); display:flex; align-items:center; gap:10px; padding:10px 14px; }
+  .site__menu, .site__acct { border:0; background:none; font-size:20px; cursor:pointer; color:var(--text-primary); width:34px; height:34px; border-radius:8px; }
+  .site__menu:hover, .site__acct:hover { background:var(--fill-primary-light); }
+  .site__logo { height:22px; margin:0 auto; }
+  .site__nav { background:var(--fill-card); border-bottom:1px solid var(--borders-soft); display:none; flex-direction:column; padding:4px 14px; }
+  .site__nav a { padding:9px 0; font-size:14px; font-weight:600; color:var(--text-primary); text-decoration:none; border-bottom:1px solid var(--borders-soft); }
+  .site__nav a:last-child { border-bottom:0; }
+  .site__nav.open { display:flex; }
+  .crumb { font-size:12px; color:var(--text-muted); margin:10px 0 8px; }
+  /* In-prototype change annotations */
+  /* Floating (absolute) so they never change the real layout */
+  .ann { display:none; background:#f59e0b; color:#111; font-size:9px; font-weight:800; border-radius:4px; padding:2px 7px; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+  body.annotate .x-new { position:relative; outline:2px dashed #f59e0b; outline-offset:3px; border-radius:10px; }
+  body.annotate .ann { display:inline-block; position:absolute; top:-9px; right:8px; z-index:6; pointer-events:none; }
+  /* in-flow annotation note (wraps, stays hidden when annotate is off) */
+  body.annotate .ann--blk { position:static; display:inline-block; white-space:normal; max-width:100%; box-sizing:border-box; margin-bottom:8px; }
+  @media(min-width:768px){ .site__menu{display:none} .site__nav{display:flex;flex-direction:row;gap:22px;justify-content:center} .site__nav a{border:0;padding:10px 0} .site__logo{margin:0} }
+  /* floating change-highlight toggle (replaces the demo bar) */
+  .fab { position:fixed; bottom:14px; left:14px; z-index:60; background:#0f172a; color:#fff; border:0; border-radius:999px; padding:8px 14px; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.3); }
+  body.annotate .fab { background:#f59e0b; color:#111; }
+  .removed-note { display:none; }
+  body.annotate .removed-note { display:block; background:#fff7ed; border:2px dashed #f59e0b; border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.5; color:#7c2d12; margin-bottom:var(--space-3); }
+  /* active-sort caption + compact in-table eligibility note */
+  .sortcap { font-size:12px; color:var(--text-muted); margin:0 0 var(--space-3); }
+  .sortcap b { color:var(--text-primary); font-weight:700; }
+  .tinfo { margin-left:5px; color:var(--warning-text); font-weight:800; font-size:13px; cursor:help; vertical-align:middle; }
+  .tinfo--no { display:block; margin:6px 0 0; font-size:10px; line-height:1.2; white-space:nowrap; text-align:center; color:var(--text-link); font-weight:700; cursor:help; }
+  /* Friendly rewards drawer */
+  .reward-hero { background:var(--fill-primary-light); border:1px solid var(--borders-default); border-radius:12px; padding:16px; text-align:center; margin-bottom:14px; }
+  .reward-hero__amt { font-size:22px; font-weight:800; color:var(--success-dark); }
+  .reward-hero__band { font-size:12px; color:var(--text-secondary); margin-top:6px; }
+  .reward-more > summary { list-style:none; cursor:pointer; color:var(--text-link); font-weight:700; font-size:13px; padding:8px 0; }
+  .reward-more > summary::-webkit-details-marker { display:none; }
+  .reward-more > summary::after { content:" ▾"; } .reward-more[open] > summary::after { content:" ▴"; }
+  .reward-tiers { display:flex; flex-direction:column; gap:3px; margin-top:6px; }
+  .rt { display:flex; justify-content:space-between; gap:12px; padding:9px 10px; border-radius:8px; font-size:13px; }
+  .rt__band { color:var(--text-secondary); } .rt__amt { font-weight:700; white-space:nowrap; }
+  .rt--now { background:var(--success-bg); border:1px solid var(--success-border); } .rt--now .rt__amt { color:var(--success-dark); }
+  .reward-note { font-size:11px; color:var(--text-muted); margin-top:12px; }
+  .drawer-elig { background:var(--warning-bg); border:1px solid var(--warning-border); color:var(--warning-text); font-size:12px; font-weight:600; border-radius:8px; padding:8px 10px; margin-bottom:12px; }
+  .rt--head { font-weight:700; border-bottom:1px solid var(--borders-default); } .rt--head .rt__band, .rt--head .rt__amt { color:var(--text-primary); }
+  /* friendlier product cards */
+  .loan__flags { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+  .loan__tag2 { font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .featrow { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
+  .featpill { background:var(--fill-primary-light); color:var(--text-link); font-size:11px; font-weight:600; border-radius:var(--r-pill); padding:3px 9px; }
+  .rewardcta { display:block; width:100%; text-align:left; background:var(--success-bg); border:1px solid var(--success-border); color:var(--success-dark); font-weight:700; font-size:13px; border-radius:10px; padding:10px 12px; margin:12px 0; cursor:pointer; }
+  /* v11: lighter reward line (no heavy filled block) */
+  .rewardline { display:block; width:100%; text-align:left; background:transparent; border:0; border-top:1px dashed var(--border,#dcdfe4); border-bottom:1px dashed var(--border,#dcdfe4); color:var(--success-dark); font-weight:600; font-size:13px; padding:9px 2px; margin:12px 0; cursor:pointer; }
+  .rewardline:hover { color:var(--text-link); }
+  .norw { font-size:12px; color:var(--text-muted); border-top:1px dashed var(--border,#dcdfe4); border-bottom:1px dashed var(--border,#dcdfe4); padding:9px 2px; margin:12px 0; }
+  /* v11: persona category grid in the Sort & Filter drawer */
+  .catgrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .catopt { display:flex; align-items:center; gap:6px; border:1px solid var(--border,#dcdfe4); border-radius:999px; padding:8px 12px; font-size:13px; cursor:pointer; }
+  .catopt input { accent-color:var(--fill-primary); }
+  .catopt:has(input:checked) { border-color:var(--fill-primary); background:var(--fill-primary-subtle,#eef4ff); font-weight:600; }
+  .qf { margin:8px 0; } .qf__h { font-weight:700; font-size:13px; color:var(--text-link); margin-bottom:4px; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: var(--space-3) var(--space-4) var(--space-10); }
+
+  /* Promo banner (live element) */
+  .promo { background: linear-gradient(90deg, var(--fill-secondary,#5d8433), var(--fill-primary)); color:var(--text-on-dark); display:flex; gap:8px; align-items:flex-start; padding:10px 14px; border-radius:0; font-size:13px; }
+  .promo b{font-weight:800} .promo a{color:var(--text-on-dark);text-decoration:underline;font-weight:700} .promo__x{margin-left:auto;cursor:pointer;background:none;border:0;color:#fff;font-size:15px}
+
+  .logo { height: 22px; margin: var(--space-3) 0 var(--space-2); }
+  .head h1 { font-size: 20px; line-height: 1.22; margin: 0 0 4px; }
+  .head__meta { color: var(--text-muted); font-size: 12px; margin: 0 0 6px; }
+  .intro { margin:0; }
+  .intro > summary { list-style:none; cursor:pointer; color: var(--text-link); font-weight:600; font-size:13px; }
+  .intro > summary::-webkit-details-marker { display:none; }
+  .intro > summary::after { content:" ▾"; font-size:9px; } .intro[open] > summary::after { content:" ▴"; }
+  .intro p { color: var(--text-secondary); font-size:13px; margin: 6px 0 0; }
+  .trust-chip { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color: var(--text-link); background: var(--fill-card); border:1px solid var(--borders-default); border-radius: var(--r-pill); padding: 5px 10px; margin-top: 10px; }
+
+  .topreward { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background: linear-gradient(90deg, var(--fill-secondary, #5d8433), var(--fill-primary)); color:var(--text-on-dark); border-radius: var(--r-card-inner); padding: 10px 14px; margin: var(--space-4) 0 var(--space-3); }
+  .topreward__tag { background: rgba(255,255,255,.2); border-radius: var(--r-pill); font-size: 10px; font-weight: 700; padding: 3px 9px; text-transform: uppercase; letter-spacing:.05em; white-space:nowrap; }
+  .topreward__txt { font-weight: 700; font-size: 14px; } .topreward__amt { font-weight: 800; }
+
+  /* Quick summary + Fastest fulfilment + Tips (live elements) */
+  .qsum > summary { list-style:none; cursor:pointer; font-weight:700; color:var(--text-primary); font-size:14px; padding:6px 0; }
+  .qsum > summary::-webkit-details-marker{display:none} .qsum > summary::before{content:"＋ "} .qsum[open] > summary::before{content:"－ "}
+  .qsum__body { font-size:13px; color:var(--text-secondary); padding-bottom:8px; }
+  .promo-card { display:flex; gap:12px; align-items:center; border:1px solid var(--borders-default); border-radius: var(--r-card); background:var(--fill-card); padding: var(--space-3); margin: var(--space-3) 0; }
+  .promo-card .ic{font-size:26px} .promo-card b{font-size:14px} .promo-card p{margin:2px 0 0;font-size:12px;color:var(--text-secondary)}
+  /* v11: single top teaser banner → scrolls to the carousel */
+  .promo-teaser { display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:0; cursor:pointer; border-radius:12px; padding:11px 14px; margin:var(--space-3) 0; color:#fff; background:linear-gradient(90deg,#0a2540,#1f8fb0); font-size:13px; line-height:1.35; }
+  .promo-teaser__icon { font-size:18px; }
+  .promo-teaser__txt { flex:1; }
+  .promo-teaser__cta { font-weight:800; text-decoration:underline; white-space:nowrap; }
+  /* v12: top teaser is now a rotating carousel that scrolls to the detailed one */
+  .teaser-carousel { border-radius:12px; padding:6px 6px 10px; margin:var(--space-3) 0; background:linear-gradient(90deg,#0a2540,#1f8fb0); }
+  .tc__track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .tc__track::-webkit-scrollbar { display:none; }
+  .tc__slide { scroll-snap-align:center; flex:0 0 100%; box-sizing:border-box; display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:0; background:transparent; cursor:pointer; color:#fff; font-size:13px; line-height:1.35; padding:8px 12px; }
+  .tc__ic { font-size:18px; } .tc__tx { flex:1; } .tc__cta { font-weight:800; text-decoration:underline; white-space:nowrap; }
+  .tc__dots { display:flex; gap:6px; justify-content:center; margin-top:6px; }
+  .tc__dot { width:7px; height:7px; border-radius:50%; border:0; background:rgba(255,255,255,.4); cursor:pointer; padding:0; transition:width .2s; }
+  .tc__dot.on { background:#fff; width:18px; border-radius:4px; }
+  /* v12: fulfilment-speed edge */
+  .badge--fast { background:#e0f2fe; color:#0f5f8a; }
+  .tflag--fast { display:block; font-size:10px; font-weight:700; color:#0f5f8a; margin-top:4px; white-space:normal; }
+  /* v12: inline "what changed vs live" notes (only in change-highlight mode) */
+  .chg { display:none; }
+  body.annotate .chg { display:block; background:#fff7ed; border:1px dashed #f59e0b; color:#7c2d12; font-size:11.5px; line-height:1.45; border-radius:8px; padding:8px 10px; margin:0 0 12px; }
+  /* v11: consolidated promo carousel (below the table) */
+  .promo-carousel { margin:var(--space-4) 0; }
+  .pc__track { position:relative; display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:2px 2px 4px; }
+  .pc__track::-webkit-scrollbar { display:none; }
+  .pc__slide { scroll-snap-align:center; flex:0 0 86%; box-sizing:border-box; border:1px solid var(--borders-default); border-radius:var(--r-card); padding:16px 18px; background:var(--fill-card); }
+  .pc__tag { display:inline-block; font-size:12px; font-weight:800; border-radius:999px; padding:3px 10px; margin-bottom:8px; }
+  .pc__tag--reward { color:#1a6b2e; background:#dcfce7; } .pc__tag--fast { color:#0f5f8a; background:#e0f2fe; } .pc__tag--ltd { color:#8a5a00; background:#fef3c7; }
+  .pc__title { font-size:17px; font-weight:800; margin:0 0 6px; color:var(--text-primary); }
+  .pc__body { font-size:13px; color:var(--text-secondary); margin:0 0 12px; line-height:1.45; }
+  .pc__nav { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:10px; }
+  .pc__arrow { border:1px solid var(--borders-default); background:var(--fill-card); width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:16px; color:var(--text-primary); line-height:1; }
+  .pc__dots { display:flex; gap:6px; align-items:center; }
+  .pc__dot { width:8px; height:8px; border-radius:50%; border:0; background:var(--borders-default); cursor:pointer; padding:0; transition:width .2s; }
+  .pc__dot.on { background:var(--fill-primary); width:20px; border-radius:5px; }
+  /* v14: live-style campaign details block */
+  .campaign { margin:var(--space-4) 0; background:linear-gradient(180deg,#eafff1,#f7fffb); border:1px solid var(--borders-default); border-radius:var(--r-card); padding:16px; }
+  .camp__fast { font-size:12.5px; line-height:1.45; color:#0f5f8a; background:#e0f2fe; border-radius:8px; padding:8px 10px; margin-bottom:14px; }
+  .camp__h { font-size:16px; font-weight:800; margin:0 0 10px; }
+  .camp__tabs { display:flex; gap:10px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:14px; }
+  .camp__tabs::-webkit-scrollbar { display:none; }
+  /* v17: tab accent styled like fe-services' PromotionalSingSaver (inset left-edge accent bar per deal type) */
+  .camp__tab { flex:0 0 auto; text-align:left; border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; padding:10px 14px; cursor:pointer; min-width:200px; box-shadow: inset 4px 0 0 var(--fill-primary); }
+  .camp__tab b { display:block; font-size:14px; color:var(--text-primary); } .camp__tab span { font-size:12px; color:var(--text-muted); }
+  .camp__tab.on { background:var(--fill-primary-light); box-shadow: inset 4px 0 0 var(--fill-secondary-dark); }
+  .camp__title { font-size:20px; font-weight:800; margin:0 0 8px; line-height:1.25; }
+  .camp__blurb { font-size:14px; color:var(--text-primary); margin:0 0 10px; line-height:1.5; }
+  .camp__applyby { font-size:14px; font-weight:700; margin:0 0 8px; }
+  /* v17: countdown badge — mirrors fe-services' Countdown/Badge (GiftIcon + "Only N days left!") */
+  .camp__cd { display:inline-block; background:var(--warning-bg); color:var(--warning-text); font-size:11px; font-weight:700; border-radius:999px; padding:3px 10px; margin-bottom:10px; }
+  .camp__tiers { display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; padding-bottom:6px; margin-bottom:16px; }
+  .camp__tiers::-webkit-scrollbar { display:none; }
+  .ct { scroll-snap-align:start; flex:0 0 40%; max-width:150px; border:1px solid var(--borders-default); border-radius:12px; overflow:hidden; background:var(--fill-card); }
+  .ct__hd { background:#fde8ec; color:#b4315a; font-size:11px; font-weight:700; padding:6px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ct__img { background:#eef4ff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:16px 8px; text-align:center; }
+  .ct__gift { font-size:30px; } .ct__cash { font-size:10px; font-weight:700; color:var(--text-primary); background:#fff4c2; border-radius:6px; padding:2px 6px; }
+  .ct__ft { font-size:13px; font-weight:700; padding:8px 10px; }
+  .camp__pp { font-size:16px; font-weight:800; margin:4px 0 8px; }
+  .camp__prod { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .camp__prod img { height:22px; } .camp__prodname { font-weight:700; color:var(--text-link); font-size:14px; } .camp__prodtag { font-size:13px; color:var(--text-primary); }
+  .camp__q { font-size:16px; font-weight:800; margin:4px 0 8px; }
+  .camp__qlist { margin:0; padding-left:18px; } .camp__qlist li { font-size:13px; line-height:1.5; margin-bottom:8px; }
+  /* v14: FAQ + site footer (from live) */
+  .faq { margin:var(--space-5) 0 var(--space-4); }
+  .faq__item { border-bottom:1px solid var(--borders-soft); }
+  .faq__item > summary { list-style:none; cursor:pointer; padding:14px 2px; font-weight:700; font-size:14px; display:flex; justify-content:space-between; gap:10px; }
+  .faq__item > summary::-webkit-details-marker { display:none; }
+  .faq__item > summary::after { content:"+"; color:var(--text-muted); font-weight:400; } .faq__item[open] > summary::after { content:"–"; }
+  .faq__item p { margin:0 2px 14px; font-size:13px; line-height:1.55; color:var(--text-secondary); }
+  .site-foot { background:#0a1929; color:#cbd5e1; padding:28px 16px 20px; margin-top:var(--space-5); }
+  .site-foot__grid { max-width:1040px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:22px 16px; }
+  .site-foot__col h4 { font-size:13px; font-weight:700; color:#fff; margin:0 0 10px; }
+  .site-foot__col a { display:block; font-size:13px; color:#cbd5e1; text-decoration:none; padding:4px 0; }
+  .site-foot__col a:hover { color:#fff; }
+  .site-foot__copy { max-width:1040px; margin:22px auto 0; border-top:1px solid rgba(255,255,255,.12); padding-top:16px; font-size:12px; color:#94a3b8; }
+  @media (min-width:768px){ .ct { flex:0 0 150px; } .site-foot__grid { grid-template-columns:repeat(3,1fr); } }
+  @media (min-width:1024px){ .site-foot__grid { grid-template-columns:repeat(6,1fr); } }
+  /* v11: Show All Loans (brought back from live) */
+  .showall { border:1px solid var(--borders-default); border-radius:var(--r-card); background:var(--fill-card); margin:var(--space-3) 0; }
+  .showall > summary { list-style:none; cursor:pointer; padding:14px 16px; font-weight:800; font-size:15px; display:flex; align-items:center; gap:10px; }
+  .showall > summary::-webkit-details-marker { display:none; }
+  .showall__chev { display:inline-block; color:var(--text-muted); transition:transform .2s; font-weight:400; }
+  .showall[open] .showall__chev { transform:rotate(90deg); }
+  .showall__body { padding:0 16px 16px; }
+  .showall__note { font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+  .showall__strip { display:flex; flex-wrap:wrap; gap:8px; }
+  .showall__chip { border:1px solid var(--borders-default); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600; color:var(--text-primary); background:var(--fill-alternative-1); }
+  @media (min-width:768px){ .pc__slide { flex:0 0 46%; } }
+  .tips { border-radius: var(--r-card); overflow:hidden; border:1px solid var(--borders-default); margin: var(--space-4) 0; }
+  .tips__h { background: var(--fill-primary); color:var(--text-on-dark); font-weight:700; padding:10px 14px; font-size:14px; }
+  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; color:var(--text-secondary); }
+
+  .details { background: var(--fill-card); border:1px solid var(--borders-default); border-radius: var(--r-card-inner); margin-bottom: var(--space-3); }
+  /* v13: after scrolling past the open box, collapse into this sticky summary bar */
+  .stickybar { position:fixed; top:0; left:0; right:0; z-index:50; background:var(--fill-card); border-bottom:1px solid var(--borders-default); box-shadow:0 2px 10px rgba(15,23,42,.10); transform:translateY(-100%); transition:transform .22s ease; }
+  .stickybar.show { transform:translateY(0); }
+  .stickybar__in { max-width:1040px; margin:0 auto; display:flex; align-items:center; gap:12px; padding:9px 16px; }
+  .stickybar__text { flex:1; min-width:0; }
+  .stickybar__lbl { display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+  .stickybar__sum { display:block; font-weight:700; font-size:13px; color:var(--text-primary); }
+  .stickybar__edit { color:var(--text-link); font-weight:700; font-size:13px; background:none; border:0; cursor:pointer; white-space:nowrap; }
+  .details > summary { list-style:none; cursor:pointer; padding: 10px 14px; display:flex; align-items:center; justify-content:space-between; gap: 8px; }
+  .details > summary::-webkit-details-marker { display:none; }
+  .details__label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; display:block; }
+  .details__summary { font-weight:700; font-size:13px; }
+  .details__edit { color: var(--text-link); font-weight:600; font-size:13px; white-space:nowrap; }
+  .details__body { padding: 0 14px 14px; display:grid; grid-template-columns:1fr 1fr; gap: 12px; }
+  .fld label { display:block; font-weight:600; font-size:12px; margin-bottom:4px; }
+  .imoney, .iunit { display:flex; align-items:center; border:1px solid var(--borders-form-default); border-radius: var(--r-button); overflow:hidden; }
+  .imoney span, .iunit span { padding: 0 8px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
+  .imoney input, .iunit input { border:0; outline:0; width:100%; padding:8px 8px 8px 0; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); }
+  .fld select { width:100%; padding: 8px; border:1px solid var(--borders-form-default); border-radius: var(--r-button); font:inherit; font-size:16px; background:var(--fill-card); color:var(--text-primary); }
+
+  .subrow { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom: var(--space-2); flex-wrap:wrap; }
+  .count { font-weight:700; font-size:14px; } .count span { color: var(--text-muted); font-weight:400; font-size:12px; }
+  .sfbtn { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius: var(--r-button); padding:7px 14px; font:inherit; font-size:13px; font-weight:700; color:var(--text-primary); cursor:pointer; }
+  .rewardtoggle { display:flex; align-items:center; gap:6px; margin-bottom: var(--space-3); }
+  .rewardtoggle .lbl { font-size:12px; color:var(--text-muted); }
+  .seg { display:inline-flex; border:1px solid var(--borders-form-default); border-radius: var(--r-pill); overflow:hidden; }
+  .seg button { border:0; background:var(--fill-card); padding:5px 11px; font:inherit; font-size:12px; cursor:pointer; color:var(--text-secondary); }
+  .seg button[aria-pressed=true] { background: var(--fill-primary); color:var(--text-on-dark); font-weight:700; }
+
+  .section-h { font-size:15px; font-weight:700; margin: var(--space-4) 0 var(--space-1); }
+  .section-hint { font-size:11px; color:var(--text-muted); margin: 0 0 var(--space-2); }
+
+  /* v17 (superseded by v18 below): SearchFormSingSaver's `flex flex-col` card list has no
+     comparison table — that's still true, but it was the WRONG directory to look in. The
+     real comparison table lives at src/components/cms/components-internal/ (ProductComparisonTable
+     +, for Personal Loans specifically, the ComparisonTableWrapper → ComparisonTable/
+     ComparisonTableBuilder chain in the `cms-components` submodule). v18 restores it — see
+     the .pct-* rules below — and keeps this card list as the "compare in detail" view underneath. */
+  .rewardbox { display:inline-block; background: var(--fill-primary-light); color: var(--text-link); font-weight:700; border-radius:8px; padding:6px 10px; font-size:12px; }
+  .monthly { font-weight:800; color:var(--text-primary); }
+  .rewardlink { color:var(--text-link); font-weight:700; font-size:11px; text-decoration:underline; }
+  /* real fe-services structure: AccordionListItemSingSaver key/value row (flex justify-between) */
+  .dlrow { display:flex; justify-content:space-between; gap:12px; padding:6px 0; font-size:14px; }
+  .dlrow .k { color:var(--text-secondary); }
+  .dlrow .v { font-weight:700; color:var(--text-primary); text-align:right; }
+  /* real fe-services structure: FeaturesSingSaver — single list, TickIcon (pro) / MinusIcon (con) */
+  .featlist { list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .featlist li { display:flex; gap:8px; font-size:13px; color:var(--text-secondary); align-items:flex-start; line-height:1.4; }
+  .ic-pro { color:var(--success); font-weight:800; }
+  .ic-con { color:var(--warning-text); font-weight:800; }
+  .offer-blurb { font-size:13px; color:var(--text-secondary); margin:0 0 8px; line-height:1.5; }
+  /* real fe-services structure: ApplicationProcessSingSaver — uppercase label + ordered list */
+  .stepslabel { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); margin:0 0 6px; }
+  .steplist { margin:0 0 4px; padding-left:18px; font-size:13px; color:var(--text-secondary); line-height:1.5; }
+  .steplist li { margin-bottom:6px; }
+  /* compact eligibility indicator, sits directly under the Apply button (focus item) */
+  .tinfo--ok { display:block; margin:6px 0 0; font-size:10px; line-height:1.2; text-align:center; color:var(--success-dark); font-weight:700; }
+  .elig-inline { display:block; position:relative; }
+
+  /* v18: RESTORED — real production component. fe-services renders Personal Loans' comparison
+     table via ComparisonTableWrapper → ComparisonTable/ComparisonTableBuilder (PLColumnSource,
+     inside the `cms-components` git submodule — not ProductComparisonTable.tsx, which is only the
+     fallback used for verticals outside the named switch). Faithful structure taken from the real
+     component: sticky first column + sticky header (`thead.sticky`, `td/th:first-child{sticky;left:0}`),
+     header row bg = fill/alternative-1, row border-top + column border-left, horizontal scroll on
+     narrow widths. Column set + order = PLColumnSource's verified default (no CMS `personal_loan_order`
+     override): Loan (logo+name — production splits these into 2 grid cells with only the logo cell
+     pinned; combined here into one sticky cell for legibility) · Monthly Repayment · SingSaver Reward
+     (real header text — not "SingSaver Exclusive Offer", and it sits right after Monthly Repayment,
+     not at the end) · Annual Interest Rate · Total Cost of Loan · EIR · Apply. This is an AS-IS
+     component, not a focus deviation — the "SingSaver Reward" cell opens the SAME reward drawer as the
+     cards below (our proposal content lives in the drawer, not the table). */
+  .pct-section { margin: var(--space-4) 0; }
+  .pct-wrap { border:1px solid var(--borders-default); border-radius: var(--r-table); background: var(--fill-card); overflow:hidden; position:relative; }
+  .pct-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; box-shadow: inset -10px 0 8px -8px rgba(15,23,42,.14); }
+  .pct-scroll::-webkit-scrollbar { display:none; }
+  .pct-table { border-collapse:separate; border-spacing:0; width:100%; min-width:760px; }
+  .pct-table th, .pct-table td { padding:12px 14px; text-align:left; white-space:nowrap; vertical-align:middle; font-size:13px; }
+  /* v20: header cells now match live — dark (not grey), larger, semibold, left-aligned, allowed
+     to wrap onto 2 lines (fe-services' ComparisonTableBuilder.tsx header <th> renders
+     `font-font-weight/table-header text-font-size/table-header text-text/secondary
+     whitespace-break-spaces text-left` — visually a dark, ~14px, bold, left-aligned, wrapping
+     label; tokens.css's own --font-size-table-header/--font-weight-table-header pair already
+     encode that 14px/bold scale, we just swap the colour to --text-primary to read as dark). */
+  .pct-table thead th { background:var(--fill-alternative-1); font-size:var(--font-size-table-header); font-weight:var(--font-weight-table-header); color:var(--text-primary); border-bottom:1px solid var(--borders-default); white-space:normal; line-height:1.3; }
+  .pct-table th + th, .pct-table td + td { border-left:1px solid var(--borders-default); }
+  .pct-table tbody td { border-top:1px solid var(--borders-default); }
+  .pct-table tbody tr:hover td { background:var(--fill-base); }
+  .pct-sticky { position:sticky; left:0; z-index:2; background:var(--fill-card); }
+  .pct-table thead th.pct-sticky { background:var(--fill-alternative-1); z-index:3; }
+  .pct-table tbody tr:hover td.pct-sticky { background:var(--fill-base); }
+  .pct-loan { display:flex; align-items:center; gap:10px; min-width:172px; }
+  .pct-loan img { height:26px; width:auto; max-width:64px; object-fit:contain; flex-shrink:0; }
+  .pct-loan span { font-weight:700; font-size:13px; color:var(--text-primary); white-space:normal; line-height:1.25; }
+  /* v20: SingSaver Reward cell — live renders this as a small rounded light-blue "pill"
+     (ComparisonTableBuilder.tsx's getCellClassNames for style==='HIGHLIGHT': bg-fill/primary-light +
+     text-fill/primary-dark + bold + rounded-radius/tooltip padding) rather than a plain link. The
+     "no reward" case stays a plain muted dash — no pill. */
+  .pct-reward { border:0; background:var(--fill-primary-light); padding:5px 10px; font:inherit; font-weight:700; font-size:13px; color:var(--fill-primary-dark); cursor:pointer; text-align:left; border-radius:var(--r-tooltip); }
+  .pct-reward:hover { background:var(--fill-primary-subtle,#e3edff); }
+  .pct-reward.pct-na { background:none; padding:0; color:var(--text-muted); font-weight:400; cursor:default; }
+  .pct-reward.pct-na:hover { background:none; }
+  /* v20: Apply — live's outline "cta" button (Button styleType="cta" variant="outline" in
+     ComparisonTableBuilder.tsx's getActionColumn): orange border + orange text + white fill —
+     not a neutral grey outline. Page-scoped modifier; buttons.css only ships the grey
+     `.mhg-btn--outline` and blue `.mhg-btn--outline-primary`. */
+  .mhg-btn--outline-cta { background:var(--fill-card); color:var(--buttons-cta); border-color:var(--buttons-cta); }
+  .mhg-btn--outline-cta:hover:not(:disabled):not([aria-disabled="true"]) { background:var(--fill-alternative-1); color:var(--buttons-cta-hover); border-color:var(--buttons-cta-hover); }
+  .pct-monthly { font-weight:700; color:var(--fill-primary-dark); }
+  .pct-empty td { white-space:normal; text-align:center; color:var(--text-secondary); padding:var(--space-6) var(--space-4); }
+  .pct-src { font-size:11px; color:var(--text-muted); margin:8px 2px 0; }
+  @media (min-width:1280px){ .pct-table { min-width:100%; } }
+
+  .cards { display:flex; flex-direction:column; gap: var(--space-3); }
+  .loan { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); padding: var(--space-4); box-shadow: var(--shadow-card); }
+  .loan--best { border-color: var(--fill-primary); box-shadow: 0 0 0 1px var(--fill-primary); }
+  .loan__tag { display:inline-block; background: var(--fill-primary-light); color: var(--text-link); font-size:11px; font-weight:700; border-radius: var(--r-pill); padding:3px 10px; margin-bottom: var(--space-3); }
+  /* v20: header now matches cms-components' ProductCard.tsx + ProductCardHeader.tsx — logo in a
+     bordered box top-left, bold product name beside it, solid "cta" Apply Now button top-right
+     (ProductCardHeader.tsx wraps the product image in a bordered, rounded container —
+     class `rounded-radius/tooltip border border-borders/default`; ProductCard.tsx's CTA is a
+     small `styleType="cta"` Button, not a full-width bar). The eligibility check (our proposed
+     addition) sits under the button, right-aligned. */
+  .loan__head { display:flex; flex-direction:column; align-items:stretch; gap:12px; margin-bottom: var(--space-3); }
+  .loan__id { display:flex; align-items:center; gap:10px; min-width:0; }
+  .loan__logobox { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:52px; height:52px; box-sizing:border-box; padding:6px; border:1px solid var(--borders-default); border-radius: var(--r-card-inner); background: var(--fill-card); }
+  .plogo-lg { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+  .loan__name { font-weight:800; font-size:14px; line-height:1.3; color:var(--text-primary); }
+  .loan__ctawrap { display:flex; flex-direction:column; align-items:stretch; gap:4px; }
+  .loan__ctawrap .mhg-btn { width:100%; }
+  .loan__ctawrap .tinfo--ok, .loan__ctawrap .tinfo--no { text-align:right; margin-top:0; }
+  /* v20: 4 stats only (Monthly Repayment · Annual Interest Rate · EIR · Processing Fee) — Total
+     Cost of Loan removed from the card (still shown in the comparison table above). */
+  .loan__grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin: var(--space-3) 0; }
+  .g2 .l { font-size:11px; color:var(--text-muted); } .g2 .v { font-size:15px; font-weight:700; } .g2 .v small{font-weight:400;font-size:11px;color:var(--text-muted)}
+  /* v17: CollapsibleSingSaver-style section — chevron toggle, no per-row border box.
+     v20: only the Reward section opens by default (matches cms-components'
+     ProductCardSectionsMapper.tsx — `defaultOpenSection` is the reward section when one exists);
+     "Steps to Apply" / "SingSaver's take" / "Loan details" (live's real labels — SectionStepsToApply
+     / SectionTake / SectionDetails in cms-components' ProductCard/) are collapsed by default. */
+  .acc { border-top:1px solid var(--borders-soft); }
+  .acc > summary { list-style:none; cursor:pointer; padding:10px 0; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:13px; }
+  .acc > summary::-webkit-details-marker { display:none; }
+  .acc > summary::after { content:"▾"; color:var(--text-muted); font-size:10px; } .acc[open] > summary::after { content:"▴"; }
+  .acc__body { padding: 0 0 12px; font-size:12px; color:var(--text-secondary); }
+  /* v20: SingSaver Reward — light-blue collapsible (gift icon in the header text + chevron),
+     matching cms-components' SectionGifts.tsx (rendered via CollapsibleSection with a tinted
+     card, not a plain accordion row like the others). */
+  .acc--reward { border-top:0; background:var(--fill-primary-light); border-radius:var(--r-card-inner); padding:0 12px; margin:0 0 4px; }
+  .acc--reward > summary { padding:12px 0; }
+  .acc--reward .acc__body { padding-bottom:14px; }
+  .loan__elig { font-size:12px; font-weight:600; margin: var(--space-2) 0 0; }
+
+  .empty { text-align:center; padding: var(--space-8) var(--space-4); color: var(--text-secondary); border:1px dashed var(--borders-default); border-radius: var(--r-card); }
+  .prequal { margin-top: var(--space-5); background: linear-gradient(180deg, var(--fill-primary-light), var(--fill-card)); border:1px solid var(--borders-default); border-radius: var(--r-card); padding: var(--space-5); text-align:center; }
+  .prequal h3 { margin:0 0 4px; } .prequal p { color: var(--text-secondary); margin:0 0 12px; font-size:13px; }
+  .trust-foot { margin-top: var(--space-5); font-size:11px; color: var(--text-muted); border-top:1px solid var(--borders-soft); padding-top: 12px; }
+
+  /* Drawers (shared) */
+  .backdrop { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; z-index:50; } .backdrop.open{display:block}
+  .drawer { position:fixed; left:0; right:0; bottom:0; max-height:90%; background:var(--fill-card); border-radius:20px 20px 0 0; z-index:51; transform:translateY(100%); transition:transform .25s ease; display:flex; flex-direction:column; }
+  .drawer.open { transform:translateY(0); }
+  .drawer__head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:16px; border-bottom:1px solid var(--borders-soft); }
+  .drawer__head h3 { margin:0; font-size:16px; }
+  .drawer__x { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; }
+  .drawer__body { overflow-y:auto; padding:16px; }
+  .drawer__foot { display:flex; align-items:center; gap:10px; padding:14px 16px; border-top:1px solid var(--borders-soft); }
+  .drawer__foot .nm { font-weight:700; font-size:13px; flex:1; }
+
+  /* Sort & Filter drawer specifics */
+  .sf__grp { margin-bottom:18px; } .sf__grp h4 { margin:0 0 8px; font-size:14px; }
+  .opt { display:flex; align-items:center; gap:10px; padding:7px 0; cursor:pointer; font-size:14px; }
+  .opt input { width:18px; height:18px; accent-color: var(--fill-primary); }
+  .pop { background:var(--success-bg); color:var(--success-dark); font-size:9px; font-weight:800; border-radius:4px; padding:2px 6px; text-transform:uppercase; }
+  .sf__reset { color:var(--text-link); font-weight:700; font-size:13px; background:none; border:0; cursor:pointer; padding:6px 0; }
+  .sf__foot { display:flex; gap:12px; padding:14px 16px; border-top:1px solid var(--borders-soft); }
+  .sf__foot .mhg-btn { flex:1; }
+
+  /* Rewards drawer specifics */
+  .drawer__lead { font-size:13px; color:var(--text-secondary); margin:0 0 12px; }
+  .drawer__hero { background: var(--fill-primary-light); color: var(--text-link); font-weight:800; text-align:center; border-radius:10px; padding:12px; margin-bottom:14px; }
+  .tier { padding:10px 0; border-bottom:1px dashed var(--borders-soft); }
+  .tier--now { background: var(--success-bg); border:1px solid var(--success-border); border-radius:8px; padding:10px; }
+  .tier__band { color: var(--text-link); font-weight:700; font-size:13px; } .tier__amt { font-size:13px; margin-top:2px; } .tier__amt b{color:var(--text-primary)}
+  .tier__now { font-size:10px; font-weight:700; color:var(--success-dark); text-transform:uppercase; }
+  /* v17: reward-drawer SHELL now mirrors fe-services' Rewards drawer (RewardsMobileDrawer/RewardsDesktopDialog +
+     RewardBody) — gray-page body, a rounded gift-card per reward with a tinted header (icon+title+countdown) and
+     a white body (reward options list + T&Cs); content inside (your actual reward first, band highlight, non-cash
+     gift support) is our proposal. */
+  #rewardDrawer .drawer__body { background: var(--fill-alternative-1); }
+  .rgift { border:1px solid var(--borders-default); border-radius:16px; overflow:hidden; background:var(--fill-card); margin-bottom:14px; }
+  .rgift__hd { display:flex; gap:10px; align-items:flex-start; padding:14px; background:var(--success-bg); border-bottom:1px solid var(--borders-default); }
+  .rgift__ic { font-size:20px; line-height:1; }
+  .rgift__t { font-weight:800; font-size:14px; color:var(--success-dark); }
+  .rgift__cd { font-size:11px; color:var(--warning-text); font-weight:700; margin-top:4px; }
+  .rgift__bd { padding:14px; background:var(--fill-card); }
+  .rgift__amt { font-size:20px; font-weight:800; color:var(--text-primary); margin-bottom:4px; }
+  .rgift__note { font-size:12px; color:var(--text-secondary); margin-bottom:10px; }
+  .rgift__lbl { font-size:12px; font-weight:700; color:var(--text-primary); margin:10px 0 4px; }
+  .rgift__opts { margin:0 0 4px; padding-left:18px; font-size:13px; color:var(--text-secondary); }
+  .rgift__tc { font-size:11.5px; color:var(--text-muted); line-height:1.5; margin:0; }
+  .rf__id { display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
+  .rf__txt { display:flex; flex-direction:column; min-width:0; }
+  .rf__name { font-weight:700; font-size:13px; white-space:normal; }
+  .rf__amt { font-size:11px; color:var(--text-muted); }
+
+  @media (min-width: 768px){ .wrap{max-width:720px} .head h1{font-size:26px} .details__body{grid-template-columns:repeat(3,1fr)} .loan__grid2{grid-template-columns:repeat(4,1fr)}
+    /* v20 fix: match live — mobile stacks header + full-width Apply; ≥768px = compact Apply top-right */
+    .loan__head{flex-direction:row;align-items:flex-start;justify-content:space-between;gap:10px} .loan__ctawrap{align-items:flex-end;flex-shrink:0} .loan__ctawrap .mhg-btn{width:auto} .loan__ctawrap .tinfo--ok,.loan__ctawrap .tinfo--no{text-align:right} }
+  @media (min-width: 1280px){ .wrap{max-width:1040px} .head h1{font-size:30px} .details__body{grid-template-columns:repeat(5,1fr)} .loan__grid2{grid-template-columns:repeat(4,1fr)}
+    /* v17: the "compare in detail" accordion cards stay a single-column LIST at every breakpoint (matches fe-services' `flex flex-col` results list — not a grid); the separate .pct-table above IS a real grid/table (see v18 CSS comment) */
+    .drawer{left:0;right:0;top:50%;bottom:auto;margin:0 auto;width:520px;max-width:calc(100% - 48px);transform:translateY(-50%) scale(.96);border-radius:16px;max-height:82%;opacity:0;transition:opacity .2s,transform .2s} .drawer.open{transform:translateY(-50%) scale(1);opacity:1} }
+  /* password gate (demo — client-side only) */
+  .gate { position:fixed; inset:0; z-index:9999; background:var(--fill-page,#f4f6f8); display:flex; align-items:center; justify-content:center; padding:24px; }
+  .gate[hidden] { display:none; }
+  .gate__box { max-width:360px; width:100%; text-align:center; background:var(--fill-card,#fff); border:1px solid var(--borders-default); border-radius:16px; padding:28px 24px; box-shadow:0 8px 30px rgba(15,23,42,.12); }
+  .gate__logo { height:26px; margin-bottom:16px; }
+  .gate__h { font-size:18px; font-weight:800; margin:0 0 6px; }
+  .gate__p { font-size:13px; color:var(--text-muted); margin:0 0 16px; line-height:1.5; }
+  .gate form { display:flex; flex-direction:column; gap:10px; }
+  .gate input { padding:11px 12px; border:1px solid var(--borders-form-default); border-radius:10px; font-size:16px; }
+  .gate button { padding:11px 12px; border:0; border-radius:10px; background:var(--fill-primary); color:#fff; font-weight:700; font-size:15px; cursor:pointer; }
+  .gate__err { color:var(--danger); font-size:12px; margin:10px 0 0; }
+</style>
+</head>
+<body>
+<!-- password gate (demo, client-side only) -->
+<div id="gate" class="gate">
+  <div class="gate__box">
+    <img src="assets/singsaver-color.svg" alt="SingSaver" class="gate__logo">
+    <h1 class="gate__h">Prototype preview</h1>
+    <p class="gate__p">This is an internal SingSaver prototype. Please enter the password to view it.</p>
+    <form id="gateForm">
+      <input id="gatePw" type="password" placeholder="Password" autocomplete="off" autofocus>
+      <button type="submit">View prototype</button>
+    </form>
+    <p id="gateErr" class="gate__err" hidden>Incorrect password — please try again.</p>
+  </div>
+</div>
+<script>
+  (function(){
+    var KEY='ss-pl-proto-auth', PW='chc-moneyhero', g=document.getElementById('gate');
+    function getAuth(){ try { return sessionStorage.getItem(KEY); } catch(err) { return null; } }
+    function setAuth(){ try { sessionStorage.setItem(KEY,'1'); } catch(err) { /* sessionStorage unavailable (private mode / iframe) — gate still clears for this view */ } }
+    if (getAuth()==='1') { g.hidden=true; }
+    document.getElementById('gateForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      if (document.getElementById('gatePw').value===PW) { setAuth(); g.hidden=true; }
+      else { document.getElementById('gateErr').hidden=false; }
+    });
+  })();
+</script>
+<button id="annToggle" class="fab">✨ changes</button>
+
+<header class="site">
+  <button class="site__menu" id="menuBtn" aria-label="Menu">☰</button>
+  <img class="site__logo" src="assets/singsaver-color.svg" alt="SingSaver">
+  <button class="site__acct" aria-label="Account">👤</button>
+</header>
+<nav class="site__nav" id="siteNav">
+  <a href="#">Credit Cards</a><a href="#">Insurance</a><a href="#">Loans</a><a href="#">Banking</a><a href="#">Investments</a><a href="#">Blog</a><a href="#">Reward Tracker</a>
+</nav>
+
+<div class="wrap">
+
+  <nav class="crumb">🏠 &nbsp;/&nbsp; Personal Loans &nbsp;/&nbsp; Best Personal Loans in Singapore July 2026</nav>
+  <header class="head">
+    <h1>Best Personal Loans In Singapore July 2026</h1>
+    <p class="head__meta">Updated 16 Jul 2026</p>
+    <details class="intro"><summary>Read more</summary><p>Find the best personal loan in Singapore! SingSaver helps you to compare personal loans from the top banks and licensed money lenders instantly, locking in the lowest interest rates with fast cash disbursement.</p></details>
+  </header>
+
+  <details class="qsum"><summary>Quick Summary</summary><div class="qsum__body">Bank rates start from <b>0.90% p.a.</b> (EIR ~1.75%). Biggest SingSaver rewards this month: <b>DBS up to S$6,900</b>, <b>SCB up to S$5,825</b>. Fastest reward fulfilment (~3 weeks after approval) on UOB &amp; Standard Chartered CashOne.</div></details>
+
+  <details class="details x-new" id="detailsBox" open>
+    <summary><span><span class="details__label">Your details<span class="ann">✨ NEW: eligibility inputs</span></span><span class="details__summary" id="detailsSummary"></span></span><span class="details__edit">Edit ▾</span></summary>
+    <div class="details__body">
+      <div class="fld"><label for="amt">Loan amount</label><div class="imoney"><span>S$</span><input type="number" id="amt" inputmode="numeric" value="10000" min="1000" max="250000" step="500"></div></div>
+      <div class="fld"><label for="tenure">Tenure (months)</label><div class="iunit"><input type="number" id="tenure" inputmode="numeric" value="36" min="6" max="84" step="1"><span>mths</span></div></div>
+      <div class="fld"><label for="cit">Citizenship</label><select id="cit"><option value="citizen" selected>Singaporean / PR</option><option value="foreigner">Foreigner (work pass)</option></select></div>
+      <div class="fld"><label for="inc">Monthly income</label><div class="imoney"><span>S$</span><input type="number" id="inc" inputmode="numeric" value="3500" min="0" step="100"></div></div>
+    </div>
+  </details>
+
+  <!-- v13: sticky collapsed summary — appears once the open box scrolls away -->
+  <div class="stickybar" id="stickyBar">
+    <div class="stickybar__in">
+      <div class="stickybar__text"><span class="stickybar__lbl">Your details</span><span class="stickybar__sum" id="stickySummary"></span></div>
+      <button class="stickybar__edit" id="stickyEdit">Edit ▾</button>
+    </div>
+  </div>
+
+  <!-- demo note: what we've changed vs the live page -->
+  <div class="removed-note"><b>Removed / changed vs the live page:</b> persona filter tabs (→ moved into Sort &amp; Filter + on-page eligibility), the several stacked promo banners (top-reward + "Fastest Fulfilment" + "Limited Time" — → merged into <b>one carousel</b> that scrolls to the campaign details below), the "Flash Deal" duplicate section, and the sticky "Hot Pick" bottom banner. (FAQ, campaign details and the site footer are kept, as on live.) <b>v17 production-fidelity pass:</b> the "compare in detail" list below the table is a stacked list of accordion cards built from fe-services' real component set (CollapsibleSingSaver-style sections, AccordionListItemSingSaver-style key/value rows for eligibility &amp; fees, a combined FeaturesSingSaver-style check/minus list). The reward drawer's shell (header · gray body · gift cards · footer) mirrors fe-services' Rewards drawer (RewardsMobileDrawer/RewardsDesktopDialog + RewardBody); the content inside — leading with your actual reward, tiered bands, non-cash gifts — is our proposal. <b>v18 correction:</b> v17 wrongly concluded no comparison table exists for Personal Loans (it searched `components/singsaver` and `components/templates/ProductResults` — the wrong directories). The real table lives under `src/components/cms/components-internal/` and, for Personal Loans specifically, is built via `ComparisonTableWrapper` → `ComparisonTable`/`ComparisonTableBuilder` (`PLColumnSource`) in the `cms-components` submodule. It's <b>restored above</b>, rendered as-is (sticky "Loan" column, sticky header) in the <b>live column order</b> (Loan · Annual Interest Rate · SingSaver Reward · Monthly Repayment · Total Cost · EIR · Apply — the live CMS `personal_loan_order`, not the code default) — it is production furniture, not part of our proposal. The accordion list stays underneath as the detailed view. <b>v20 styling-fidelity pass:</b> pulled `cms-components`' real `ComparisonTableBuilder.tsx`/`ComparisonTable.tsx` and fe-services' `ProductCard/` set and fixed the table + cards to match those computed styles — dark semibold left-aligned wrapping table headers, "From X.XX % p.a." rate formatting, a light-blue reward <b>pill</b> (not a text link), Total Cost of Loan as interest-only, an orange outline Apply pill on the table, a bordered logo box + top-right solid Apply Now button on the cards, the 4-stat row (Total Cost of Loan dropped, still on the table), and the live collapsible labels ("Steps to Apply" / "SingSaver's take" / "Loan details") collapsed by default except the reward one. Toggle these notes with the "✨ changes" button.</div>
+
+  <div class="teaser-carousel x-new" id="teaserCarousel">
+    <span class="ann">✨ NEW: banners → one carousel</span>
+    <div class="tc__track" id="tcTrack">
+      <button class="tc__slide" data-goto-carousel><span class="tc__ic">💸</span><span class="tc__tx"><b>Fastest fulfilment</b> — your SingSaver reward in just 3 weeks, no extra steps</span><span class="tc__cta">See&nbsp;↓</span></button>
+      <button class="tc__slide" data-goto-carousel><span class="tc__ic">💰</span><span class="tc__tx"><b>Limited time only</b> — up to S$5,825 cashback with SCB CashOne</span><span class="tc__cta">See&nbsp;↓</span></button>
+      <button class="tc__slide" data-goto-carousel><span class="tc__ic">🎁</span><span class="tc__tx"><b>Top reward this month</b> — DBS up to S$6,900 in rewards</span><span class="tc__cta">See&nbsp;↓</span></button>
+    </div>
+    <div class="tc__dots" id="tcDots"></div>
+  </div>
+
+  <div class="subrow">
+    <span class="count" id="count">Showing loans</span>
+    <span class="x-new" style="display:inline-flex;align-items:center"><button class="sfbtn" id="sfOpen">⇅ Sort &amp; Filter</button><span class="ann">✨ stand-in — real filter is a left panel (upcoming)</span></span>
+  </div>
+  <p class="sortcap" id="sortCap"></p>
+
+  <!-- v18: RESTORED — real production comparison table (see the .pct-* CSS comment above for
+       sourcing). AS-IS component: no change-highlight annotation here, it isn't the proposal. -->
+  <section class="pct-section">
+    <div class="section-h">Compare Personal Loans</div>
+    <div class="pct-wrap">
+      <div class="pct-scroll">
+        <table class="pct-table">
+          <thead>
+            <tr>
+              <th class="pct-sticky">Loan</th>
+              <th>Annual Interest Rate</th>
+              <th>SingSaver Reward</th>
+              <th>Monthly Repayment</th>
+              <th>Total Cost of Loan</th>
+              <th>EIR</th>
+              <th>Apply</th>
+            </tr>
+          </thead>
+          <tbody id="pctBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="pct-src">Table structure &amp; column set match fe-services' production comparison-table component for Personal Loans (ComparisonTableBuilder / PLColumnSource).</p>
+  </section>
+
+  <!-- Show All Loans — brought back from the live page -->
+  <details class="showall">
+    <summary><span class="showall__chev">›</span> Show All Loans <b>(19)</b></summary>
+    <div class="showall__body">
+      <p class="showall__note">The loans above are our top picks. SingSaver compares <b>19 personal-loan products</b> in total — the rest appear here (banks + MAS-licensed moneylenders):</p>
+      <div class="showall__strip">
+        <span class="showall__chip">Citibank</span><span class="showall__chip">POSB</span><span class="showall__chip">Maybank</span><span class="showall__chip">OCBC</span><span class="showall__chip">MariBank</span>
+        <span class="showall__chip">Credible.sg</span><span class="showall__chip">Credit Trust</span><span class="showall__chip">Cash Direct</span><span class="showall__chip">MM Credit</span><span class="showall__chip">1-Money</span><span class="showall__chip">R2D Credit</span><span class="showall__chip">SGP Credit</span>
+      </div>
+      <p class="showall__note" style="margin-top:8px">Licensed moneylenders are listed separately from banks per MAS guidance.</p>
+    </div>
+  </details>
+
+  <!-- consolidated promo carousel (was: separate top-reward + fulfilment + limited-time banners) -->
+  <!-- v14: live-style campaign details — the top carousel scrolls here -->
+  <section class="campaign x-new" id="promoCarousel">
+    <span class="ann ann--blk">✨ NEW: several stacked banners consolidated into one top carousel that scrolls down here; tab accent bars now match fe-services' PromotionalSingSaver, and the "days left" badge matches its Countdown/Badge component</span>
+    <div class="camp__fast">💸 <b>Fastest fulfilment:</b> rewards on UOB, Standard Chartered &amp; Trust are sent within <b>3 weeks</b> of approval — the fastest on the platform.</div>
+    <div class="camp__h">Don't miss out on these great deals:</div>
+    <div class="camp__tabs" id="campTabs"></div>
+    <div class="camp__detail" id="campDetail"></div>
+  </section>
+
+  <div class="tips"><div class="tips__h">💡 SingSaver Tips</div><div class="tips__b">Loan rates in Singapore have hit a 5-year low, with several bank loans starting from just <b>0.90% p.a.</b> (EIR from 1.75% p.a.).</div></div>
+
+  <div class="section-h">Compare in detail</div>
+  <p class="section-hint">Full eligibility, fees, features and application steps for each loan above.</p>
+  <div id="cardResults"></div>
+
+  <!-- v14: FAQ (from live) -->
+  <section class="faq">
+    <div class="section-h">Frequently asked questions</div>
+    <details class="faq__item"><summary>How do personal loans work?</summary><p>A personal loan provides you with a lump sum of money that you repay with interest over a set period.</p></details>
+    <details class="faq__item"><summary>How long does it take to get a personal loan?</summary><p>Approval and disbursement timelines vary by lender, with some offering same-day or next-day processing while others require several days.</p></details>
+    <details class="faq__item"><summary>Can foreigners get a loan in Singapore?</summary><p>Yes, foreigners can apply for personal loans in Singapore, but they may have to meet additional eligibility criteria.</p></details>
+    <details class="faq__item"><summary>What bank is easiest to get a personal loan from?</summary><p>Different banks have varying requirements; generally S$20,000–30,000 minimum annual income is standard for citizens and PRs.</p></details>
+    <details class="faq__item"><summary>What is the lending rate in Singapore?</summary><p>Average lending rates for personal loans can range from 2.5% to 10% p.a., but these are subject to individual assessment.</p></details>
+    <details class="faq__item"><summary>How does a personal loan affect your credit score?</summary><p>Making timely repayments can improve your credit score, while late payments or defaulting on the loan can negatively impact it.</p></details>
+    <details class="faq__item"><summary>How much would a S$5,000 loan cost per month?</summary><p>Monthly costs depend on interest rate and repayment period; use the loan calculator for accurate estimates.</p></details>
+    <details class="faq__item"><summary>Which bank has the lowest interest rate for personal loans?</summary><p>Personal loan interest rates in Singapore vary depending on the bank, your income, credit score, and loan tenure.</p></details>
+  </section>
+
+  <p class="trust-foot">SingSaver compares 350+ products from 60+ institutions. Rankings follow our published methodology. Eligibility notes are guidance — you may still apply and be approved. Prototype v20 · Sample figures for demo.</p>
+</div>
+
+<!-- v14: site footer (from live) -->
+<footer class="site-foot">
+  <div class="site-foot__grid">
+    <div class="site-foot__col"><h4>Credit Cards</h4><a href="#">Categories</a><a href="#">Resources</a><a href="#">Providers</a></div>
+    <div class="site-foot__col"><h4>Insurance</h4><a href="#">Travel</a><a href="#">Life &amp; Health</a></div>
+    <div class="site-foot__col"><h4>Loans</h4><a href="#">Resources</a><a href="#">Providers</a></div>
+    <div class="site-foot__col"><h4>Promotions &amp; Campaigns</h4><a href="#">Travel Insurance Promotions</a><a href="#">Best Deal Guarantee</a></div>
+    <div class="site-foot__col"><h4>Resources</h4><a href="#">Blog</a><a href="#">Reward Tracker</a><a href="#">Help Centre</a><a href="#">Giveaway Winners</a></div>
+    <div class="site-foot__col"><h4>About Us</h4><a href="#">Why SingSaver</a><a href="#">Terms &amp; Conditions</a><a href="#">Privacy Policy</a><a href="#">Affiliates</a><a href="#">Careers</a><a href="#">Press</a></div>
+  </div>
+  <div class="site-foot__copy">© 2015 – 2026 SingSaver PTE LTD. All rights reserved.</div>
+</footer>
+
+<!-- Shared backdrop -->
+<div class="backdrop" id="backdrop"></div>
+
+<!-- Sort & Filter drawer -->
+<aside class="drawer" id="sfDrawer" aria-hidden="true" aria-label="Sort and filter">
+  <div class="drawer__head"><h3>Sort &amp; Filter</h3><button class="drawer__x" id="sfX" aria-label="Close">✕</button></div>
+  <div class="drawer__body">
+    <div class="sf__grp"><h4>Browse by category</h4>
+      <div class="catgrid">
+        <label class="catopt"><input type="radio" name="cat" value="all" checked> 🏦 All Loans</label>
+        <label class="catopt"><input type="radio" name="cat" value="lowest-interest"> 📉 Lowest Interest</label>
+        <label class="catopt"><input type="radio" name="cat" value="alternate"> 🤝 Alternate Lenders</label>
+        <label class="catopt"><input type="radio" name="cat" value="exclusive"> 🔥 SingSaver Exclusive</label>
+        <label class="catopt"><input type="radio" name="cat" value="balance-transfer"> 🔄 Balance Transfer</label>
+        <label class="catopt"><input type="radio" name="cat" value="credit-line"> 💳 Credit Line</label>
+        <label class="catopt"><input type="radio" name="cat" value="bad-credit"> 🌱 Bad Credit</label>
+        <label class="catopt"><input type="radio" name="cat" value="foreigners"> 🌏 Foreigners</label>
+        <label class="catopt"><input type="radio" name="cat" value="fast-cash"> ⚡ Fast Cash</label>
+      </div>
+    </div>
+    <div class="sf__grp"><h4>Sort By</h4>
+      <label class="opt"><input type="radio" name="sort" value="popular" checked> Popular</label>
+      <label class="opt"><input type="radio" name="sort" value="monthly"> Lowest Monthly Payment</label>
+      <label class="opt"><input type="radio" name="sort" value="total"> Lowest Total Cost of Loan</label>
+      <label class="opt"><input type="radio" name="sort" value="rate"> Lowest Annual Interest Rate</label>
+      <label class="opt"><input type="radio" name="sort" value="eir"> Lowest EIR</label>
+      <label class="opt"><input type="radio" name="sort" value="reward"> Highest SingSaver Exclusive Offer</label>
+    </div>
+    <div class="sf__grp"><h4>Reward display</h4>
+      <label class="opt"><input type="radio" name="rmode" value="max" checked> Show "up to" (max reward)</label>
+      <label class="opt"><input type="radio" name="rmode" value="mine"> Show reward for my loan amount</label>
+    </div>
+    <div class="sf__grp"><h4>Loan Features</h4>
+      <label class="opt"><input type="checkbox" name="feat" value="instant"> Instant Approval</label>
+      <label class="opt"><input type="checkbox" name="feat" value="feewaiver"> Processing Fee Waiver</label>
+      <label class="opt"><input type="checkbox" name="feat" value="zero"> 0% Interest Rate</label>
+    </div>
+    <div class="sf__grp"><h4>Bank</h4>
+      <label class="opt"><input type="radio" name="bank" value="all" checked> All Banks</label>
+      <label class="opt"><input type="radio" name="bank" value="UOB"> UOB <span class="pop">Popular</span></label>
+      <label class="opt"><input type="radio" name="bank" value="Trust Bank"> Trust Bank <span class="pop">Popular</span></label>
+      <label class="opt"><input type="radio" name="bank" value="HSBC"> HSBC</label>
+      <label class="opt"><input type="radio" name="bank" value="DBS"> DBS</label>
+      <label class="opt"><input type="radio" name="bank" value="GXS"> GXS</label>
+      <label class="opt"><input type="radio" name="bank" value="Standard Chartered"> Standard Chartered</label>
+      <label class="opt"><input type="radio" name="bank" value="CIMB"> CIMB</label>
+      <button class="sf__reset" id="sfReset">Reset Filter</button>
+      <p style="font-size:11px;color:var(--text-muted);margin:4px 0 0">+ 11 more lenders on the live site (moneylenders, Citibank, MariBank, Maybank, OCBC, POSB…)</p>
+    </div>
+    <div class="sf__grp"><h4>Other Loans</h4>
+      <label class="opt"><input type="radio" name="ltype" value="all" checked> Personal Loan</label>
+      <label class="opt"><input type="radio" name="ltype" value="debt"> Debt Consolidation Loan</label>
+      <label class="opt"><input type="radio" name="ltype" value="car"> Car Loan</label>
+    </div>
+  </div>
+  <div class="sf__foot"><button class="mhg-btn mhg-btn--outline" id="sfClear">Clear All</button><button class="mhg-btn mhg-btn--cta" id="sfApply">Apply</button></div>
+</aside>
+
+<!-- Rewards drawer -->
+<aside class="drawer" id="rewardDrawer" aria-hidden="true" aria-label="Loan rewards">
+  <div class="drawer__head"><h3 id="drawerTitle">Your Loan Rewards &amp; Provider Gifts</h3><button class="drawer__x" id="rewardX" aria-label="Close">✕</button></div>
+  <div class="drawer__body" id="rewardBody"></div>
+  <div class="drawer__foot" id="rewardFoot"></div>
+</aside>
+
+<script>
+const GENERIC = {
+  steps:["Tap Apply to go to the lender's site via SingSaver.","Complete the application and upload the required documents.","Get your outcome; the SingSaver reward is fulfilled after approval."],
+  pros:["Low advertised rate for longer tenures.","Instant approval &amp; fast disbursement for existing customers.","No SingSaver claim form — reward paid after approval."],
+  cons:["EIR excludes any first-year annual fee.","Early-repayment / late-payment fees may apply.","Actual rate depends on your credit profile."],
+  docs:["No documents for Singaporeans/PRs via SingPass.","Foreigners: passport + Employment Pass + proof of address."]
+};
+// v20: minAmt/minTenure = the loan-amount/tenure threshold each lender's SingSaver reward requires
+// (mirrors cms-components' SectionGifts "eligibility hint" gating — sourced from this demo's own
+// campaign minimums further down in DEALS: DBS & SCB = min S$8,000 / 36 months, UOB = min S$8,000 /
+// 12 months; Trust Bank has no DEALS entry in this demo, S$5,000/12 months is a reasonable illustrative minimum).
+const LOANS = [
+  { name:"Standard Chartered", full:"Standard Chartered CashOne Personal Loan", tag:"Flexible repayment and instant approvals", logo:"assets/logos/standard-chartered.webp", rate:0.0090, eir:0.0175, fee:0, minIncome:50000, minAge:21, forEligible:true,  forMinIncome:60000, types:["personal","instant"],       rewardMax:5825, excl:true,  color:"#0473ea", take:"Lowest headline rate; fast disbursal, needs higher income.", minAmt:8000, minTenure:36 },
+  { name:"UOB",                full:"UOB Personal Loan",                        tag:"Instant approval and disbursement",     logo:"assets/logos/uob.png", rate:0.0100, eir:0.0193, fee:0, minIncome:30000, minAge:21, forEligible:false, forMinIncome:0,     types:["personal","debt"],           rewardMax:1800, excl:false, color:"#d81f2a", take:"Strong all-rounder for Singaporeans/PRs.", minAmt:8000, minTenure:12 },
+  { name:"Trust Bank",         full:"Trust Instant Loan",                       tag:"Fully in-app, quick approval",          logo:"assets/logos/trust.png", rate:0.0100, eir:0.0194, fee:0, minIncome:40000, minAge:21, forEligible:false, forMinIncome:0,     types:["personal","instant"],        rewardMax:1750, excl:true,  color:"#1a3aff", take:"Fully in-app for existing Trust customers.", minAmt:5000, minTenure:12 },
+  { name:"CIMB",               full:"CIMB Personal Loan",                       tag:"Low income requirement",                logo:"assets/logos/cimb.png", rate:0.0100, eir:0.0194, fee:0, minIncome:24000, minAge:21, forEligible:true,  forMinIncome:24000, types:["personal","foreigner","debt"], rewardMax:1000, excl:false, color:"#7a1f2b", take:"Lowest income bar; foreigners eligible." },
+  { name:"GXS",                full:"GXS FlexiLoan",                            tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png", rate:0.0108, eir:0.0210, fee:0, minIncome:30000, minAge:21, forEligible:false, forMinIncome:0,     types:["personal","instant"],        rewardMax:900,  excl:false, color:"#6b2fd6", take:"Digital bank; draw only what you need." },
+  { name:"HSBC",               full:"HSBC Personal Loan",                       tag:"Long tenures up to 84 months",          logo:"assets/logos/hsbc.webp", rate:0.0130, eir:0.0250, fee:0, minIncome:45000, minAge:21, forEligible:true,  forMinIncome:60000, types:["personal","debt"],           rewardMax:660,  excl:false, color:"#db0011", take:"Long tenures for lower monthly repayments." },
+  { name:"DBS",                full:"DBS Personal Loan",                        tag:"Biggest stacked reward",                logo:"assets/logos/dbs.webp",  rate:0.0148, eir:0.0322, fee:0, minIncome:20000, minAge:21, forEligible:false, forMinIncome:0,     types:["personal","instant","debt"], rewardMax:6900, excl:true,  color:"#d0021b", take:"Biggest stacked reward; instant for existing DBS customers.", minAmt:8000, minTenure:36 },
+];
+
+const $ = id => document.getElementById(id);
+const amt=$('amt'), inc=$('inc'), tenure=$('tenure'), cit=$('cit');
+const cardResults=$('cardResults'), count=$('count'), detailsSummary=$('detailsSummary');
+const backdrop=$('backdrop'), sfDrawer=$('sfDrawer'), rewardDrawer=$('rewardDrawer'), rewardBody=$('rewardBody'), rewardFoot=$('rewardFoot');
+// applied filter state
+let state = { sort:'popular', feats:new Set(), bank:'all', ltype:'all', cat:'all' };
+let rewardMode='max';
+
+const sgd = n => "S$" + Math.round(n).toLocaleString('en-SG');
+function realReward(l,a){ const t=a>=30000?1:a>=15000?0.7:a>=5000?0.45:0.25; return Math.round(l.rewardMax*t/50)*50; }
+function eligibility(l, annualIncome, c){
+  if (c==='foreigner'){ if(!l.forEligible) return {ok:false,msg:"May not be available to foreigners"}; if(annualIncome<l.forMinIncome) return {ok:false,msg:`Usually needs ${sgd(l.forMinIncome)}/yr income`}; return {ok:true}; }
+  if (annualIncome<l.minIncome) return {ok:false,msg:`Usually needs ${sgd(l.minIncome)}/yr income`}; return {ok:true};
+}
+// persona categories with no product in the demo lineup (live-site categories only)
+const CAT_NODATA = { 'balance-transfer':'Balance Transfer', 'credit-line':'Credit Line', 'bad-credit':'Bad Credit', 'alternate':'Alternate Lender' };
+function matchesFilters(l){
+  // persona category (mirrors the live filter tabs)
+  switch(state.cat){
+    case 'exclusive':  if(!l.excl) return false; break;
+    case 'foreigners': if(!l.forEligible) return false; break;
+    case 'fast-cash':  if(!l.types.includes('instant')) return false; break;
+    case 'balance-transfer': case 'credit-line': case 'bad-credit': case 'alternate': return false;
+    // 'all' and 'lowest-interest' don't narrow the list ('lowest-interest' just sorts by rate)
+  }
+  if (state.ltype==='car') return false;          // no car loans in demo lineup
+  if (state.ltype!=='all' && !l.types.includes(state.ltype)) return false;
+  if (state.bank!=='all' && l.name!==state.bank) return false;
+  for (const f of state.feats){ if(f==='instant'&&!l.types.includes('instant')) return false; if(f==='feewaiver'&&l.fee!==0) return false; if(f==='zero'&&l.rate!==0) return false; }
+  return true;
+}
+const BANDS=[[1000,4999,.25],[5000,9999,.45],[10000,19999,.7],[20000,49999,.85],[50000,119999,.95],[120000,Infinity,1]];
+function tiers(l){ return BANDS.map(([lo,hi,f])=>({lo,hi,amt:Math.round(l.rewardMax*f/10)*10})); }
+const nameCell = (l,cls,h) => l.logo ? `<img class="${cls}" style="height:${h}px" src="${l.logo}" alt="${l.name}">` : `<span class="loan__name" style="color:${l.color}">${l.name}</span>`;
+// which loans carry a SingSaver reward, and what kind of gift (cash / cashback / points)
+const REWARD = new Set(['Standard Chartered','UOB','Trust Bank','DBS']);
+const GIFT = { 'Standard Chartered':{kind:'cashback',pct:1.61}, 'DBS':{kind:'cashback',pct:3}, 'UOB':{kind:'points'}, 'Trust Bank':{kind:'cash'} };
+function hasReward(l){ return REWARD.has(l.name); }
+// lenders where SingSaver fulfils the reward fastest (~3 weeks) — explained in the carousel's first slide
+const FAST = new Set(['UOB','Standard Chartered','Trust Bank']);
+function giftLabel(l, amt){ const g=GIFT[l.name]||{kind:'cash'}; if(g.kind==='cashback') return `${sgd(amt)} cash + ${g.pct}% cashback`; if(g.kind==='points') return `${sgd(amt)} cash, or points for a gift`; return `${sgd(amt)} cash via PayNow`; }
+function featPills(l){ return [l.types.includes('instant')?'⚡ Instant approval':null, l.fee===0?'No processing fee':null, `Min income ${sgd(l.minIncome)}/yr`, 'Up to 5-yr tenure'].filter(Boolean); }
+
+function compute(){
+  const P=Math.max(1000, +amt.value||0), months=Math.max(1, +tenure.value||1), years=months/12, annualIncome=(+inc.value||0)*12, c=cit.value;
+  // v20: "Total Cost of Loan" = interest cost only (principal x rate x years) — matches live,
+  // which is NOT principal+interest (this demo previously showed the wrong, larger figure).
+  let rows = LOANS.map((l,idx)=>({...l, idx})).filter(matchesFilters).map(l=>{ const ti=l.rate*P*years; return {...l, monthly:(P+ti)/months, total:ti, real:realReward(l,P), elig:eligibility(l,annualIncome,c)}; });
+  const effSort = state.cat==='lowest-interest' ? 'rate' : state.sort;  // "Lowest Interest" category sorts by rate
+  const cmp = { popular:(a,b)=>b.rewardMax-a.rewardMax, reward:(a,b)=>b.rewardMax-a.rewardMax, rate:(a,b)=>a.rate-b.rate, eir:(a,b)=>a.eir-b.eir, monthly:(a,b)=>a.monthly-b.monthly, total:(a,b)=>a.total-b.total }[effSort];
+  rows.sort(cmp);
+  return {rows, P, months};
+}
+
+// v17: fe-services structure helpers — EligibilityCriteriaSingSaver / AprFees key-value rows
+function eligibilityFacts(l, c){
+  const rows = [['Age range', `${l.minAge}–70 years old`]];
+  if (c==='foreigner') {
+    rows.push(['Citizenship', l.forEligible ? 'Singaporean / PR or eligible foreigner (work pass)' : 'Singaporean / PR only']);
+    rows.push(['Minimum annual income', sgd(l.forEligible ? (l.forMinIncome||l.minIncome) : l.minIncome)+'/yr']);
+  } else {
+    rows.push(['Citizenship', 'Singaporean / PR']);
+    rows.push(['Minimum annual income', sgd(l.minIncome)+'/yr']);
+  }
+  return rows;
+}
+function dlrows(pairs){ return pairs.map(([k,v])=>`<div class="dlrow"><span class="k">${k}</span><span class="v">${v}</span></div>`).join(''); }
+function dealFor(l){ return DEALS.find(d=>d.product===l.full); }
+function daysLeft(dateStr){ const diff = Math.ceil((new Date(`${dateStr} 23:59:59`) - new Date())/(1000*60*60*24)); return diff>0?diff:0; }
+// v20: does the CURRENT loan amount/tenure meet this lender's reward threshold? Mirrors
+// cms-components' SectionGifts "eligibility hint" gate (shouldShowEligibilityHint) — below the
+// threshold shows the "update amount/tenure to qualify" nudge instead of the real reward figure.
+function rewardQualifies(l, P, months){ return P >= (l.minAmt||0) && months >= (l.minTenure||0); }
+
+// v20: card structure + copy now matches cms-components' ProductCard/ (ProductCard.tsx,
+// ProductCardHeader.tsx, SectionAttributes.tsx, SectionGifts.tsx, SectionStepsToApply.tsx,
+// SectionTake.tsx, SectionDetails.tsx) — logo-box header with a top-right Apply button, a 4-stat
+// row, and 4 collapsibles under the live labels ("SingSaver Reward" / "Steps to Apply" /
+// "SingSaver's take" / "Loan details"), only the Reward one open by default (matches
+// ProductCardSectionsMapper.tsx's defaultOpenSection). Still a single-column LIST at every
+// breakpoint (matches fe-services' SearchFormSingSaver `flex flex-col` results list, not a grid).
+function renderCards(rows, P, months){
+  const bestIdx = rows.findIndex(r=>r.elig.ok);
+  return `<div class="cards">${rows.map((r,i)=>`
+    <div class="loan ${i===bestIdx?'loan--best':''}">
+      <span class="loan__tag">${r.tag}</span>
+      <div class="loan__head">
+        <div class="loan__id">
+          <span class="loan__logobox">${nameCell(r,'plogo-lg',32)}</span>
+          <span class="loan__name">${r.full}</span>
+        </div>
+        <div class="loan__ctawrap">
+          <button class="mhg-btn mhg-btn--cta mhg-btn--small" data-apply="${r.idx}">Apply Now ↗</button>
+          <div class="x-new elig-inline">${!r.elig.ok
+              ? `<span class="tinfo--no" title="${r.elig.msg}. You can still apply — the lender makes the final decision.">ⓘ Check eligibility</span>`
+              : `<span class="tinfo--ok">✓ You likely qualify</span>`}<span class="ann">✨ NEW: eligibility check</span></div>
+        </div>
+      </div>
+      <div class="loan__grid2 g2">
+        <div><div class="l">Monthly Repayment</div><div class="v">${sgd(r.monthly)}<small>/mo</small></div></div>
+        <div><div class="l">Annual Interest Rate</div><div class="v">From ${(r.rate*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">EIR</div><div class="v">From ${(r.eir*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">Processing Fee</div><div class="v">${r.fee?sgd(r.fee):'S$0'}</div></div>
+      </div>
+      ${(() => {
+        if (!hasReward(r)) {
+          return `<details class="acc"><summary>🎁 SingSaver Reward</summary><div class="acc__body">
+            <p class="offer-blurb">No SingSaver cash reward on this loan currently — you apply at the same advertised rate.</p>
+            <a class="rewardlink" data-idx="${r.idx}" href="#">See product details ›</a>
+          </div></details>`;
+        }
+        const qualifies = rewardQualifies(r, P, months);
+        const headTxt = qualifies
+          ? `🎁 SingSaver Reward — ${rewardMode==='max'?`Up to ${sgd(r.rewardMax)}`:`${sgd(r.real)} for you`}`
+          : `🎁 SingSaver Reward — Update Loan Amount / Tenure to Qualify`;
+        const bodyTxt = qualifies
+          ? `<p class="offer-blurb">For a ${r.full} of ${sgd(P)} over ${months} months, you'll enjoy <strong>${giftLabel(r, r.real)}</strong> via SingSaver.</p>`
+          : `<p class="offer-blurb">Update your loan amount to at least ${sgd(r.minAmt)} and loan tenure to at least ${r.minTenure} months to unlock exclusive gifts worth up to ${sgd(r.rewardMax)}.</p>`;
+        return `<details class="acc acc--reward" open><summary>${headTxt}</summary><div class="acc__body">
+          ${bodyTxt}
+          <a class="rewardlink" data-idx="${r.idx}" href="#">See full reward and offer details ›</a>
+        </div></details>`;
+      })()}
+      <details class="acc"><summary>Steps to Apply</summary><div class="acc__body">
+        <ol class="steplist">${GENERIC.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+      </div></details>
+      <details class="acc"><summary>SingSaver's take</summary><div class="acc__body">
+        <p class="offer-blurb"><b>Our take:</b> ${r.take}</p>
+        <ul class="featlist">
+          ${GENERIC.pros.map(p=>`<li><span class="ic-pro">✓</span>${p}</li>`).join('')}
+          ${GENERIC.cons.map(c=>`<li><span class="ic-con">–</span>${c}</li>`).join('')}
+        </ul>
+      </div></details>
+      <details class="acc"><summary>Loan details</summary><div class="acc__body">
+        <div class="stepslabel">Eligibility</div>
+        ${dlrows(eligibilityFacts(r, cit.value))}
+        ${!r.elig.ok?`<div class="loan__elig" style="color:var(--warning-text)">ⓘ ${r.elig.msg} — you can still apply; the lender decides.</div>`:''}
+        <div class="stepslabel" style="margin-top:12px">Required Documents</div>
+        <ul class="steplist">${GENERIC.docs.map(d=>`<li>${d}</li>`).join('')}</ul>
+        <div class="stepslabel" style="margin-top:12px">Key Features</div>
+        <ul class="steplist">${featPills(r).map(f=>`<li>${f}</li>`).join('')}</ul>
+      </div></details>
+    </div>`).join('')}</div>`;
+}
+
+// v18: RESTORED real production comparison table — column set + order verified from
+// PLColumnSource's default (no CMS personal_loan_order override): Loan (sticky) · Monthly
+// Repayment · SingSaver Reward · Annual Interest Rate · Total Cost of Loan · EIR · Apply. The
+// SingSaver Reward cell opens the SAME reward/facts drawer as the cards below (data-pct-reward);
+// the Loan cell + Apply button are decorative here, as they are throughout this demo.
+// v20: rate/EIR now read "From X.XX % p.a." (live's exact format, incl. the spaces around "%");
+// Total Cost of Loan = interest-only (see compute()); reward pill + outline-cta Apply styling
+// come from the .pct-reward / .mhg-btn--outline-cta CSS above.
+function renderPct(rows, P){
+  if (!rows.length) return `<tr class="pct-empty"><td colspan="7">No loans match those filters. Open Sort &amp; Filter and Clear All.</td></tr>`;
+  return rows.map(r=>`
+    <tr>
+      <td class="pct-sticky"><div class="pct-loan">${nameCell(r,'',26)}<span>${r.full}</span></div></td>
+      <td>From ${(r.rate*100).toFixed(2)} % p.a.</td>
+      <td>${hasReward(r)
+          ? `<button class="pct-reward" data-pct-reward="${r.idx}">${rewardMode==='max'?`Up to ${sgd(r.rewardMax)}`:sgd(r.real)}</button>`
+          : `<button class="pct-reward pct-na" data-pct-reward="${r.idx}">–</button>`}</td>
+      <td class="pct-monthly">${sgd(r.monthly)}<span style="color:var(--text-muted);font-weight:400">/mo</span></td>
+      <td>${sgd(r.total)}</td>
+      <td>From ${(r.eir*100).toFixed(2)} % p.a.</td>
+      <td><button class="mhg-btn mhg-btn--outline-cta mhg-btn--small" data-apply="${r.idx}">Apply</button></td>
+    </tr>`).join('');
+}
+
+// v17: shell now mirrors fe-services' Rewards drawer (RewardsMobileDrawer/RewardsDesktopDialog +
+// RewardBody — header count, gray-page body, a rounded gift card per reward with a tinted
+// header (icon + title + countdown) and a white body (reward options + T&Cs), white footer with
+// product name/amount + Apply CTA). The CONTENT (your actual reward leads, band highlight,
+// non-cash gift support) is still our proposal — the live site shows one flat figure.
+function openReward(idx){
+  const l=LOANS[idx], P=Math.max(1000,+amt.value||0), months=Math.max(1,+tenure.value||1), ts=tiers(l);
+  const cur = ts.find(t=>P>=t.lo && P<=t.hi) || ts[0];
+  const bandLabel = t => `${sgd(t.lo)}${t.hi===Infinity?'+':' – '+sgd(t.hi)}`;
+  const elig = eligibility(l, (+inc.value||0)*12, cit.value);
+  const deal = dealFor(l);
+  const dleft = deal ? daysLeft(deal.applyBy) : null;
+  $('drawerTitle').textContent = '1 Reward available';
+  rewardBody.innerHTML = `
+    <div class="chg"><b>✨ Changed vs live:</b> the drawer shell now matches fe-services' Rewards drawer (header · gray body · gift card · footer); the content is our proposal — your <b>actual reward for this loan is shown first</b>, tiered bands highlight <b>your band</b>, and non-cash gifts (points / cashback) are supported — the live site shows one flat figure.</div>
+    ${!elig.ok?`<div class="drawer-elig">ⓘ ${elig.msg} — you can still apply; the lender decides.</div>`:''}
+    <div class="rgift rgift--now">
+      <div class="rgift__hd">
+        <span class="rgift__ic">🎁</span>
+        <div>
+          <div class="rgift__t">Your reward for this ${l.full}</div>
+          ${dleft?`<div class="rgift__cd">⏳ Only ${dleft} day${dleft!==1?'s':''} left to qualify!</div>`:''}
+        </div>
+      </div>
+      <div class="rgift__bd">
+        <div class="rgift__amt">${giftLabel(l, cur.amt)}</div>
+        <div class="rgift__note">For a ${sgd(P)} loan over ${months} months · ${bandLabel(cur)} band · your band</div>
+        <div class="rgift__lbl">Reward options</div>
+        <ul class="rgift__opts"><li>${giftLabel(l, cur.amt)}</li></ul>
+        <div class="rgift__lbl">Terms &amp; conditions</div>
+        <p class="rgift__tc">Paid after approval — no claim form. Gift kind (cash, cashback, or points/products) follows the lender's live campaign T&amp;Cs; figures are illustrative for this demo.</p>
+      </div>
+    </div>
+    <details class="reward-more"><summary>See gifts for other loan amounts</summary>
+      <div class="reward-tiers">
+        <div class="rt rt--head"><span class="rt__band">Loan amount</span><span class="rt__amt">Gift</span></div>
+        ${ts.map(t=>`<div class="rt ${t===cur?'rt--now':''}"><span class="rt__band">${bandLabel(t)}${t===cur?' · your band':''}</span><span class="rt__amt">${giftLabel(l, t.amt)}</span></div>`).join('')}
+      </div>
+    </details>`;
+  rewardFoot.innerHTML = `<div class="rf__id">${l.logo?`<img src="${l.logo}" alt="${l.name}" style="height:20px">`:`<span class="loan__name" style="color:${l.color}">${l.name}</span>`}<div class="rf__txt"><span class="rf__name">${l.full}</span><span class="rf__amt">${sgd(P)} over ${months} mths</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+  openDrawer(rewardDrawer);
+}
+function openFacts(idx){
+  const l=LOANS[idx];
+  const elig = eligibility(l, (+inc.value||0)*12, cit.value);
+  $('drawerTitle').textContent = `${l.name} — product details`;
+  rewardBody.innerHTML = `
+    <div class="chg"><b>✨ Changed vs live:</b> loans without a SingSaver reward now open <b>clear product facts</b> instead of an empty reward panel.</div>
+    ${!elig.ok?`<div class="drawer-elig">ⓘ ${elig.msg} — you can still apply; the lender decides.</div>`:''}
+    <div class="rgift">
+      <div class="rgift__hd" style="background:var(--fill-alternative-1)">
+        <span class="rgift__ic">👍</span>
+        <div><div class="rgift__t" style="color:var(--text-primary)">Quick facts</div></div>
+      </div>
+      <div class="rgift__bd">
+        <div class="featrow" style="margin:0 0 12px">${featPills(l).map(f=>`<span class="featpill">${f}</span>`).join('')}</div>
+        <ul class="featlist">${GENERIC.pros.map(p=>`<li><span class="ic-pro">✓</span>${p}</li>`).join('')}</ul>
+        <div class="rgift__lbl">Eligibility</div>
+        ${dlrows(eligibilityFacts(l, cit.value))}
+        <p class="rgift__tc" style="margin-top:10px">This loan has no SingSaver cash reward. Info shown is for reference only; actual rates depend on your credit profile and the provider's approval.</p>
+      </div>
+    </div>`;
+  rewardFoot.innerHTML = `<div class="rf__id">${l.logo?`<img src="${l.logo}" alt="${l.name}" style="height:20px">`:`<span class="loan__name" style="color:${l.color}">${l.name}</span>`}<div class="rf__txt"><span class="rf__name">${l.full}</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+  openDrawer(rewardDrawer);
+}
+function openDrawer(d){ backdrop.classList.add('open'); d.classList.add('open'); d.setAttribute('aria-hidden','false'); }
+function closeDrawers(){ backdrop.classList.remove('open'); [sfDrawer,rewardDrawer].forEach(d=>{d.classList.remove('open');d.setAttribute('aria-hidden','true');}); }
+
+function render(){
+  const {rows, P, months} = compute();
+  const summaryTxt = `${sgd(P)} · ${months} mths · ${cit.options[cit.selectedIndex].text} · ${sgd(+inc.value||0)}/mo`;
+  detailsSummary.textContent = summaryTxt;
+  $('stickySummary').textContent = summaryTxt;
+  const topReward = $('topReward');
+  if (topReward){ const topR = rows.length ? [...rows].sort((a,b)=>b.rewardMax-a.rewardMax)[0] : null;
+    topReward.innerHTML = topR ? `${topR.name} — up to <span class="topreward__amt">${sgd(topR.rewardMax)}</span> in rewards` : 'No offers match'; }
+  const okCount = rows.filter(r=>r.elig.ok).length;
+  count.innerHTML = `${rows.length} loan${rows.length!==1?'s':''} <span>· ${okCount} you likely qualify for</span>`;
+  const SL={popular:'Popular',monthly:'Lowest monthly payment',total:'Lowest total cost',rate:'Lowest interest rate',eir:'Lowest EIR',reward:'Highest SingSaver reward'};
+  const CL={'all':'','lowest-interest':'Lowest Interest','alternate':'Alternate Lenders','exclusive':'SingSaver Exclusive','balance-transfer':'Balance Transfer','credit-line':'Credit Line','bad-credit':'Bad Credit','foreigners':'Foreigners','fast-cash':'Fast Cash'};
+  const nF=state.feats.size+(state.bank!=='all'?1:0)+(state.ltype!=='all'?1:0);
+  const catSeg = state.cat!=='all' ? ` · category <b>${CL[state.cat]}</b>` : '';
+  const sortName = state.cat==='lowest-interest' ? 'Lowest interest rate' : (SL[state.sort]||'Popular');
+  $('sortCap').innerHTML = `Sorted by <b>${sortName}</b>${catSeg}${nF?` · ${nF} filter${nF>1?'s':''} applied`:''} · rewards shown as <b>${rewardMode==='max'?'the maximum ("up to")':'your loan amount'}</b>`;
+  if (!rows.length){
+    const catName=CAT_NODATA[state.cat];
+    cardResults.innerHTML = catName
+      ? `<div class="empty"><strong>“${catName}” loans aren't in this demo lineup.</strong><br>It's a live SingSaver category — this prototype only mocks a sample of personal-loan products. Pick <b>All Loans</b> in Sort &amp; Filter to see the sample.</div>`
+      : `<div class="empty"><strong>No loans match those filters.</strong><br>Open Sort &amp; Filter and Clear All.</div>`;
+    $('pctBody').innerHTML = renderPct(rows, P);
+    return;
+  }
+  $('pctBody').innerHTML = renderPct(rows, P);
+  cardResults.innerHTML = renderCards(rows, P, months);
+}
+
+// inputs
+[amt,inc,tenure].forEach(el=>el.addEventListener('input',render));
+[cit].forEach(el=>el.addEventListener('change',render));
+// (reward display moved into the Sort & Filter drawer)
+
+// Sort & Filter drawer
+function syncSF(){ // push applied state into the drawer controls
+  sfDrawer.querySelectorAll('input[name=cat]').forEach(i=>i.checked = i.value===state.cat);
+  sfDrawer.querySelectorAll('input[name=sort]').forEach(i=>i.checked = i.value===state.sort);
+  sfDrawer.querySelectorAll('input[name=rmode]').forEach(i=>i.checked = i.value===rewardMode);
+  sfDrawer.querySelectorAll('input[name=feat]').forEach(i=>i.checked = state.feats.has(i.value));
+  sfDrawer.querySelectorAll('input[name=bank]').forEach(i=>i.checked = i.value===state.bank);
+  sfDrawer.querySelectorAll('input[name=ltype]').forEach(i=>i.checked = i.value===state.ltype);
+}
+function readSF(){
+  state.cat = sfDrawer.querySelector('input[name=cat]:checked').value;
+  state.sort = sfDrawer.querySelector('input[name=sort]:checked').value;
+  rewardMode = sfDrawer.querySelector('input[name=rmode]:checked').value;
+  state.feats = new Set([...sfDrawer.querySelectorAll('input[name=feat]:checked')].map(i=>i.value));
+  state.bank = sfDrawer.querySelector('input[name=bank]:checked').value;
+  state.ltype = sfDrawer.querySelector('input[name=ltype]:checked').value;
+}
+$('sfOpen').addEventListener('click', ()=>{ syncSF(); openDrawer(sfDrawer); });
+$('sfX').addEventListener('click', closeDrawers);
+$('sfApply').addEventListener('click', ()=>{ readSF(); render(); closeDrawers(); });
+function clearAll(){ sfDrawer.querySelector('input[name=cat][value=all]').checked=true; sfDrawer.querySelector('input[name=sort][value=popular]').checked=true; sfDrawer.querySelector('input[name=rmode][value=max]').checked=true; sfDrawer.querySelectorAll('input[name=feat]').forEach(i=>i.checked=false); sfDrawer.querySelector('input[name=bank][value=all]').checked=true; sfDrawer.querySelector('input[name=ltype][value=all]').checked=true; }
+$('sfClear').addEventListener('click', clearAll);
+$('sfReset').addEventListener('click', ()=>{ sfDrawer.querySelector('input[name=bank][value=all]').checked=true; });
+
+// Rewards drawer triggers
+cardResults.addEventListener('click', e=>{ const a=e.target.closest('.rewardlink[data-idx]'); if(a){ e.preventDefault(); const i=+a.dataset.idx; hasReward(LOANS[i])?openReward(i):openFacts(i); } });
+// v18: comparison table's "SingSaver Reward" column — same drawer as the card list's reward link
+$('pctBody').addEventListener('click', e=>{ const b=e.target.closest('[data-pct-reward]'); if(b){ const i=+b.dataset.pctReward; hasReward(LOANS[i])?openReward(i):openFacts(i); } });
+$('rewardX').addEventListener('click', closeDrawers);
+backdrop.addEventListener('click', closeDrawers);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawers(); });
+
+// Site menu + change-highlight annotations
+$('menuBtn').addEventListener('click', ()=> $('siteNav').classList.toggle('open'));
+$('annToggle').addEventListener('click', ()=> document.body.classList.toggle('annotate'));
+document.body.classList.add('annotate');  // change-highlights on by default
+
+// v13: "Your details" is open at top; once it scrolls out of view, show the collapsed sticky summary bar
+const stickyBar=$('stickyBar');
+$('stickyEdit').addEventListener('click', ()=>{ detailsBox.open=true; window.scrollTo({top:0, behavior:'smooth'}); });
+if ('IntersectionObserver' in window) { try { new IntersectionObserver(([e])=>{ stickyBar.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top < 0); }, {threshold:0}).observe(detailsBox); } catch(e){} }
+
+// Top teaser carousel: rotates through offers; tapping a slide scrolls to the detailed carousel
+const tcTrack=$('tcTrack'), tcDots=$('tcDots'), tcSlides=[...tcTrack.children];
+tcDots.innerHTML = tcSlides.map((_,i)=>`<button class="tc__dot ${i===0?'on':''}" data-i="${i}" aria-label="Offer ${i+1}"></button>`).join('');
+function tcActive(){ let best=0,bd=Infinity; tcSlides.forEach((s,i)=>{ const d=Math.abs(s.offsetLeft-tcTrack.scrollLeft); if(d<bd){bd=d;best=i;} }); return best; }
+function tcGo(i){ i=(i+tcSlides.length)%tcSlides.length; tcTrack.scrollTo({left:tcSlides[i].offsetLeft, behavior:'smooth'}); }
+let tcTimer;
+function tcAuto(){ clearInterval(tcTimer); tcTimer=setInterval(()=>tcGo(tcActive()+1), 5000); }
+tcDots.addEventListener('click', e=>{ const b=e.target.closest('[data-i]'); if(b){ tcGo(+b.dataset.i); tcAuto(); } });
+tcTrack.addEventListener('scroll', ()=>{ const a=tcActive(); [...tcDots.children].forEach((d,i)=>d.classList.toggle('on', i===a)); }, {passive:true});
+tcTrack.addEventListener('click', e=>{ if(e.target.closest('[data-goto-carousel]')) $('promoCarousel').scrollIntoView({behavior:'smooth', block:'center'}); });
+$('teaserCarousel').addEventListener('mouseenter', ()=> clearInterval(tcTimer));
+$('teaserCarousel').addEventListener('mouseleave', tcAuto);
+tcAuto();
+// Campaign details (below table) — replicates the live "Don't miss out on these great deals" block
+const DEALS = [
+  { name:'DBS Personal Loan', head:'Up to S$6,900 Cashback', logo:'assets/logos/dbs.webp', product:'DBS Personal Loan', ptag:'Instant approval for existing DBS customers',
+    title:'Up to S$6,900 Cashback', blurb:'Apply and get approved for a DBS Personal Loan (min. S$8,000, 3-year tenure) to unlock up to S$6,900 in stacked cashback!', applyBy:'Aug 02, 2026',
+    tiers:[6900,5175,3450,1725,900],
+    qualify:['SingSaver Flash Deal promotion is valid from 15 July 2026 to 2 August 2026.','Promotion is valid for new and existing DBS personal loan customers.','Apply for a DBS personal loan with a min. amount of S$8,000 and min. tenure of 36 months to be eligible for reward.','Choice of reward varies depending on your approved loan amount.'] },
+  { name:'SCB CashOne Personal Loan', head:'Up to S$5,825 Cashback', logo:'assets/logos/standard-chartered.webp', product:'Standard Chartered CashOne Personal Loan', ptag:'Instant disbursement with stackable rewards',
+    title:'Up to S$5,825 Cashback', blurb:'Apply and get approved for a Standard Chartered CashOne Personal Loan (min. S$8,000, 3-year tenure) to unlock up to S$1,800 Cash, plus 1.61% cashback on your approved loan amount (up to S$4,025)!', applyBy:'Aug 02, 2026',
+    tiers:[5825,3732,2688,1800,1000],
+    qualify:['SingSaver Exclusive Offer promotion runs from 15 July 2026 to 2 August 2026.','Promotion is valid for new and existing Standard Chartered personal loan customers.','Apply and get approved for a Standard Chartered CashOne personal loan with a min. amount of S$8,000 and min. tenure of 3 years to be eligible for reward.','Promotion is stackable with the welcome offer from Standard Chartered (additional T&Cs apply).'] },
+  { name:'UOB Personal Loan', head:'Up to S$1,800 Cash', logo:'assets/logos/uob.png', product:'UOB Personal Loan', ptag:'Instant approval and disbursement',
+    title:'Up to S$1,800 Cash', blurb:'Apply and get approved for a UOB Personal Loan (min. S$8,000, 1-year tenure) to unlock up to S$1,800 in cashback!', applyBy:'Aug 02, 2026',
+    tiers:[1800,1400,1000,700],
+    qualify:['SingSaver Flash Deal promotion is valid from 15 July 2026 to 2 August 2026.','Promotion is valid for new and existing UOB personal loan customers.','Apply for a UOB personal loan with a min. amount of S$8,000 and min. tenure of 12 months to be eligible for reward.','Choice of reward varies depending on your approved loan amount.'] },
+];
+const campTabs=$('campTabs'), campDetail=$('campDetail');
+campTabs.innerHTML = DEALS.map((d,i)=>`<button class="camp__tab ${i===0?'on':''}" data-deal="${i}"><b>${d.name}</b><span>${d.head}</span></button>`).join('');
+function renderDeal(i){
+  const d=DEALS[i];
+  const dleft = daysLeft(d.applyBy);
+  campDetail.innerHTML = `
+    <div class="camp__title">⚡ Limited Time Only: ${d.title}</div>
+    <p class="camp__blurb">${d.blurb}</p>
+    ${dleft?`<div class="camp__cd">🎁 Only ${dleft} day${dleft!==1?'s':''} left!</div>`:''}
+    <p class="camp__applyby">Apply by <b>${d.applyBy}</b> to claim your reward</p>
+    <div class="camp__tiers">${d.tiers.map(t=>`<div class="ct"><div class="ct__hd">Limited time only</div><div class="ct__img"><span class="ct__gift">🎁</span><span class="ct__cash">S$${t.toLocaleString('en-SG')} Cash via PayNow</span></div><div class="ct__ft">Worth S$${t.toLocaleString('en-SG')}</div></div>`).join('')}</div>
+    <div class="camp__pp">Participating Products:</div>
+    <div class="camp__prod"><img src="${d.logo}" alt="${d.product}"><div><div class="camp__prodname">${d.product}</div><div class="camp__prodtag">${d.ptag}</div></div></div>
+    <div class="camp__q">How to Qualify?</div>
+    <ul class="camp__qlist">${d.qualify.map(q=>`<li>${q}</li>`).join('')}</ul>
+    <button class="mhg-btn mhg-btn--cta mhg-btn--block" data-scroll-cards style="margin-top:14px">Apply now ↗</button>`;
+}
+campTabs.addEventListener('click', e=>{ const b=e.target.closest('[data-deal]'); if(!b) return; [...campTabs.children].forEach(t=>t.classList.remove('on')); b.classList.add('on'); renderDeal(+b.dataset.deal); });
+renderDeal(0);
+// CTAs (campaign + teaser) jump to the detailed cards
+document.addEventListener('click', e=>{ if(e.target.closest('[data-scroll-cards]')) $('cardResults').scrollIntoView({behavior:'smooth', block:'start'}); });
+
+render();
+</script>
+</body>
+</html>
