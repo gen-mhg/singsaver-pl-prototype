@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en" class="brand-singsaver">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SingSaver Personal Loans — redesign (Steps 1–2: Sort &amp; Filter, Calculator + eligibility)</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/grid.css">
+<link rel="stylesheet" href="assets/components/buttons.css">
+<style>
+  body { background: var(--fill-base); color: var(--text-primary); margin:0; }
+  .baseline-tag { background:#0f172a; color:#fff; font-size:11px; font-weight:700; text-align:center; padding:5px; letter-spacing:.02em; }
+
+  /* Site header + nav — real TheHeader/DropdownMenu/AccountButton (cms-components):
+     one flex row = hamburger(mobile)+logo | centred desktop nav | Log in text (desktop) + round avatar (always). */
+  .site { position:relative; z-index:40; background:var(--fill-card); border-bottom:1px solid var(--borders-default); display:flex; align-items:center; gap:10px; padding:10px 14px; }
+  .site__menu { border:0; background:none; font-size:20px; cursor:pointer; color:var(--text-primary); width:34px; height:34px; border-radius:8px; flex-shrink:0; }
+  .site__menu:hover { background:var(--fill-primary-light); }
+  .site__logo { height:22px; flex-shrink:0; }
+  .site__right { display:flex; align-items:center; gap:12px; margin-left:auto; flex-shrink:0; }
+  .site__login { display:none; font-weight:700; font-size:14px; color:var(--fill-primary-dark); text-decoration:none; }
+  .site__acct { border:0; cursor:pointer; width:32px; height:32px; border-radius:50%; background:var(--fill-primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .site__nav { display:none; }
+  .site__nav.open { display:flex; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--fill-card); border-bottom:1px solid var(--borders-default); padding:4px 14px 10px; box-shadow:0 8px 16px rgba(15,23,42,.10); }
+  .site__nav.open a { padding:9px 0; font-size:14px; font-weight:600; color:var(--text-primary); text-decoration:none; border-bottom:1px solid var(--borders-soft); }
+  .site__nav.open a:last-child { border-bottom:0; }
+  @media(min-width:1024px){
+    .site__menu{display:none}
+    .site__nav{display:flex !important; position:static; flex-direction:row; flex:1; gap:22px; justify-content:center; box-shadow:none; border-bottom:0; padding:0; background:none}
+    .site__nav a{padding:10px 0; border-bottom:0; font-size:14px; font-weight:700; color:var(--text-secondary); text-decoration:none}
+    .site__nav a:hover{color:var(--text-primary)}
+    .site__login{display:inline-block}
+  }
+
+  /* Announcement bar — real "top-page-sticky-content" campaign banner */
+  .annbar { display:flex; align-items:center; justify-content:space-between; gap:10px; background:linear-gradient(to right, var(--fill-primary-dark), var(--fill-primary)); color:#fff; padding:8px 14px; font-size:12px; line-height:1.4; }
+  .annbar.hidden { display:none; }
+  .annbar__txt { flex:1; min-width:0; }
+  .annbar__link { color:#fff; text-decoration:underline; font-weight:700; white-space:nowrap; cursor:pointer; }
+  .annbar__x { border:0; background:none; color:#fff; opacity:.85; cursor:pointer; font-size:13px; width:26px; height:26px; border-radius:8px; flex-shrink:0; }
+  .annbar__x:hover { background:rgba(255,255,255,.18); }
+
+  .crumb { font-size:12px; color:var(--text-muted); margin:10px 0 8px; }
+  .wrap { max-width: 1130px; margin: 0 auto; padding: var(--space-3) var(--space-4) var(--space-10); box-sizing:border-box; }
+  @media (min-width:768px){ .wrap { padding-left:24px; padding-right:24px; } }
+  @media (min-width:1280px){ .wrap { padding-left:40px; padding-right:40px; } }
+
+  .head h1 { font-size: 20px; line-height: 1.22; margin: 0 0 4px; }
+  .head__meta { color: var(--text-muted); font-size: 12px; margin: 0 0 6px; }
+  .intro-wrap { position:relative; }
+  .intro-txt { font-size:13px; line-height:1.5; color: var(--text-secondary); margin:0; overflow:hidden; }
+  .intro-txt.clamped { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .intro-more { border:0; background:none; color: var(--text-link); font-weight:700; font-size:13px; cursor:pointer; padding:4px 0 0; text-decoration:underline; }
+
+  /* Persona filter tabs — real live labels/order/emoji, horizontal scroll strip of pill links */
+  .tabs { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:10px 0 6px; margin-bottom:2px; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tabpill { flex:0 0 auto; border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:7px 14px; font-size:13px; font-weight:600; color:var(--text-primary); text-decoration:none; white-space:nowrap; }
+  .tabpill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
+
+  /* Quick Summary */
+  .qsum { margin: var(--space-2) 0; }
+  .qsum > summary { list-style:none; cursor:pointer; font-weight:700; color:var(--text-primary); font-size:14px; padding:8px 0; display:flex; align-items:center; gap:6px; }
+  .qsum > summary::-webkit-details-marker{display:none}
+  .qsum__icon { font-weight:400; }
+  .qsum__body { font-size:13px; color:var(--text-secondary); padding:2px 0 10px; line-height:1.5; }
+
+  /* Fastest Fulfilment banner (real HeroCampaingFeature block) */
+  .promo-card { display:flex; gap:12px; align-items:flex-start; border:1px solid var(--borders-default); border-radius: var(--r-card); background:var(--fill-card); padding: var(--space-3); margin: var(--space-3) 0; }
+  .promo-card__ic { width:56px; height:56px; flex-shrink:0; border-radius:var(--r-card-inner); background:var(--fill-primary-light); display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .promo-card__body { min-width:0; }
+  .promo-card b { font-size:14px; display:block; margin-bottom:2px; }
+  .promo-card p { margin:2px 0 0; font-size:13px; color:var(--text-secondary); line-height:1.45; }
+  .promo-card p.clamped { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .promo-card__more { border:0; background:none; color:var(--text-link); font-weight:700; font-size:12px; cursor:pointer; padding:4px 0 0; text-decoration:underline; }
+
+  /* Loan Amount + Tenure calculator (real PersonalLoanFilter — 2 fields, sticky) */
+  .calc { position:sticky; top:0; z-index:20; background:var(--fill-base); padding: var(--space-2) 0; margin-bottom:2px; }
+  .calc__row { display:flex; gap:10px; }
+  .calc__fld { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .calc__lbl { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--text-secondary); }
+  .calc__help { color:var(--text-muted); cursor:help; font-size:12px; border:1px solid var(--borders-default); border-radius:50%; width:15px; height:15px; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+  .calc__fld input, .calc__fld select { border:1px solid var(--borders-form-default); border-radius: var(--r-button); padding:9px 10px; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); background:var(--fill-card); width:100%; box-sizing:border-box; }
+  .calc__fld input:focus, .calc__fld select:focus { outline:2px solid var(--fill-primary); border-color:transparent; }
+  .calc.stuck { box-shadow: 0 4px 10px rgba(15,23,42,.08); border-bottom:1px solid var(--borders-default); }
+
+  /* ============================================================
+     CHANGE 2 — the plain 2-field calculator above is production-fidelity
+     furniture for Baseline/Change 1 only; under Change 2 it's REPLACED
+     entirely (hidden here) by the v20-pattern "Your details" grouped
+     block below, which bundles Loan amount + Tenure + Citizenship +
+     Monthly income into one collapsible card. */
+  body[data-proto-view="change2"] .calc { display:none; }
+
+  /* ============================================================
+     CHANGE 2 — "Your details" grouped block (matches prototype-v20.html's
+     .details pattern exactly): a single details/summary card — "YOUR
+     DETAILS" label + a one-line summary ("S$X · N mths · <citizenship> ·
+     S$Y/mo") + an "Edit" affordance in the summary row, with all four
+     inputs as its body. Open by default; once it scrolls out of view the
+     sticky "Your details" summary bar below takes over (see .sticky-summary
+     CSS further down + the IntersectionObserver in the script, also reused
+     from v20). Shown only under Change 2 — see body[data-proto-view] rule. */
+  .details { display:none; background: var(--fill-card); border:1px solid var(--borders-default); border-radius: var(--r-card-inner); margin-bottom: var(--space-3); }
+  body[data-proto-view="change2"] .details { display:block; }
+  .details > summary { list-style:none; cursor:pointer; padding: 10px 14px; display:flex; align-items:center; justify-content:space-between; gap: 8px; }
+  .details > summary::-webkit-details-marker { display:none; }
+  .details__label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; display:block; }
+  .details__summary { font-weight:700; font-size:13px; }
+  .details__edit { color: var(--text-link); font-weight:600; font-size:13px; white-space:nowrap; }
+  .details__body { padding: 0 14px 14px; display:grid; grid-template-columns:1fr 1fr; gap: 12px; }
+  .details .fld label { display:block; font-weight:600; font-size:12px; margin-bottom:4px; }
+  .details .imoney, .details .iunit { display:flex; align-items:center; border:1px solid var(--borders-form-default); border-radius: var(--r-button); overflow:hidden; }
+  .details .imoney span, .details .iunit span { padding: 0 8px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
+  .details .imoney input, .details .iunit input { border:0; outline:0; width:100%; padding:8px 8px 8px 0; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); }
+  .details .fld select { width:100%; padding: 8px; border:1px solid var(--borders-form-default); border-radius: var(--r-button); font:inherit; font-size:16px; background:var(--fill-card); color:var(--text-primary); }
+  /* v20 groups 4 fields at 2 cols on mobile, growing to 3/5 cols on a narrower (640px) max-width
+     page; this redesign's wrap is wider (1130px desktop) and only ever holds these same 4 fields,
+     so it steps straight to a single 4-col row at tablet+ rather than v20's 3-then-5 split (which
+     would leave an empty 5th cell here). */
+  @media (min-width:768px){ .details__body{grid-template-columns:repeat(4,1fr)} }
+
+  .section-h { font-size:15px; font-weight:700; margin: var(--space-4) 0 var(--space-1); }
+  .section-hint { font-size:11px; color:var(--text-muted); margin: 0 0 var(--space-2); }
+
+  /* Comparison table — real ComparisonTableBuilder/PLColumnSource structure */
+  .pct-section { margin: var(--space-3) 0 var(--space-4); }
+  .pct-wrap { border:1px solid var(--borders-default); border-radius: var(--r-table); background: var(--fill-card); overflow:hidden; position:relative; }
+  .pct-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; box-shadow: inset -10px 0 8px -8px rgba(15,23,42,.14); }
+  .pct-scroll::-webkit-scrollbar { display:none; }
+  .pct-table { border-collapse:separate; border-spacing:0; width:100%; min-width:760px; background:var(--fill-card); }
+  .pct-table th, .pct-table td { padding:12px 14px; text-align:left; white-space:nowrap; vertical-align:middle; }
+  /* No column/vertical grid-lines and no inter-row vertical rules on live — only a
+     subtle horizontal row separator (border-top) on a white background (verified: ComparisonTableBuilder.tsx
+     never adds a vertical border between tbody cells; this replica drops the header's border-l too so nothing reads as a grid). */
+  .pct-table td { font-size:13px; font-weight:500; }
+  .pct-table thead th { background:var(--fill-alternative-1); font-size:14px; font-weight:700; color:var(--text-primary); white-space:normal; line-height:1.3; }
+  .pct-table tbody td { border-top:1px solid var(--borders-default); }
+  .pct-table tbody tr:hover td { background:var(--fill-base); }
+  @media (min-width:768px){
+    .pct-table thead th { font-size:15px; }
+    .pct-table td { font-size:14px; }
+  }
+  .pct-sticky { position:sticky; left:0; z-index:2; background:var(--fill-card); }
+  .pct-table thead th.pct-sticky { background:var(--fill-alternative-1); z-index:3; }
+  .pct-table tbody tr:hover td.pct-sticky { background:var(--fill-base); }
+  .pct-loan { display:flex; align-items:center; gap:10px; min-width:172px; }
+  .pct-loan img { height:26px; width:auto; max-width:64px; object-fit:contain; flex-shrink:0; }
+  .pct-loan span { font-weight:700; font-size:13px; color:var(--text-primary); white-space:normal; line-height:1.25; }
+  .pct-reward { border:0; background:var(--fill-primary-light); padding:5px 10px; font:inherit; font-weight:700; font-size:13px; color:var(--fill-primary-dark); cursor:pointer; text-align:left; border-radius:var(--r-tooltip); }
+  .pct-reward:hover { background:var(--fill-primary-subtle,#e3edff); }
+  .pct-reward.pct-na { background:none; padding:0; color:var(--text-muted); font-weight:400; cursor:pointer; }
+  .pct-reward.pct-na:hover { background:none; text-decoration:underline; }
+  .mhg-btn--outline-cta { background:var(--fill-card); color:var(--buttons-cta); border-color:var(--buttons-cta); }
+  .mhg-btn--outline-cta:hover:not(:disabled):not([aria-disabled="true"]) { background:var(--fill-alternative-1); color:var(--buttons-cta-hover); border-color:var(--buttons-cta-hover); }
+  .pct-monthly { font-weight:700; color:var(--fill-primary-dark); }
+  .pct-src { font-size:11px; color:var(--text-muted); margin:8px 2px 0; }
+  @media (min-width:768px){ .pct-loan span, .pct-reward { font-size:14px; } }
+  @media (min-width:1280px){ .pct-table { min-width:100%; } }
+
+  /* Show All Loans — real chevron header + logo strip, part of the ComparisonTable component */
+  .showall { border-top:1px solid var(--borders-default); background:var(--fill-card); }
+  .showall > summary { list-style:none; cursor:pointer; padding:12px 14px; font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px; }
+  .showall > summary::-webkit-details-marker { display:none; }
+  .showall__chev { display:inline-block; color:var(--text-muted); transition:transform .2s; font-weight:400; }
+  .showall[open] .showall__chev { transform:rotate(90deg); }
+  .showall__body { padding:0 14px 14px; }
+  .showall__note { font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+  .showall__strip { display:flex; flex-wrap:wrap; gap:8px; }
+  .showall__chip { border:1px solid var(--borders-default); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600; color:var(--text-primary); background:var(--fill-alternative-1); }
+
+  /* SingSaver Tips */
+  .tips { border-radius: var(--r-card); overflow:hidden; border:1px solid var(--borders-default); margin: var(--space-4) 0; }
+  .tips__h { background: var(--fill-primary); color:var(--text-on-dark); font-weight:700; padding:10px 14px; font-size:14px; }
+  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; color:var(--text-secondary); }
+
+  /* Why Trust SingSaver */
+  .wts { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); margin: var(--space-3) 0; }
+  .wts > summary { list-style:none; cursor:pointer; padding:12px 14px; display:flex; align-items:center; gap:8px; font-weight:700; font-size:14px; }
+  .wts > summary::-webkit-details-marker { display:none; }
+  .wts img { height:20px; }
+  .wts__body { padding:0 14px 14px; font-size:13px; color:var(--text-secondary); line-height:1.55; }
+  .wts__body ul { margin:8px 0 0; padding-left:18px; }
+  .wts__body li { margin-bottom:6px; }
+
+  /* "Don't miss out on these great deals" — real Promotional Campaigns PL block
+     (fe-services CreditCardPromotion.tsx + ComponentCredtiCardPromotion/* — the actual component the live PL page
+     renders for this section, NOT the generic PromotionalBanner). Deal tabs across the top; selected deal =
+     left column (title/blurb/Participating Products/How to Qualify) + right column (reward-tier gift grid). */
+  .promoblk { margin: var(--space-4) 0; }
+  .promoblk__h { font-size:15px; font-weight:700; margin:0 0 10px; }
+  .promoblk__tabs { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:16px; }
+  .promoblk__tabs::-webkit-scrollbar { display:none; }
+  .promoblk__tab { flex:0 0 auto; text-align:left; border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; padding:10px 14px; cursor:pointer; min-width:170px; }
+  .promoblk__tab b { display:block; font-size:13px; color:var(--text-primary); line-height:1.3; }
+  .promoblk__tab span { font-size:12px; color:var(--text-muted); }
+  .promoblk__tab.on { background:var(--fill-primary-light); border-color:var(--fill-primary); }
+  .promoblk__body { display:flex; flex-direction:column; gap:20px; }
+  .promoblk__left { min-width:0; }
+  .promoblk__title { font-size:18px; font-weight:800; margin:0 0 8px; line-height:1.3; }
+  .promoblk__blurb { font-size:13px; color:var(--text-secondary); line-height:1.55; margin:0 0 14px; }
+  .promoblk__h4 { font-size:13px; font-weight:700; margin:0 0 8px; }
+  .promoblk__product { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .promoblk__product img { height:22px; width:auto; max-width:56px; object-fit:contain; flex-shrink:0; }
+  .promoblk__prodname { font-weight:700; color:var(--text-link); font-size:13px; }
+  .promoblk__prodlabel { font-size:13px; color:var(--text-secondary); }
+  .promoblk__qual { font-size:12.5px; line-height:1.6; color:var(--text-secondary); margin:0 0 16px; padding-left:18px; }
+  .promoblk__qual li { margin-bottom:6px; }
+  .promoblk__qual ul { margin:6px 0; padding-left:18px; }
+  .promoblk__qual a { color:var(--text-link); text-decoration:underline; }
+  .promoblk__tbl { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0 12px; }
+  .promoblk__tbl th, .promoblk__tbl td { border:1px solid var(--borders-default); padding:6px 8px; text-align:left; }
+  .promoblk__tbl th { background:var(--fill-alternative-1); font-weight:700; }
+  .promoblk__right { min-width:0; }
+  .promoblk__applyby { font-size:12.5px; font-weight:600; color:var(--text-primary); margin:0 0 10px; }
+  .promoblk__grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .gifttile { border:1px solid var(--borders-default); border-radius:12px; overflow:hidden; background:var(--fill-card); display:flex; flex-direction:column; }
+  .gifttile__tag { background:var(--highlight-red-light); color:var(--highlight-red-dark); font-size:10px; font-weight:700; text-align:center; padding:3px 4px; }
+  .gifttile__body { flex:1; display:flex; align-items:center; justify-content:center; padding:12px 8px; min-height:64px; }
+  .gifttile__ic { font-size:22px; line-height:1; margin-bottom:4px; }
+  .gifttile__amt { font-size:11px; font-weight:700; color:var(--text-primary); text-align:center; line-height:1.3; }
+  .gifttile__worth { background:var(--fill-alternative-1); color:var(--text-secondary); font-size:10.5px; font-weight:600; text-align:center; padding:5px 4px; }
+  /* Real component renders the gift grid inline in the left column on mobile/tablet (ProductCampaignGifts,
+     "block lg:hidden"), and as its own right column on desktop ("hidden lg:block") — not both at once. */
+  .promoblk__giftslot--mobile { display:block; margin:0 0 16px; }
+  .promoblk__giftslot--desktop { display:none; }
+  @media (min-width:768px){
+    .promoblk__body { flex-direction:row; justify-content:space-between; gap:32px; }
+    .promoblk__left { flex:1; max-width:636px; }
+    .promoblk__right { flex-shrink:0; width:340px; }
+    .promoblk__grid { grid-template-columns:repeat(3,1fr); }
+    .promoblk__giftslot--mobile { display:none; }
+    .promoblk__giftslot--desktop { display:block; }
+  }
+  @media (min-width:1280px){ .promoblk__right { width:390px; } }
+
+  /* ============================================================
+     BASELINE-FIDELITY FIX 1 — full-bleed campaign background tint that
+     switches per selected deal tab. Real component: fe-services
+     src/components/cms/components-user/ComponentCredtiCardPromotion/
+     ProductCampaignBackground.tsx ("ProductsCampaignBackground") +
+     helpers/getColorSchema.ts — an absolutely-positioned, full-bleed div
+     sits behind the whole block; its gradient = the active campaign's
+     CMS-configured `color` field (green/red/blue/yellow/orange) resolved
+     to `linear-gradient(to right, var(--colors-campaign-{c}-1), white)`.
+     Those --colors-campaign-* vars are CMS/Figma-only and aren't in this
+     repo's tokens.css, so APPROXIMATED with the closest existing tokens:
+     DBS + UOB both use the "red" schema (--highlight-red-light →
+     --fill-card, i.e. rose/pink); SCB + Trust both use the "green" schema
+     (--highlight-green-light → --fill-card, mint). The real component only
+     has 5 discrete colour keys, so two campaigns sharing one key is
+     expected — the "rose" vs "very light pink" / "mint" vs "light
+     mint-green" difference the brief describes reads as a difference in
+     surrounding copy/tile density, not a distinct colour value.
+     Full-bleed is done by JS-measuring the true viewport width + the
+     block's own offset from the viewport edge (layoutCampaignBg() below),
+     not the `100vw` CSS trick (which overflows the page by the
+     scrollbar's width) — a more robust rebuild of the same idea the real
+     component uses (a `visualViewport`-driven inline pixel width). This
+     is unaffected by the Sort & Filter left column below (the tint is
+     measured off .promoblk's own live position, not assumed centering). */
+  .promoblk { position:relative; z-index:0; }
+  .promoblk__bg { position:absolute; top:0; bottom:0; left:0; z-index:-1; pointer-events:none; transition:background .3s ease; }
+  .promoblk__bg--pink  { background: linear-gradient(to right, var(--highlight-red-light), var(--fill-card)); }
+  .promoblk__bg--green { background: linear-gradient(to right, var(--highlight-green-light), var(--fill-card)); }
+
+  /* Product detail cards (real cms-components ProductCard/ set) */
+  .cards { display:flex; flex-direction:column; gap: var(--space-3); }
+  .loan { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); padding: var(--space-4); box-shadow: var(--shadow-card); }
+  .loan__tag { display:inline-block; background: var(--fill-primary-light); color: var(--text-link); font-size:11px; font-weight:700; border-radius: var(--r-pill); padding:3px 10px; margin-bottom: var(--space-3); }
+  .loan__head { display:flex; flex-direction:column; align-items:stretch; gap:12px; margin-bottom: var(--space-3); }
+  .loan__id { display:flex; align-items:center; gap:10px; min-width:0; }
+  .loan__logobox { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:52px; height:52px; box-sizing:border-box; padding:6px; border:1px solid var(--borders-default); border-radius: var(--r-card-inner); background: var(--fill-card); }
+  .plogo-lg { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+  .loan__name { font-weight:800; font-size:14px; line-height:1.3; color:var(--text-primary); }
+  .loan__ctawrap .mhg-btn { width:100%; }
+  @media (min-width: 768px){ .loan__head{flex-direction:row;align-items:flex-start;justify-content:space-between;gap:10px} .loan__ctawrap .mhg-btn{width:auto} }
+
+  .loan__grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin: var(--space-3) 0; }
+  .g2 .l { font-size:11px; color:var(--text-muted); } .g2 .v { font-size:15px; font-weight:700; } .g2 .v small{font-weight:400;font-size:11px;color:var(--text-muted)}
+  @media (min-width: 768px){ .loan__grid2{grid-template-columns:repeat(4,1fr)} }
+
+  .acc { border-top:1px solid var(--borders-soft); }
+  .acc > summary { list-style:none; cursor:pointer; padding:10px 0; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:13px; }
+  .acc > summary::-webkit-details-marker { display:none; }
+  .acc > summary::after { content:"▾"; color:var(--text-muted); font-size:10px; } .acc[open] > summary::after { content:"▴"; }
+  .acc__body { padding: 0 0 12px; font-size:12px; color:var(--text-secondary); }
+  .acc--reward { background:var(--fill-primary-light); border-radius:var(--r-card-inner); border-top:0; padding:0 12px; margin:0 0 4px; }
+  .acc--reward > summary { padding:12px 0; }
+  .acc--reward .acc__body { padding-bottom:14px; }
+  .offer-blurb { font-size:13px; color:var(--text-secondary); margin:0 0 8px; line-height:1.5; }
+  .dlrow { display:flex; justify-content:space-between; gap:12px; padding:6px 0; font-size:14px; }
+  .dlrow .k { color:var(--text-secondary); } .dlrow .v { font-weight:700; color:var(--text-primary); text-align:right; }
+  .featlist { list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .featlist li { display:flex; gap:8px; font-size:13px; color:var(--text-secondary); align-items:flex-start; line-height:1.4; }
+  .ic-pro { color:var(--success); font-weight:800; }
+  .stepslabel { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); margin:0 0 6px; }
+  .steplist { margin:0 0 4px; padding-left:0; list-style:none; font-size:13px; color:var(--text-secondary); line-height:1.5; }
+  .steplist li { margin-bottom:6px; }
+
+  /* FAQ (real, verbatim) */
+  .faq { margin:var(--space-5) 0 var(--space-4); }
+  .faq__item { border-bottom:1px solid var(--borders-soft); }
+  .faq__item > summary { list-style:none; cursor:pointer; padding:14px 2px; font-weight:700; font-size:14px; display:flex; justify-content:space-between; gap:10px; }
+  .faq__item > summary::-webkit-details-marker { display:none; }
+  .faq__item > summary::after { content:"+"; color:var(--text-muted); font-weight:400; } .faq__item[open] > summary::after { content:"–"; }
+  .faq__item p { margin:0 2px 14px; font-size:13px; line-height:1.55; color:var(--text-secondary); }
+
+  /* Long-form editorial section — headings only, stubbed */
+  .stub-note { font-size:12px; color:var(--text-muted); background:var(--fill-alternative-1); border:1px dashed var(--borders-default); border-radius:8px; padding:10px 12px; margin:0 0 12px; line-height:1.5; }
+  .stub-list { columns:1; margin:0; padding-left:18px; font-size:13px; color:var(--text-secondary); line-height:2; }
+  @media (min-width:768px){ .stub-list{columns:2; column-gap:32px;} }
+
+  /* Site footer (real) */
+  .site-foot { background:#0a1929; color:#cbd5e1; padding:28px 16px 20px; margin-top:var(--space-5); }
+  .site-foot__grid { max-width:1040px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:22px 16px; }
+  .site-foot__col h4 { font-size:13px; font-weight:700; color:#fff; margin:0 0 10px; }
+  .site-foot__col a { display:block; font-size:13px; color:#cbd5e1; text-decoration:none; padding:4px 0; }
+  .site-foot__col a:hover { color:#fff; }
+  .site-foot__legal { max-width:1040px; margin:22px auto 0; border-top:1px solid rgba(255,255,255,.12); padding-top:16px; font-size:11px; color:#94a3b8; line-height:1.6; }
+  @media (min-width:768px){ .site-foot__grid { grid-template-columns:repeat(3,1fr); } }
+  @media (min-width:1024px){ .site-foot__grid { grid-template-columns:repeat(6,1fr); } }
+
+  .trust-foot { margin-top: var(--space-5); font-size:11px; color: var(--text-muted); border-top:1px solid var(--borders-soft); padding-top: 12px; }
+
+  /* ============================================================
+     BASELINE-FIDELITY FIX 2 — sticky bottom "Hot Pick" promo bar
+     (currently missing). Real component: fe-services
+     src/components/cms/components-user/SimpleStickyFooter.tsx — a CMS-driven
+     `ComponentSimpleStickyFooter`: title + RichText content + one Button +
+     a colour_shema. The RED scheme = light rose/pink bar background
+     (`bg-highlights/red-light`) + a red outline button
+     (`border-campaign/red-3`/`text-campaign/red-3`, hover-fills solid) —
+     exactly the "light-pink bar / red outline Apply Now" the task
+     describes. Approximated with this repo's --highlight-red-light /
+     --highlight-red-dark tokens since --colors-campaign-red-3 isn't in
+     tokens.css (see new .mhg-btn--outline-red in buttons.css). Behaviour
+     matches the real component: hidden until the user has scrolled >10px,
+     auto-hides once the site footer scrolls into view (guarded
+     IntersectionObserver), dismissible via ✕ — session-only, no
+     persistence (matches the real component's plain React state, not
+     localStorage/sessionStorage). This is production furniture (fidelity),
+     not a Step-1 redesign proposal — never wrapped in "✨ changes". */
+  .hotpick { position:fixed; left:0; right:0; bottom:0; z-index:46; background:var(--highlight-red-light); box-shadow:0 -4px 16px rgba(15,23,42,.12); transform:translateY(0); transition:transform .3s ease-out; }
+  .hotpick.hidden { transform:translateY(100%); }
+  .hotpick__inner { max-width:990px; margin:0 auto; display:flex; flex-direction:column; gap:8px; padding:12px 16px calc(10px + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; }
+  .hotpick__main { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .hotpick__title { margin:0; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; font-size:14px; font-weight:700; color:var(--highlight-red-dark); line-height:1.35; }
+  .hotpick__titlelink { color:inherit; text-decoration:none; }
+  .hotpick__titlelink:hover { text-decoration:underline; }
+  .hotpick__body { margin:0; font-size:12px; line-height:1.5; color:var(--text-secondary); }
+  .hotpick__cta { display:flex; align-items:center; }
+  .hotpick__apply { width:100%; }
+  .hotpick__x { border:0; background:none; cursor:pointer; font-size:15px; line-height:1; color:var(--text-primary); flex-shrink:0; width:26px; height:26px; border-radius:6px; }
+  .hotpick__x:hover { background:rgba(15,23,42,.06); }
+  .hotpick__x--desktop { display:none; }
+  @media (min-width:1024px){
+    .hotpick__inner { flex-direction:row; align-items:center; justify-content:space-evenly; gap:24px; padding:14px 56px 14px 20px; position:relative; }
+    .hotpick__main { flex:1; }
+    .hotpick__x--mobile { display:none; }
+    .hotpick__x--desktop { display:inline-flex; align-items:center; justify-content:center; position:absolute; right:16px; top:50%; transform:translateY(-50%); }
+    .hotpick__apply { width:auto; }
+  }
+  /* Keep clear of any open drawer/panel so its footer controls (Apply/Close) stay reachable —
+     incl. the Sort & Filter drawer added in Step 1, on mobile/tablet where it's an overlay. */
+  body:has(.backdrop.open) .hotpick,
+  body:has(#sfPanel.open) .hotpick { transform:translateY(100%) !important; }
+
+  /* Reward drawer (real RewardsMobileDrawer / RewardsDesktopDialog / RewardBody shell) */
+  .backdrop { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; z-index:50; } .backdrop.open{display:block}
+  .drawer { position:fixed; left:auto; right:0; top:0; bottom:0; width:min(520px,92%); max-width:92%; height:100%; max-height:100%; background:var(--fill-card); border-radius:0; z-index:51; transform:translateX(100%); transition:transform .25s ease; display:flex; flex-direction:column; box-shadow:-8px 0 24px rgba(15,23,42,.18); }
+  .drawer.open { transform:translateX(0); }
+  .drawer__head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:16px; border-bottom:1px solid var(--borders-soft); }
+  .drawer__head h3 { margin:0; font-size:16px; }
+  .drawer__x { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; }
+  .drawer__body { overflow-y:auto; padding:16px; background: var(--fill-alternative-1); }
+  .drawer__foot { display:flex; align-items:center; gap:10px; padding:14px 16px; border-top:1px solid var(--borders-soft); background: var(--fill-card); }
+  .drawer__foot .nm { font-weight:700; font-size:13px; flex:1; }
+  .rgift { border:1px solid var(--borders-default); border-radius:16px; overflow:hidden; background:var(--fill-card); }
+  .rgift__hd { display:flex; gap:10px; align-items:flex-start; padding:14px; background:var(--fill-primary-light); border-bottom:1px solid var(--borders-default); }
+  .rgift__ic { font-size:20px; line-height:1; }
+  .rgift__t { font-weight:800; font-size:14px; color:var(--fill-primary-dark); }
+  .rgift__bd { padding:14px; background:var(--fill-card); }
+  .rgift__lbl { font-size:12px; font-weight:700; color:var(--text-primary); margin:10px 0 4px; }
+  .rgift__opts { margin:0 0 4px; padding-left:18px; font-size:13px; color:var(--text-secondary); }
+  .rgift__opts li { margin-bottom:6px; line-height:1.45; }
+  .rgift__tc { font-size:11.5px; color:var(--text-muted); line-height:1.5; margin:0; }
+  .rgift__banner { background:var(--fill-primary-light); color:var(--fill-primary-dark); font-weight:800; font-size:14px; padding:12px 14px; border-radius:var(--r-card-inner); margin:0 0 6px; }
+  .rf__id { display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
+  .rf__txt { display:flex; flex-direction:column; min-width:0; }
+  .rf__name { font-weight:700; font-size:13px; white-space:normal; }
+  .rf__amt { font-size:11px; color:var(--text-muted); }
+  /* Desktop/tablet: real AsideModal.tsx is a RIGHT-SIDE panel (md:inset-y-0 md:left-auto md:w-[640px] lg:w-[720px]),
+     never a centered/full-screen dialog — only mobile (<768px) stays full-screen/bottom-sheet. */
+  @media (min-width: 768px){
+    .drawer{ left:auto; right:0; top:0; bottom:0; margin:0; width:520px; max-width:calc(100% - 0px); height:100%; max-height:100%; border-radius:0; transform:translateX(100%); transition:transform .3s ease; box-shadow:-8px 0 24px rgba(15,23,42,.18); }
+    .drawer.open{ transform:translateX(0); }
+  }
+  @media (min-width: 1280px){ .drawer{ width:580px; } }
+
+  /* ============================================================
+     REDESIGN STEP 1 — Sort & Filter panel (the only proposed change
+     in this file vs the production baseline). Styled from real
+     components read live from fe-services (gh api, never cloned):
+       components/singsaver/FilterPanelSingsaver.tsx  — mobile: fixed
+         full-bleed overlay w/ dimmed backdrop; ≥lg1 (this build: 1024px
+         per task spec): "lg1:relative lg1:block lg1:w-1/4 lg1:rounded
+         lg1:border" i.e. a persistent, in-flow left column.
+       components/singsaver/FiltersSingsaver.tsx        — filter-type
+         dispatch (checkbox / single-select / switch).
+       components/singsaver/CheckboxSingsaver.tsx       — size-6 rounded
+         checkbox + bold label, "mt-2 inline-flex items-center".
+       components/templates/ProductResults/Filters.tsx  — FilterHeader
+         ("mb-paragraph font-body font-bold") above each filter group.
+       components/templates/ProductResults/Sort.tsx     — sort-by-key
+         comparator (Popular/featured first, else ascending sortValue).
+       components/singsaver/SearchFormSingSaver.tsx     — mobile trigger
+         is a fixed icon-only FAB ("lg1:hidden"); this build uses a
+         labelled "⇅ Sort & Filter" pill per the task brief instead of
+         the bare icon FAB, and places it inline (replacing the persona
+         tabs slot) rather than fixed bottom-right — both approximated,
+         noted in the report.
+     ============================================================ */
+
+  /* Two-column layout: persistent left panel (≥1024px) beside the
+     comparison table + "Compare in detail" cards — everything else in
+     the page stays a single column, untouched. */
+  .pl-layout { display:block; }
+  .pl-results { min-width:0; }
+  @media (min-width:1024px){
+    .pl-layout { display:flex; align-items:flex-start; gap:var(--space-6); }
+    .pl-results { flex:1; min-width:0; }
+    .sf-trigger-row { display:none; }
+  }
+
+  /* Mobile/tablet trigger — replaces the old persona-tab strip slot */
+  .sf-trigger-row { margin:0 0 10px; display:flex; justify-content:flex-end; }
+  /* Re-hide ≥1024px (persistent left panel is used there). Repeated AFTER the base rule above so
+     source order wins — a media query adds no specificity, so the earlier hide alone loses to this. */
+  @media (min-width:1024px){ .sf-trigger-row { display:none; } }
+  .sf-trigger { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:6px 12px; font-size:12px; font-weight:700; color:var(--text-primary); cursor:pointer; }
+  .sf-trigger:hover { background:var(--fill-alternative-1); }
+
+  /* Backdrop (mobile/tablet only — hidden entirely ≥1024px) */
+  .sf-backdrop { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; z-index:44; }
+  .sf-backdrop.open { display:block; }
+
+  /* Panel shell — mirrors FilterPanelSingsaver.tsx: mobile bottom-sheet →
+     tablet right-side sliding panel (same convention as the existing
+     reward drawer) → desktop persistent static left column. */
+  .sf-panel { position:fixed; left:0; right:0; bottom:0; max-height:88%; background:var(--fill-card); border-radius:20px 20px 0 0; z-index:45; transform:translateY(100%); transition:transform .25s ease; display:flex; flex-direction:column; }
+  .sf-panel.open { transform:translateY(0); }
+  .sf-panel__head { display:flex; align-items:center; gap:8px; padding:16px; border-bottom:1px solid var(--borders-soft); flex-shrink:0; }
+  .sf-panel__head b { flex:1; font-size:16px; }
+  .sf-panel__close { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:15px; flex-shrink:0; }
+  .sf-panel__body { overflow-y:auto; padding:4px 16px 16px; }
+  .sf-group { padding:14px 0; border-bottom:1px solid var(--borders-soft); }
+  .sf-group:last-child { border-bottom:0; }
+  /* FilterHeader real class: "mb-paragraph font-body font-bold" (font-body = 16px per fe-services'
+     tailwind.config.js `fonts()` plugin) — mapped to --font-size-body-1 (16px mobile / 18px tablet+),
+     the closest token match, replacing the ad-hoc 13px this group previously used (checker fix:
+     "Sort By font size" — the label + every other group header now follow the type scale). */
+  .sf-group__h { font-size:var(--font-size-body-1); font-weight:700; margin:0 0 10px; color:var(--text-primary); }
+  .sf-select { width:100%; border:1px solid var(--borders-form-default); border-radius:var(--r-button); padding:10px 12px; font:inherit; font-size:var(--font-size-form-input); font-weight:600; background:var(--fill-card); color:var(--text-primary); }
+  .sf-select:focus { outline:2px solid var(--fill-primary); border-color:transparent; }
+  .sf-pills { display:flex; flex-wrap:wrap; gap:8px; }
+  /* CheckboxSingsaver real classes: "form-checkbox size-6 rounded border …", "mt-2 inline-flex items-center",
+     label = "font-small font-bold" (font-small = 14px) — mapped to --font-size-body-2 (14px mobile /
+     16px tablet+), same token used below for .sf-check; .sf-pill (Category) matched to the same
+     token for a consistent scale across the whole panel, replacing both controls' ad-hoc 13px. */
+  .sf-pill { border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:7px 13px; font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); cursor:pointer; }
+  .sf-pill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
+  .sf-check { display:flex; align-items:center; gap:10px; padding:7px 0; cursor:pointer; font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); }
+  .sf-check input { width:20px; height:20px; accent-color:var(--fill-primary); flex-shrink:0; border-radius:4px; border:1px solid var(--borders-form-default); }
+
+  /* Collapsible filter groups (Category / Loan Features / Bank) — compacts the panel by default
+     (checker fix: shorten the first fold) using native <details>, the same pattern already used
+     everywhere else on this page (.acc/.qsum/.showall/.wts). Sort By stays a single always-visible
+     group — one <select> is already compact, no need to hide it behind a summary. Collapsed by
+     default at every breakpoint (mobile drawer already scrolls fine on its own; this just means
+     less to scroll through there too — a net improvement, not a regression). */
+  .sf-acc { border-bottom:1px solid var(--borders-soft); }
+  .sf-acc:last-child { border-bottom:0; }
+  .sf-acc__sum { padding:14px 0; margin:0; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .sf-acc__sum::-webkit-details-marker { display:none; }
+  .sf-acc__chev { color:var(--text-muted); font-weight:400; font-size:var(--font-size-caption); flex-shrink:0; transition:transform .15s ease; }
+  .sf-acc[open] > .sf-acc__sum .sf-acc__chev { transform:rotate(180deg); }
+  .sf-acc__body { padding:0 0 14px; }
+  .sf-panel__foot { display:flex; gap:10px; padding:14px 16px; border-top:1px solid var(--borders-soft); background:var(--fill-card); flex-shrink:0; }
+  .sf-panel__foot .mhg-btn { flex:1; }
+  .sf-empty { font-size:13px; color:var(--text-secondary); padding:16px; text-align:center; border:1px dashed var(--borders-default); border-radius:var(--r-card-inner); background:var(--fill-alternative-1); display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .sf-empty .mhg-btn { flex:0 0 auto; }
+
+  @media (min-width:768px){
+    .sf-panel { left:auto; right:0; top:0; bottom:0; width:360px; max-width:100%; height:100%; max-height:100%; border-radius:0; transform:translateX(100%); transition:transform .3s ease; box-shadow:-8px 0 24px rgba(15,23,42,.18); }
+    .sf-panel.open { transform:translateX(0); }
+  }
+  @media (min-width:1024px){
+    .sf-backdrop { display:none !important; }
+    /* Checker fix: desktop panel was clipped — position:static let it just grow inside the flex
+       row, so once any group was expanded (Category/Features/Bank all open, or a long Bank list)
+       its lower groups + the Clear All/Apply footer could scroll past both the viewport AND the
+       (much shorter) results column beside it, with no way back to them short of scrolling back
+       up the whole page. Fix: make the panel sticky (pinned just under the sticky loan-amount/
+       tenure calculator — ~86px tall — with a small gap) and give it its OWN bounded height +
+       internal overflow-y:auto, so a tall panel scrolls within itself and the header/footer never
+       leave view. Combined with the collapsed-by-default accordions above, the panel is short by
+       default and never clips at any expanded height. */
+    .sf-panel { position:sticky; top:96px; transform:none !important; transition:none; z-index:10; width:280px; flex-shrink:0; align-self:flex-start; max-height:calc(100vh - 112px); height:auto; border-radius:var(--r-card); border:1px solid var(--borders-default); box-shadow:none; overflow:hidden; }
+    .sf-panel__head { flex-shrink:0; }
+    .sf-panel__body { flex:1 1 auto; min-height:0; overflow-y:auto; }
+    .sf-panel__foot { flex-shrink:0; }
+    .sf-panel__close { display:none; }
+    #sfApply { display:none; } /* Apply only makes sense to dismiss the mobile/tablet drawer */
+  }
+  /* CHANGE 2, desktop only: the full calculator is no longer sticky under Change 2 (see the
+     body[data-proto-view="change2"] .calc override above) — the persistent top chrome is now the
+     much-shorter sticky-summary bar (~40px) instead, once scrolled that far. Tightens the panel's
+     sticky offset to match (was 96px/112px sized for the taller sticky calculator), same "small gap"
+     logic as the comment above. */
+  @media (min-width:1024px){
+    body[data-proto-view="change2"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
+  }
+
+  /* ============================================================
+     PROTOTYPE VIEW TOGGLE — Baseline ⇄ Change 1 ⇄ Change 2 (demo chrome, EN). Lets a stakeholder
+     flip between the live production page and each step's proposed change, in place of the old
+     standalone "✨ changes" FAB (removed — this toggle is now the primary way to show the diff).
+     Views are CUMULATIVE: Baseline = production only; Change 1 = + Sort & Filter; Change 2 =
+     Change 1 + the calculator/eligibility additions below — so any CSS gated to "not baseline"
+     (i.e. listing both change1 and change2) is Change-1 chrome that keeps showing under Change 2;
+     CSS gated to "change2 only" is this step's own new addition. Built to extend further: PROTO_VIEWS
+     below is a simple list — adding "Change 3 · …" later is a 1-line push to that array plus adding
+     "change3" to the relevant selector lists here. Default view = Change 2 (data-proto-view is
+     hard-coded onto <body> in the markup, so there's no flash-of-baseline before JS runs). */
+  .proto-view-bar { position:relative; z-index:39; background:var(--fill-alternative-1); border-bottom:1px solid var(--borders-default); padding:8px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .proto-view-bar__label { font-size:var(--font-size-caption); font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; }
+  /* Pre-existing bug fix (found while verifying no-horizontal-overflow for this pass, unrelated to
+     Change 1/2 — this bar is shared demo chrome): the 3 view-toggle pills' combined un-wrapped width
+     is wider than a mobile viewport, and being a single flex item they didn't shrink or wrap, causing
+     page-level horizontal scroll in every view including Baseline. Letting the pill group itself wrap
+     onto 2 lines (still one rounded pill container) fixes it without changing any of its content/labels. */
+  .proto-view-toggle { display:inline-flex; flex-wrap:wrap; max-width:100%; background:var(--fill-card); border:1px solid var(--borders-form-default); border-radius:var(--r-pill); padding:3px; gap:2px; }
+  .proto-view-btn { border:0; background:none; border-radius:var(--r-pill); padding:6px 14px; font-size:var(--font-size-caption); font-weight:700; color:var(--text-secondary); cursor:pointer; white-space:nowrap; }
+  .proto-view-btn.on { background:var(--fill-primary); color:var(--text-on-dark); }
+  .proto-aux-btn { border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:6px 12px; font-size:var(--font-size-caption); font-weight:700; color:var(--text-secondary); cursor:pointer; white-space:nowrap; }
+  .proto-aux-btn.on { background:var(--fill-primary); color:var(--text-on-dark); border-color:var(--fill-primary); }
+  /* Heading (or Change-2 loan count) + Sort & Filter button on ONE line; caption sits below.
+     nowrap so the button never drops to its own row and push the table off the first fold. */
+  .pct-header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:nowrap; margin:0 0 4px; }
+  .pct-header .sf-trigger-row { margin:0; flex-shrink:0; }
+  .pct-header .section-h { margin:0; min-width:0; }
+  /* Change 2 swaps the "Compare Personal Loans" heading for the compact loan count (v20 layout). */
+  body[data-proto-view="change2"] #pctHeading { display:none; }
+
+  /* Baseline ⇄ Change 1 ⇄ Change 2: which chrome shows (persona tabs vs Sort & Filter trigger/
+     panel) and whether .pl-layout reserves a left column at all. Change 1's chrome (sf-trigger-row/
+     sf-panel/sf-backdrop, hidden persona tabs) also shows under Change 2 — cumulative. Everything
+     else on the page (table, cards, promo blocks, FAQ, footer) renders identically in all views. */
+  body[data-proto-view="baseline"] .tabs { display:flex; }
+  body[data-proto-view="change1"] .tabs,
+  body[data-proto-view="change2"] .tabs { display:none; }
+  body[data-proto-view="baseline"] .sf-trigger-row,
+  body[data-proto-view="baseline"] .sf-panel,
+  body[data-proto-view="baseline"] .sf-backdrop { display:none !important; }
+  body[data-proto-view="baseline"] .pl-layout { display:block !important; }
+
+  /* "NEW vs live" chip + dashed-outline highlight — kept, now tied directly to the active view
+     state (per the brief) instead of a separate always-there toggle: shows automatically whenever
+     Change 1 OR Change 2 is the active view (cumulative — Step 1's own additions stay marked when
+     viewing Step 2 too, since they're still a diff vs the true production baseline), hides
+     automatically in Baseline (where those panels are hidden anyway). */
+  .ann { display:none; background:var(--fill-secondary); color:var(--fill-primary-dark); font-size:9px; font-weight:800; border-radius:4px; padding:2px 7px; white-space:nowrap; box-shadow:var(--shadow-md); }
+  body.marks[data-proto-view="change1"] .ann,
+  body.marks[data-proto-view="change2"] .ann { display:inline-block; }
+  body.marks[data-proto-view="change1"] .x-new,
+  body.marks[data-proto-view="change2"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
+  body.marks[data-proto-view="change1"] #sfPanel,
+  body.marks[data-proto-view="change2"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
+  /* Change-1 (persists under Change 2): sort/state caption under the results heading */
+  .sortcap { display:none; font-size:13px; color:var(--text-muted); margin:2px 0 12px; }
+  body[data-proto-view="change1"] .sortcap,
+  body[data-proto-view="change2"] .sortcap { display:block; }
+  .sortcap b { color:var(--text-primary); font-weight:700; }
+
+  /* ============================================================
+     CHANGE 2 — Calculator + eligibility (this step's proposed change; shown only when
+     data-proto-view="change2", cumulative on top of everything Change 1 shows). */
+  /* Results count: a plain bold "N loans" that takes the heading's slot on the compact meta row
+     (v20 layout). No eligibility claim — passing the income range is not a qualification. The
+     Change-1 sort caption sits on its own line below, tightened to v20's 12px in this view. */
+  .qualifycap { display:none; flex:1; min-width:0; font-size:14px; font-weight:700; color:var(--text-primary); margin:0; line-height:1.3; }
+  .qualifycap span { color:var(--text-muted); font-weight:400; font-size:12px; }
+  body[data-proto-view="change2"] .qualifycap { display:block; }
+  body[data-proto-view="change2"] .sortcap { font-size:12px; margin:2px 0 12px; }
+
+  /* Per-loan soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate).
+     TABLE: a small "ⓘ Check eligibility" text link in the Apply cell (.tinfo--no, link colour).
+     CARDS: pills in the badges row — green "SingSaver Exclusive" (.badge--excl) + amber
+     "Check eligibility" (.badge--warn) — plus a bottom note (.loan__elig): amber reason when short,
+     green "meet the basic criteria" when it clears. Concrete colours (SingSaver green + warm amber),
+     not the amber-accent tokens, to match the old prototype. Eligibility elements hidden outside
+     Change 2 (badge--excl is merchandising, always shown). */
+  .tinfo--ok, .tinfo--no { display:none; margin:6px 0 0; font-size:11px; line-height:1.2; font-weight:700; }
+  body[data-proto-view="change2"] .tinfo--no { display:block; }
+  .tinfo--no { white-space:nowrap; color:var(--text-link); cursor:help; }
+  .badge { display:inline-block; font-size:12px; font-weight:700; border-radius:var(--r-pill); padding:3px 10px; }
+  .badge--excl { background:var(--color-olive-700,#5d8433); color:#fff; }
+  .badge--warn { background:#fff7e0; color:#8a5a00; border:1px solid #e6c667; }
+  .loan__elig { font-size:12px; font-weight:600; line-height:1.35; margin:10px 0 0; }
+  .loan__elig--no { color:#8a5a00; }
+  .loan__elig--ok { color:var(--success-dark,#33691e); }
+  .badge--excl, .badge--warn, .loan__elig { display:none; }
+  body[data-proto-view="change2"] .badge--excl,
+  body[data-proto-view="change2"] .badge--warn { display:inline-block; }
+  body[data-proto-view="change2"] .loan__elig { display:block; }
+  .loan__badges { display:flex; flex-wrap:wrap; gap:6px; }
+  .loan__badges:empty { display:none; }
+  .pct-table td.pct-applycell { white-space:normal; }
+  .pct-apply { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .loan__ctawrap { display:flex; flex-direction:column; align-items:stretch; gap:6px; }
+  @media (min-width:768px){ .loan__ctawrap { align-items:flex-end; } }
+  /* Grey-out for ineligible products (old-prototype ".soft") — Change 2 only. Dims the row/card and
+     desaturates the logo so eligible options stand out; "Apply" and the eligibility flag stay full
+     colour and clickable (never a gate). Hidden in Baseline/Change 1 (rows/cards render normally). */
+  body[data-proto-view="change2"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft { background:#fafbfc; }
+  body[data-proto-view="change2"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft .loan__name,
+  body[data-proto-view="change2"] .loan.soft .g2 .v { color:var(--text-muted); }
+
+  /* Sticky "Your details" summary bar — v20 pattern: replaces the full "Your details" block (see
+     .details CSS above) once it scrolls out of view, driven by the same guarded IntersectionObserver
+     approach as v20 (observes #detailsBox directly — see script). Fixed to the very top of the
+     viewport; only relevant/shown under Change 2 (harmless no-op in Baseline/Change 1 since
+     `display:none` wins regardless). */
+  .sticky-summary { position:fixed; top:0; left:0; right:0; z-index:41; background:var(--fill-primary-dark); box-shadow:0 4px 12px rgba(15,23,42,.14); transform:translateY(-100%); transition:transform .25s ease; display:none; }
+  body[data-proto-view="change2"] .sticky-summary { display:block; }
+  .sticky-summary.show { transform:translateY(0); }
+  .sticky-summary__inner { max-width:1130px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; box-sizing:border-box; }
+  .sticky-summary__text { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .sticky-summary__lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:rgba(255,255,255,.65); }
+  .sticky-summary__txt { font-size:12px; font-weight:600; color:var(--text-on-dark); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sticky-summary__edit { border:1px solid rgba(255,255,255,.5); background:none; color:var(--text-on-dark); border-radius:var(--r-pill); padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; }
+  .sticky-summary__edit:hover { background:rgba(255,255,255,.15); }
+  @media (min-width:768px){ .sticky-summary__inner { padding:9px 24px; } }
+  @media (min-width:1280px){ .sticky-summary__inner { padding:9px 40px; } }
+  /* demo chrome: approximate mobile first-fold guideline (illustrative) */
+  body { position:relative; }
+  .foldmark { display:none; }
+  @media (max-width:767px){
+    /* Sits one viewport-height down from the top of the page, so in DevTools device mode it marks
+       the bottom of the selected device's screen (the real first fold) whatever height is chosen. */
+    body.show-fold .foldmark { display:block; position:absolute; left:0; right:0; top:100vh; border-top:2px dashed var(--fill-secondary); z-index:8; pointer-events:none; }
+    body.show-fold .foldmark span { position:absolute; right:10px; top:-10px; background:var(--fill-secondary); color:var(--fill-primary-dark); font-size:9px; font-weight:800; padding:2px 7px; border-radius:4px; white-space:nowrap; }
+  }
+
+  /* password gate (demo — client-side only) */
+  .gate { position:fixed; inset:0; z-index:9999; background:var(--fill-page,#f4f6f8); display:flex; align-items:center; justify-content:center; padding:24px; }
+  .gate[hidden] { display:none; }
+  .gate__box { max-width:360px; width:100%; text-align:center; background:var(--fill-card,#fff); border:1px solid var(--borders-default); border-radius:16px; padding:28px 24px; box-shadow:0 8px 30px rgba(15,23,42,.12); }
+  .gate__logo { height:26px; margin-bottom:16px; }
+  .gate__h { font-size:18px; font-weight:800; margin:0 0 6px; }
+  .gate__p { font-size:13px; color:var(--text-muted); margin:0 0 16px; line-height:1.5; }
+  .gate form { display:flex; flex-direction:column; gap:10px; }
+  .gate input { padding:11px 12px; border:1px solid var(--borders-form-default); border-radius:10px; font-size:16px; }
+  .gate button { padding:11px 12px; border:0; border-radius:10px; background:var(--fill-primary); color:#fff; font-weight:700; font-size:15px; cursor:pointer; }
+  .gate__err { color:var(--danger); font-size:12px; margin:10px 0 0; }
+</style>
+</head>
+<body class="marks" data-proto-view="change2">
+<!-- password gate (demo, client-side only) -->
+<div id="gate" class="gate">
+  <div class="gate__box">
+    <img src="assets/singsaver-color.svg" alt="SingSaver" class="gate__logo">
+    <h1 class="gate__h">Prototype preview</h1>
+    <p class="gate__p">This is an internal SingSaver prototype. Please enter the password to view it.</p>
+    <form id="gateForm">
+      <input id="gatePw" type="password" placeholder="Password" autocomplete="off" autofocus>
+      <button type="submit">View prototype</button>
+    </form>
+    <p id="gateErr" class="gate__err" hidden>Incorrect password — please try again.</p>
+  </div>
+</div>
+<script>
+  (function(){
+    var KEY='ss-pl-baseline-auth', PW='chc-moneyhero', g=document.getElementById('gate');
+    function getAuth(){ try { return sessionStorage.getItem(KEY); } catch(err) { return null; } }
+    function setAuth(){ try { sessionStorage.setItem(KEY,'1'); } catch(err) { /* sessionStorage unavailable (private mode / iframe) — gate still clears for this view */ } }
+    if (getAuth()==='1') { g.hidden=true; }
+    document.getElementById('gateForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      if (document.getElementById('gatePw').value===PW) { setAuth(); g.hidden=true; }
+      else { document.getElementById('gateErr').hidden=false; }
+    });
+  })();
+</script>
+
+<div class="baseline-tag">REDESIGN (from baseline) — Step 1 of 4: Sort &amp; Filter added. Step 2 of 4: Calculator + eligibility added (cumulative on top of Step 1). Everything else on this page is unchanged from the production baseline. Use the Prototype view toggle below to compare against the live baseline.</div>
+
+<!-- Prototype view toggle (demo chrome, EN) — Baseline ⇄ Change 1 ⇄ Change 2 (cumulative), built
+     to extend with Change 3/4 later (see PROTO_VIEWS in the script + the CSS rules keyed off
+     body[data-proto-view]). Buttons are rendered from PROTO_VIEWS so adding a future
+     view is a one-line addition to that array. -->
+<div class="proto-view-bar">
+  <span class="proto-view-bar__label">Prototype view</span>
+  <div class="proto-view-toggle" id="protoViewToggle" role="group" aria-label="Prototype view: baseline or change"></div>
+  <button type="button" class="proto-aux-btn on" id="marksToggle" aria-pressed="true">✨ Show changes</button>
+  <button type="button" class="proto-aux-btn" id="foldToggle" aria-pressed="false">📱 Show mobile fold</button>
+</div>
+
+<header class="site">
+  <button class="site__menu" id="menuBtn" aria-label="Open menu">☰</button>
+  <a href="#" aria-label="SingSaver home"><img class="site__logo" src="assets/singsaver-color.svg" alt="SingSaver"></a>
+  <nav class="site__nav" id="siteNav" aria-label="Primary">
+    <a href="#">Credit Cards</a><a href="#">Insurance</a><a href="#">Loans</a><a href="#">Banking</a><a href="#">Investments</a><a href="#">Blog</a><a href="#">Reward Tracker</a>
+  </nav>
+  <div class="site__right">
+    <a href="#" class="site__login">Log in</a>
+    <button class="site__acct" aria-label="Log in">👤</button>
+  </div>
+</header>
+<!-- Announcement bar — real top-page-sticky-content campaign banner (colour approximated with signature teal token; live uses a per-campaign colour var not present in tokens.css) -->
+<div class="annbar" id="annBar">
+  <span class="annbar__txt">⚡ <strong>Limited Time Only: Up to S$5,825 Cashback</strong> – with Standard Chartered CashOne Personal Loan – <span class="annbar__link" id="annLearnMore">Learn more</span></span>
+  <button class="annbar__x" id="annClose" aria-label="Close campaign banner">✕</button>
+</div>
+
+<div class="foldmark" aria-hidden="true"><span>↑ first fold — bottom of the selected device's viewport</span></div>
+<div class="wrap">
+
+  <nav class="crumb">🏠 &nbsp;/&nbsp; Personal Loans &nbsp;/&nbsp; Best Personal Loans In Singapore July 2026</nav>
+
+  <header class="head">
+    <h1>Best Personal Loans In Singapore July 2026</h1>
+    <p class="head__meta">Updated: 21 Jul 2026</p>
+    <div class="intro-wrap">
+      <p class="intro-txt clamped" id="introTxt">Find the best personal loan in Singapore! SingSaver helps you to compare personal loans from the top banks and licensed money lenders instantly, locking in the lowest interest rates with fast cash disbursement. Apply now to secure an instant loan approvals while scoring exclusive cashback and stackable welcome perks.</p>
+      <button class="intro-more" id="introMore" type="button">Show more</button>
+    </div>
+  </header>
+
+  <!-- REDESIGN STEP 1: in the Baseline view (see Prototype view toggle above) the live persona-tab
+       strip renders here exactly as production — same labels/order/emoji, verbatim from
+       prototype-baseline.html. In the Change 1 view it's hidden and folded into the new Sort &
+       Filter panel's Category filter below instead (9 genuine categories — "Lowest Interest" is
+       a sort, not a category, see Sort By → "Lowest Annual Interest Rate"). Both live in the DOM
+       at all times; body[data-proto-view] (CSS above) shows only one at a time. -->
+  <nav class="tabs" aria-label="Browse personal loans by category">
+    <a class="tabpill on" href="#">🏦 All Loans</a>
+    <a class="tabpill" href="#">📉 Lowest Interest</a>
+    <a class="tabpill" href="#">🤝 Alternate Lenders</a>
+    <a class="tabpill" href="#">🔥 SingSaver Exclusive</a>
+    <a class="tabpill" href="#">🔄 Balance Transfer</a>
+    <a class="tabpill" href="#">🧩 Debt Consolidation</a>
+    <a class="tabpill" href="#">⚡ Fast Cash</a>
+    <a class="tabpill" href="#">💳 Credit Line</a>
+    <a class="tabpill" href="#">🌱 Bad Credit</a>
+    <a class="tabpill" href="#">🌏 Foreigners</a>
+  </nav>
+
+  <!-- (Sort & Filter mobile trigger moved to sit directly above the comparison table — see .pl-results below.) -->
+
+  <details class="qsum">
+    <summary><span class="qsum__icon">＋</span> Quick Summary</summary>
+    <div class="qsum__body">Bank rates start from <b>0.90% p.a.</b> (EIR from 1.75% p.a.). SingSaver rewards and welcome offers vary by bank and loan amount — see the comparison table below for full details.</div>
+  </details>
+
+  <!-- Fastest Fulfilment — real HeroCampaingFeature block -->
+  <div class="promo-card">
+    <div class="promo-card__ic">💸</div>
+    <div class="promo-card__body">
+      <b>Fastest Fulfilment: Get your reward in 3 weeks!</b>
+      <p class="clamped" id="promoTxt">Apply for a UOB Personal Loan, Standard Chartered CashOne Personal Loan or a Trust Bank Instant Loan and enjoy faster reward delivery. Once your loan is approved, your SingSaver reward will be sent within 3 weeks with no extra steps needed.</p>
+      <button class="promo-card__more" id="promoMore" type="button">Show more</button>
+    </div>
+  </div>
+
+  <!-- Loan Amount + Tenure calculator — real PersonalLoanFilter (two fields only). Baseline/Change 1
+       only — hidden entirely under Change 2 (see CSS), where the "Your details" block below replaces it. -->
+  <div class="calc" id="calc">
+    <div class="calc__row">
+      <div class="calc__fld">
+        <label class="calc__lbl" for="amt">Loan Amount (S$) <span class="calc__help" title="Most lenders offer loans between S$1,000 and S$100,000 depending on your profile.">ⓘ</span></label>
+        <input type="text" id="amt" inputmode="numeric" value="8,000">
+      </div>
+      <div class="calc__fld">
+        <label class="calc__lbl" for="tenure">Tenure (months) <span class="calc__help" title="Loan tenure ranges from 6 to 84 months. Longer tenures mean smaller monthly payments but more interest overall.">ⓘ</span></label>
+        <input type="text" id="tenure" inputmode="numeric" value="12">
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE 2: "Your details" — v20 pattern. Replaces the plain calculator above (this step's
+       proposed change): all four eligibility inputs (Loan amount, Tenure, Citizenship, Monthly
+       income) live inside one collapsible details/summary card — "YOUR DETAILS" label + a one-line
+       summary + "Edit" affordance in the summary row, four fields as the body. Open at the top by
+       default; once it scrolls out of view the sticky summary bar (further down) takes over (v20's
+       guarded IntersectionObserver — see script). Thresholds driving the eligibility indicator below
+       are illustrative (real per-lender rules are a data dependency) — see the ⓘ tooltip and
+       LOANS[].eligIncome / eligForeignerOk / eligForeignerIncome in the script. Shown only under
+       Change 2 (see CSS); values are kept in sync with the plain calculator's amt/tenure fields
+       above so the loan amount/tenure never disagree between views (see script). -->
+  <details class="details x-new" id="detailsBox" open>
+    <summary>
+      <span><span class="details__label">Your details<span class="ann">NEW · Change 2</span></span><span class="details__summary" id="detailsSummary"></span></span>
+      <span class="details__edit">Edit ▾</span>
+    </summary>
+    <div class="details__body">
+      <div class="fld">
+        <label for="dAmt">Loan amount</label>
+        <div class="imoney"><span>S$</span><input type="text" id="dAmt" inputmode="numeric" value="8,000"></div>
+      </div>
+      <div class="fld">
+        <label for="dTenure">Tenure (months)</label>
+        <div class="iunit"><input type="text" id="dTenure" inputmode="numeric" value="12"><span>mths</span></div>
+      </div>
+      <div class="fld">
+        <label for="dCitizenship">Citizenship</label>
+        <select id="dCitizenship">
+          <option value="sgpr" selected>Singaporean / PR</option>
+          <option value="foreigner">Foreigner</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label for="dIncome">Monthly income (S$) <span class="calc__help" title="Eligibility shown below is an illustrative estimate only (representative thresholds) — actual lender criteria may differ.">ⓘ</span></label>
+        <div class="imoney"><span>S$</span><input type="text" id="dIncome" inputmode="numeric" value="5,000"></div>
+      </div>
+    </div>
+  </details>
+
+  <!-- REDESIGN STEP 1: Sort & Filter panel — persistent LEFT column ≥1024px, drawer (opened by the
+       "⇅ Sort & Filter" button above) on mobile/tablet. Styled from FilterPanelSingsaver.tsx /
+       FiltersSingsaver.tsx / CheckboxSingsaver.tsx / Sort.tsx / FilterPanel.tsx (all read live from
+       fe-services, see CSS comment above). This is the ONLY proposed change in this file. -->
+  <div class="pl-layout">
+    <aside class="sf-panel" id="sfPanel" aria-label="Sort and filter personal loans" aria-hidden="true">
+      <div class="sf-panel__head">
+        <b>Sort &amp; Filter</b>
+        <span class="ann">NEW vs live</span>
+        <button type="button" class="sf-panel__close" id="sfClose" aria-label="Close sort and filter">✕</button>
+      </div>
+      <div class="sf-panel__body">
+        <div class="sf-group">
+          <h4 class="sf-group__h">Sort By</h4>
+          <select class="sf-select" id="sfSort" aria-label="Sort By">
+            <option value="popular">Popular</option>
+            <option value="monthly">Monthly Repayment</option>
+            <option value="total">Total Cost of Loan</option>
+            <option value="rate">Lowest Annual Interest Rate</option>
+            <option value="eir">EIR</option>
+            <option value="reward">SingSaver Reward</option>
+          </select>
+        </div>
+        <!-- Category = genuine loan categories only — "Lowest Interest" removed (it's a sort,
+             already covered by Sort By → "Lowest Annual Interest Rate" above, not a category).
+             Collapsed by default (checker fix: shorten the first fold); expand to see the 9
+             options — same labels/emoji as the Baseline view's persona tabs, minus that one. -->
+        <details class="sf-acc" id="sfAccCategory" open>
+          <summary class="sf-group__h sf-acc__sum">Category<span class="sf-acc__chev">▾</span></summary>
+          <div class="sf-acc__body">
+            <div class="sf-pills" id="sfCategory" role="group" aria-label="Filter by category">
+              <button type="button" class="sf-pill on" data-cat="all">🏦 All Loans</button>
+              <button type="button" class="sf-pill" data-cat="alternate-lenders">🤝 Alternate Lenders</button>
+              <button type="button" class="sf-pill" data-cat="singsaver-exclusive">🔥 SingSaver Exclusive</button>
+              <button type="button" class="sf-pill" data-cat="balance-transfer">🔄 Balance Transfer</button>
+              <button type="button" class="sf-pill" data-cat="debt-consolidation">🧩 Debt Consolidation</button>
+              <button type="button" class="sf-pill" data-cat="fast-cash">⚡ Fast Cash</button>
+              <button type="button" class="sf-pill" data-cat="credit-line">💳 Credit Line</button>
+              <button type="button" class="sf-pill" data-cat="bad-credit">🌱 Bad Credit</button>
+              <button type="button" class="sf-pill" data-cat="foreigners">🌏 Foreigners</button>
+            </div>
+          </div>
+        </details>
+        <details class="sf-acc" id="sfAccFeatures" open>
+          <summary class="sf-group__h sf-acc__sum">Loan Features<span class="sf-acc__chev">▾</span></summary>
+          <div class="sf-acc__body">
+            <label class="sf-check"><input type="checkbox" id="fInstant"><span>Instant Approval</span></label>
+            <label class="sf-check"><input type="checkbox" id="fFee"><span>Processing Fee Waiver</span></label>
+            <label class="sf-check"><input type="checkbox" id="fZero"><span>0% Interest</span></label>
+          </div>
+        </details>
+        <details class="sf-acc" id="sfAccBank" open>
+          <summary class="sf-group__h sf-acc__sum">Bank<span class="sf-acc__chev">▾</span></summary>
+          <div class="sf-acc__body" id="sfBank"><!-- populated from LOANS at init so the list can never drift out of sync --></div>
+        </details>
+      </div>
+      <div class="sf-panel__foot">
+        <button type="button" class="mhg-btn mhg-btn--outline mhg-btn--small" id="sfClear">Clear All</button>
+        <button type="button" class="mhg-btn mhg-btn--primary mhg-btn--small" id="sfApply">Apply</button>
+      </div>
+    </aside>
+    <div class="sf-backdrop" id="sfBackdrop"></div>
+
+    <div class="pl-results">
+  <!-- Comparison table — real cms-components ComparisonTableBuilder / PLColumnSource -->
+  <section class="pct-section">
+    <!-- Compact meta row (v20 pattern): heading (baseline/Change 1) or loan count (Change 2) on the
+         left, Sort & Filter button on the right — always ONE line so the table stays on the first
+         fold. The sort/state caption sits on its own line directly below. -->
+    <div class="pct-header">
+      <div class="section-h" id="pctHeading">Compare Personal Loans</div>
+      <!-- CHANGE 2: plain loan count only (no eligibility claim). -->
+      <span class="qualifycap x-new" id="qualifyCap"></span>
+      <!-- Change 1, mobile/tablet (<1024px): open the Sort & Filter panel from here (beside the heading, above the table); ≥1024px the persistent left panel is used instead (this button hidden by CSS there). -->
+      <div class="sf-trigger-row">
+        <span class="sf-trigger-wrap x-new" style="display:inline-block">
+          <button type="button" class="sf-trigger" id="sfOpen" aria-haspopup="true" aria-expanded="false" aria-controls="sfPanel">⇅ Sort &amp; Filter</button>
+          <span class="ann">NEW vs live</span>
+        </span>
+      </div>
+    </div>
+    <p class="sortcap" id="sortCap"></p>
+    <div class="pct-wrap">
+      <div class="pct-scroll">
+        <table class="pct-table">
+          <thead>
+            <tr>
+              <th class="pct-sticky">Loan</th>
+              <th>Annual Interest Rate</th>
+              <th>SingSaver Reward</th>
+              <th>Monthly Repayment</th>
+              <th>Total Cost of Loan</th>
+              <th>EIR</th>
+              <th>Apply</th>
+            </tr>
+          </thead>
+          <tbody id="pctBody"></tbody>
+        </table>
+      </div>
+      <!-- Show All Loans — real chevron header + additional-lender strip, part of the table component -->
+      <details class="showall">
+        <summary><span class="showall__chev">›</span> Show All Loans <b>(25)</b></summary>
+        <div class="showall__body">
+          <p class="showall__note">The loans above are SingSaver's top picks. SingSaver compares <b>25 personal-loan products</b> in total — the rest appear here (banks + MAS-licensed moneylenders):</p>
+          <div class="showall__strip">
+            <span class="showall__chip">Citibank</span><span class="showall__chip">POSB</span><span class="showall__chip">Maybank</span><span class="showall__chip">OCBC</span><span class="showall__chip">MariBank</span>
+            <span class="showall__chip">Credible.sg</span><span class="showall__chip">Credit Trust</span><span class="showall__chip">Cash Direct</span><span class="showall__chip">MM Credit</span><span class="showall__chip">1-Money</span><span class="showall__chip">R2D Credit</span><span class="showall__chip">SGP Credit</span><span class="showall__chip">CashMax</span>
+          </div>
+          <p class="showall__note" style="margin-top:8px">Licensed moneylenders are listed separately from banks per MAS guidance.</p>
+        </div>
+      </details>
+    </div>
+    <p class="pct-src">Table structure &amp; column order match the live production comparison table for Personal Loans.</p>
+  </section>
+
+  <!-- SingSaver Tips — real StandoutTextBlockComponent -->
+  <div class="tips"><div class="tips__h">SingSaver Tips</div><div class="tips__b">📉💰 Loan rates in Singapore have hit a 5-year low, with several bank loans starting from just 0.90% p.a. (EIR from 1.75% p.a.).</div></div>
+
+  <!-- Why Trust SingSaver — real ExpandableCard -->
+  <details class="wts">
+    <summary><img src="assets/singsaver-color.svg" alt=""> Why Trust SingSaver</summary>
+    <div class="wts__body">
+      <p>Personal finance is not just about finding the cheapest products, but also about making smart financial decisions.</p>
+      <ul>
+        <li>We compare rates and rewards across all major banks and licensed moneylenders in Singapore.</li>
+        <li>Our recommendations are based on published rates, fees and eligibility criteria — not sponsorship.</li>
+        <li>Every SingSaver Reward is paid out after your loan is approved and disbursed.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- "Don't miss out on these great deals" — real Promotional Campaigns PL block
+       (fe-services CreditCardPromotion.tsx: deal tabs + two-column layout, left = title/blurb/Participating
+       Products/How to Qualify, right = reward-tier gift grid) -->
+  <section class="promoblk">
+    <!-- BASELINE-FIDELITY FIX 1: full-bleed per-campaign background tint (see CSS comment above) -->
+    <div class="promoblk__bg promoblk__bg--pink" id="campBg" aria-hidden="true"></div>
+    <div class="promoblk__h">Don't miss out on these great deals:</div>
+    <div class="promoblk__tabs" id="campTabs"></div>
+    <div class="promoblk__body" id="campBody"></div>
+  </section>
+
+  <div class="section-h">Compare in detail</div>
+  <p class="section-hint">Full eligibility, fees, features and application steps for each loan above.</p>
+  <div id="cardResults"></div>
+
+    </div><!-- /.pl-results -->
+  </div><!-- /.pl-layout -->
+
+  <!-- FAQ — real, verbatim from the live page -->
+  <section class="faq">
+    <div class="section-h">Frequently asked questions about personal loans in Singapore</div>
+    <details class="faq__item"><summary>How do personal loans work?</summary><p>A personal loan provides you with a lump sum of money that you repay with interest over a set period. You'll make regular monthly repayments until the loan is fully repaid.</p></details>
+    <details class="faq__item"><summary>How long does it take to get a personal loan?</summary><p>Approval and disbursement time for personal loans varies from lender to lender. Some lenders offer same-day or next-day approval and disbursement, while others may take a few days to process your application. However, before taking on a loan, it is important to know if you're eligible. Pre-qualify with SingSaver to save time and avoid applying for loans you're unlikely to get.</p></details>
+    <details class="faq__item"><summary>Can foreigners get a loan in Singapore?</summary><p>Yes, foreigners can apply for personal loans in Singapore, but they may have to meet additional eligibility criteria, such as having a valid work pass and a higher-than-average minimum annual income.</p></details>
+    <details class="faq__item"><summary>What bank is easiest to get a personal loan from?</summary><p>Different banks have different eligibility criteria for personal loans. Some banks may have more lenient requirements than others. However, as a general rule of thumb, a minimum annual income of S$20,000-30,000 is required for Singaporean citizens and PRs.</p></details>
+    <details class="faq__item"><summary>What is the lending rate in Singapore?</summary><p>The lending rate in Singapore refers to the interest rate charged on loans. It can vary depending on the type of loan, the lender, and the borrower's credit profile. Average lending rates for personal loans can range from 2.5% to 10% p.a., but these are subject to individual assessment and prevailing market conditions.</p></details>
+    <details class="faq__item"><summary>How does a personal loan affect your credit score?</summary><p>Taking out a personal loan can affect your credit score in both positive and negative ways. Making timely repayments can improve your credit score, while late payments or defaulting on the loan can negatively impact your score.</p></details>
+    <details class="faq__item"><summary>How much would a $5000 loan cost per month?</summary><p>The monthly cost of a $5,000 loan depends on the interest rate and repayment period. You can use SingSaver's personal loan calculator to estimate your monthly repayments accurately based on your preferred loan terms.</p></details>
+    <details class="faq__item"><summary>Which bank has the lowest interest rate for personal loans in Singapore?</summary><p>Personal loan interest rates in Singapore vary depending on the bank, your income, credit score, and loan tenure. The lowest rates may be offered by banks running limited-time promotions, so it's best to compare current offers to find the most suitable option.</p></details>
+  </section>
+
+  <!-- Long-form editorial / guide content below the FAQ on the live page — stubbed to headings only -->
+  <section>
+    <div class="section-h">More about personal loans in Singapore</div>
+    <p class="stub-note">The live page carries ~30 long-form editorial sections (guides, methodology, glossary) around and below the FAQ. They're stubbed to headings only here — full prose isn't reproduced.</p>
+    <ol class="stub-list">
+      <li>What is a personal loan and how can I use one?</li>
+      <li>Features of personal loans</li>
+      <li>What affects loan interest rates?</li>
+      <li>Factors that affect loan approval</li>
+      <li>Browse personal loans for foreigners</li>
+      <li>SingSaver's guide to choosing a personal loan</li>
+      <li>Assessing your financial needs</li>
+      <li>Key factors to consider</li>
+      <li>Shop for loans online</li>
+      <li>How to compare personal loans</li>
+      <li>EIR meaning</li>
+      <li>Funding time</li>
+      <li>Payment flexibility</li>
+      <li>Monthly payment, fees, loan amount and tenure</li>
+      <li>Eligibility criteria</li>
+      <li>Customer reviews and ratings</li>
+      <li>Types of personal loans</li>
+      <li>How to qualify for personal loans</li>
+      <li>Required documents for licensed moneylender loans</li>
+      <li>Why Choose SingSaver?</li>
+      <li>Personal loan application process</li>
+      <li>Personal loan interest rates: A guide</li>
+      <li>Interest rates vs. EIR</li>
+      <li>Can you pay off a loan with another loan?</li>
+      <li>Factors influencing interest rates</li>
+      <li>How we rate loans</li>
+    </ol>
+  </section>
+
+  <p class="trust-foot">SingSaver compares 350+ products from 60+ institutions. Rankings follow our published methodology. Production-baseline replica · sample rates &amp; rewards are illustrative for this prototype.</p>
+</div>
+
+<!-- Site footer — real link structure + legal disclaimer excerpt -->
+<footer class="site-foot">
+  <div class="site-foot__grid">
+    <div class="site-foot__col"><h4>Credit Cards</h4><a href="#">Categories</a><a href="#">Resources</a><a href="#">Providers</a></div>
+    <div class="site-foot__col"><h4>Insurance</h4><a href="#">Travel</a><a href="#">Life &amp; Health</a></div>
+    <div class="site-foot__col"><h4>Loans</h4><a href="#">Resources</a><a href="#">Providers</a></div>
+    <div class="site-foot__col"><h4>Promotions &amp; Campaigns</h4><a href="#">Travel Insurance Promotions</a><a href="#">Best Deal Guarantee</a></div>
+    <div class="site-foot__col"><h4>Resources</h4><a href="#">Blog</a><a href="#">Reward Tracker</a><a href="#">Help Centre</a><a href="#">Giveaway Winners</a></div>
+    <div class="site-foot__col"><h4>About Us</h4><a href="#">Why SingSaver</a><a href="#">Terms &amp; Conditions</a><a href="#">Privacy Policy</a><a href="#">Affiliates</a><a href="#">Careers</a><a href="#">Press</a></div>
+  </div>
+  <div class="site-foot__legal">
+    © 2015 – 2026 SingSaver PTE LTD. All rights reserved.<br>
+    This online platform is operated by SingSaver Pte. Ltd. All insurance product-related transactions on the SingSaver Website are arranged and administered by SingSaver Insurance Brokers Pte. Ltd., a wholly owned subsidiary of SingSaver Pte. Ltd. and a licensed and authorised broker regulated by the Monetary Authority of Singapore ("MAS"). SingSaver Pte. Ltd. (which administers all other financial products on the SingSaver Website) is not regulated by MAS.
+  </div>
+</footer>
+
+<!-- BASELINE-FIDELITY FIX 2: sticky bottom "Hot Pick" promo bar — real SimpleStickyFooter.tsx
+     (CMS-driven bottom-sticky banner). RED colour scheme: light rose/pink bar + red outline
+     Apply button (approximated — see CSS comment above). Production furniture, not annotated. -->
+<div class="hotpick hidden" id="hotPick" role="region" aria-label="Hot pick promotion">
+  <div class="hotpick__inner">
+    <div class="hotpick__main">
+      <h3 class="hotpick__title">
+        <a href="#" class="hotpick__titlelink" data-apply="hotpick">🔥 Hot Pick: Enjoy UOB Personal Loan up to S$1,800 cashback</a>
+        <button type="button" class="hotpick__x hotpick__x--mobile" id="hotPickXMobile" aria-label="Close hot pick banner">✕</button>
+      </h3>
+      <p class="hotpick__body">⏰ Limited-time offer: Enjoy up to S$1,800 Cash when you apply and get approved for a UOB Personal Loan. T&amp;Cs apply.</p>
+    </div>
+    <div class="hotpick__cta">
+      <button type="button" class="mhg-btn mhg-btn--outline-red hotpick__apply" data-apply="hotpick">Apply Now</button>
+    </div>
+  </div>
+  <button type="button" class="hotpick__x hotpick__x--desktop" id="hotPickXDesktop" aria-label="Close hot pick banner">✕</button>
+</div>
+
+<!-- CHANGE 2: sticky "Your details" summary bar — v20 pattern. Pinned to the very top of the
+     viewport once the "Your details" block (#detailsBox — Loan Amount/Tenure/Citizenship/Monthly
+     income) scrolls out of view. Shown only under Change 2 (see CSS); "Edit" reopens the details
+     block and scrolls back up to it. Guarded IntersectionObserver drives `.show`, observing
+     #detailsBox directly (see script, reused from v20) — non-fatal if unsupported, bar just never
+     appears. -->
+<div class="sticky-summary x-new" id="stickySummary" aria-hidden="true">
+  <div class="sticky-summary__inner">
+    <div class="sticky-summary__text">
+      <span class="sticky-summary__lbl">Your details</span>
+      <span class="sticky-summary__txt" id="stickySummaryTxt"></span>
+    </div>
+    <button type="button" class="sticky-summary__edit" id="stickySummaryEdit">Edit ▾</button>
+  </div>
+</div>
+
+<!-- Shared backdrop -->
+<div class="backdrop" id="backdrop"></div>
+
+<!-- Reward drawer — real RewardsMobileDrawer / RewardsDesktopDialog + RewardBody shell -->
+<aside class="drawer" id="rewardDrawer" aria-hidden="true" aria-label="Loan reward">
+  <div class="drawer__head"><h3 id="drawerTitle">Your Loan Rewards &amp; Provider Gifts</h3><button class="drawer__x" id="rewardX" aria-label="Close">✕</button></div>
+  <div class="drawer__body" id="rewardBody"></div>
+  <div class="drawer__foot" id="rewardFoot"></div>
+</aside>
+
+<script>
+// Sample data — 7 lenders, structure/labels match production; rates & reward figures are illustrative.
+const LOANS = [
+  { name:"Standard Chartered", full:"Standard Chartered CashOne Personal Loan", tag:"Flexible repayment and instant approvals", logo:"assets/logos/standard-chartered.webp",
+    rate:0.0090, eir:0.0175, fee:0, rewardMax:120, minAmt:8000, minTenure:36,
+    // Sort & Filter metadata (redesign step 1 only — drives the new panel's Category/Feature filters;
+    // nothing here changes what's rendered anywhere else on the page).
+    categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
+    steps:["Go to Standard Chartered's website and click \"Apply Now\" button under Personal Loans","Fill out an application and submit all required documents","Wait for approval of personal loan from Standard Chartered"],
+    feats:["Enjoy low interest rates from 0.90% p.a. (EIR ~1.75% p.a.) for longer tenures.","Get instant loan approval and cash disbursement in as quick as 15 minutes.","Min. loan amount of S$1,000, max. up to S$250,000."],
+    minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners applying via SingPass, please prepare a copy of Passport, Employment Pass, and one proof-of-address document."],
+    // CHANGE 2 (redesign step 2 only): illustrative eligibility thresholds driving the new "✓ You likely
+    // qualify" / "ⓘ Check eligibility" indicator — separate from the "Loan details" minIncome above
+    // (which is existing baseline card content) since the brief specifies its own representative figures.
+    eligIncome:50000, eligForeignerOk:true, eligForeignerIncome:60000,
+    // Real reward-drawer content (RewardAsideModal) verified live for the SCB CashOne campaign — reference
+    // example named in the brief; used here for the drawer only, the card's own illustrative S$120/S$8,000/36mo
+    // stub above is left unchanged per instructions.
+    bandOffer:"Get up to S$5,825 in cashback!",
+    tierBands:[
+      {range:"S$250,000 and above (36–60 mth tenure)", cash:"S$1,800 Cash + 1.61% Cashback", worth:4025},
+      {range:"S$120,000 – S$249,999 (36–60 mth tenure)", cash:"S$1,800 Cash + 1.61% Cashback", worth:1932},
+      {range:"S$80,000 – S$119,999 (36–60 mth tenure)", cash:"S$1,400 Cash + 1.61% Cashback", worth:1288},
+      {range:"S$50,000 – S$79,999 (36–60 mth tenure)", cash:"S$1,000 Cash + 1.61% Cashback", worth:805},
+      {range:"S$30,000 – S$49,999 (36–60 mth tenure)", cash:"S$800 Cash + 0.61% Cashback", worth:183},
+      {range:"S$20,000 – S$29,999 (36–60 mth tenure)", cash:"S$600 Cash + 0.61% Cashback", worth:122},
+      {range:"S$18,000 – S$19,999 (36–60 mth tenure)", cash:"S$410 Cash + 0.61% Cashback", worth:109},
+      {range:"S$15,000 – S$17,999", cash:"S$410 Cash via PayNow"},
+      {range:"S$10,000 – S$14,999", cash:"S$230 Cash via PayNow"},
+      {range:"S$8,000 – S$9,999", cash:"S$120 Cash via PayNow"},
+    ] },
+  { name:"UOB", full:"UOB Personal Loan", tag:"Instant approval and disbursement", logo:"assets/logos/uob.png",
+    rate:0.0100, eir:0.0193, fee:0, rewardMax:120, minAmt:8000, minTenure:12,
+    categories:["fast-cash","singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:true,
+    steps:["Go to UOB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your UOB Personal Loan"],
+    feats:["Instant approval and disbursement for existing UOB customers.","Low processing fee, no early-repayment penalty on selected plans.","Suitable for Singaporeans/PRs and eligible foreigners."],
+    minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
+    eligIncome:30000, eligForeignerOk:false },
+  { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
+    rate:0.0100, eir:0.0194, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
+    categories:["fast-cash","singsaver-exclusive"], instantApproval:true, feeWaiver:true,
+    steps:["Open the Trust Bank app and select Instant Loan","Fill out an application in-app — no paperwork needed","Get your approval decision and disbursement in-app"],
+    feats:["Fully in-app application for existing Trust customers.","No processing fee, flexible repayment tenures.","Instant approval for eligible applicants."],
+    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the Trust app for Singaporeans / PRs."],
+    eligIncome:40000, eligForeignerOk:false },
+  { name:"CIMB", full:"CIMB Personal Loan", tag:"Low income requirement", logo:"assets/logos/cimb.png",
+    rate:0.0100, eir:0.0194, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    categories:["debt-consolidation","foreigners"], instantApproval:false, feeWaiver:false,
+    steps:["Go to CIMB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your CIMB Personal Loan"],
+    feats:["Low minimum annual income requirement of S$24,000.","Open to Singaporeans, PRs and eligible foreigners.","Fixed monthly instalments for the full loan tenure."],
+    minAge:21, minIncome:24000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
+    eligIncome:24000, eligForeignerOk:true, eligForeignerIncome:60000 },
+  { name:"GXS", full:"GXS FlexiLoan", tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png",
+    rate:0.0108, eir:0.0210, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    categories:["credit-line"], instantApproval:false, feeWaiver:true,
+    steps:["Open the GXS Bank app and select FlexiLoan","Set your credit limit and draw down what you need","Repay flexibly — interest is charged only on what you draw"],
+    feats:["Draw down only what you need, interest charged on the drawn amount only.","No early-repayment fee.","Fully digital application via the GXS app."],
+    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the GXS app for Singaporeans / PRs."],
+    eligIncome:30000, eligForeignerOk:false },
+  { name:"HSBC", full:"HSBC Personal Loan", tag:"Long tenures up to 84 months", logo:"assets/logos/hsbc.webp",
+    rate:0.0130, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    categories:["foreigners"], instantApproval:false, feeWaiver:false,
+    steps:["Go to HSBC's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your HSBC Personal Loan"],
+    feats:["Long tenures of up to 84 months for lower monthly repayments.","Preferential rates for HSBC Premier/Advance customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
+    minAge:21, minIncome:45000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
+    eligIncome:45000, eligForeignerOk:true, eligForeignerIncome:60000 },
+  { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
+    rate:0.0148, eir:0.0322, fee:0, rewardMax:100, minAmt:8000, minTenure:36,
+    categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
+    steps:["Go to DBS's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents (or apply instantly via digibank if you're an existing DBS/POSB customer)","Wait for approval of your DBS Personal Loan"],
+    feats:["Instant approval for existing DBS/POSB customers via digibank.","Cash disbursement as fast as the same day for existing customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
+    minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
+    eligIncome:20000, eligForeignerOk:false },
+];
+
+// Real "Don't miss out on these great deals" — fe-services CreditCardPromotion.tsx (Promotional Campaigns PL block).
+// Tab labels, titles, blurbs, "How to Qualify?" bullets, apply-by dates and reward-tier "Worth" values are all
+// read directly off the live rendered/RSC page (curl https://www.singsaver.com.sg/personal-loan), 21 Jul 2026 —
+// not illustrative, except: UOB/Trust per-tile "worth" = the tier's own flat cash amount (verified pattern: their
+// gifts are plain "S$X Cash via PayNow" with no separate cashback multiplier, so worth = face value); the
+// "Participating Products" one-liner is only confirmed for DBS ("Highest provider cashback") — SCB/UOB/Trust
+// render with no one-liner in the live SSR snapshot captured, so left blank (matches the component: label is optional).
+const DEALS = [
+  { name:"DBS Personal Loan", head:"Up to S$6,900 Cashback", logo:"assets/logos/dbs.webp",
+    color:"pink", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"DBS Personal Loan", productLabel:"Highest provider cashback",
+    title:"⚡ Limited Time Only: Get S$900 Cash + 3% Cashback on Your Loan",
+    blurb:"Apply and get approved for a DBS Personal Loan (min. S$10,000, 3-year tenure) to unlock up to S$900 Cash, plus 3% cashback on your approved loan amount (up to S$6,900)!",
+    applyBy:"Aug 16, 2026",
+    qualify:[
+      "SingSaver Flash Deal promotion is valid from 15 June 2026 to 16 August 2026.",
+      "Promotion is valid for new and existing DBS/POSB personal loan customers.",
+      "Apply and get approved for a DBS or POSB Personal Loan with min. amount of S$10,000 and min. tenure of 3 years to be eligible for reward.",
+      "Reward varies depending on approved loan amount:<ul><li>(S$10,000 – S$14,999): S$200 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$15,000 – S$19,999): S$300 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$20,000 – S$29,999): S$400 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$30,000 – S$49,999): S$500 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$50,000 and above): S$900 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li></ul>",
+      "Promotion is stackable with welcome offer from DBS/POSB (additional T&amp;Cs apply): <strong>Get 3% cashback on approved loan amount</strong>.",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+    ],
+    tiers:[
+      {amt:"S$900 Cash + 3% Cashback", worth:6900},
+      {amt:"S$900 Cash + 3% Cashback", worth:2400},
+      {amt:"S$500 Cash + 3% Cashback", worth:1400},
+      {amt:"S$400 Cash + 3% Cashback", worth:1000},
+      {amt:"S$300 Cash + 3% Cashback", worth:750},
+      {amt:"S$200 Cash + 3% Cashback", worth:500},
+    ] },
+  { name:"SCB CashOne Personal Loan", head:"Up to S$5,825 Cashback", logo:"assets/logos/standard-chartered.webp",
+    color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"Standard Chartered CashOne Personal Loan", productLabel:"",
+    title:"⚡ Limited Time Only: Up to S$5,825 Cashback",
+    blurb:"Apply and get approved for a Standard Chartered CashOne Personal Loan (min. S$8,000, 3-year tenure) to unlock up to S$1,800 Cash, plus 1.61% cashback on your approved loan amount (up to S$4,025)!",
+    applyBy:"Aug 02, 2026",
+    qualify:[
+      "SingSaver Exclusive Offer promotion runs from 15 July 2026 to 2 August 2026.",
+      "Promotion is valid for new and existing Standard Chartered personal loan customers.",
+      "Apply and get approved for a Standard Chartered CashOne personal loan with a min. amount of S$8,000 and min. tenure of 3 years to be eligible for reward.",
+      "Promotion is stackable with welcome offer from Standard Chartered (additional T&amp;Cs apply): <strong>get up to 1.61% cashback on your approved loan amount</strong>.",
+      "Choice of reward varies depending on approved loan amount:<ul><li>(S$8,000 – S$9,999): S$120 Cash via PayNow</li><li>(S$10,000 – S$14,999): S$230 Cash via PayNow</li><li>(S$15,000 – S$17,999): S$410 Cash via PayNow</li><li>(S$18,000 – S$19,999): S$410 Cash via PayNow + 0.61% Cashback (fulfilled by SCB)</li><li>(S$20,000 – S$29,999): S$600 Cash via PayNow + 0.61% Cashback (fulfilled by SCB)</li><li>(S$30,000 – S$49,999): S$800 Cash via PayNow + 0.61% Cashback (fulfilled by SCB)</li><li>(S$50,000 – S$79,999): S$1,000 Cash via PayNow + 1.61% Cashback (fulfilled by SCB)</li><li>(S$80,000 - S$119,999): S$1,400 Cash via PayNow + 1.61% Cashback (fulfilled by SCB)</li><li>(S$120,000 and above): S$1,800 Cash via PayNow + 1.61% Cashback (fulfilled by SCB)</li></ul>",
+      "<strong>Fastest Reward Fulfilment</strong>: Receive your reward in as little as <strong>3 weeks</strong>!",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+    ],
+    tiers:[
+      {amt:"S$1,800 Cash + 1.61% Cashback", worth:4025},
+      {amt:"S$1,800 Cash + 1.61% Cashback", worth:1932},
+      {amt:"S$1,400 Cash + 1.61% Cashback", worth:1288},
+      {amt:"S$1,000 Cash + 1.61% Cashback", worth:805},
+      {amt:"S$800 Cash + 0.61% Cashback", worth:183},
+      {amt:"S$600 Cash + 0.61% Cashback", worth:122},
+      {amt:"S$410 Cash + 0.61% Cashback", worth:109},
+      {amt:"S$410 Cash via PayNow", worth:410},
+    ] },
+  { name:"UOB Personal Loan", head:"Up to S$1,800 cashback", logo:"assets/logos/uob.png",
+    color:"pink", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"UOB Personal Loan", productLabel:"",
+    title:"⚡ Limited Time Only: Up to S$1,800 Cash",
+    blurb:"Apply and get approved for a UOB Personal Loan (min. S$8,000, 1-year tenure) to unlock up to S$1,800 in cashback!",
+    applyBy:"Aug 02, 2026",
+    qualify:[
+      "SingSaver Flash Deal promotion is valid from 15 July 2026 to 2 August 2026.",
+      "Promotion is valid for new and existing UOB personal loan customers.",
+      "Apply for a UOB personal loan with a min. amount of S$8,000 and min. tenure of 12 months to be eligible for reward.",
+      "Choice of reward varies depending on approved loan amount:<ul><li>(S$8,000 – S$9,999): S$120 Cash via PayNow</li><li>(S$10,000 – S$14,999): S$230 Cash via PayNow</li><li>(S$15,000 – S$19,999): S$430 Cash via PayNow</li><li>(S$20,000 – S$29,999): S$600 Cash via PayNow</li><li>(S$30,000 – S$49,999): S$800 Cash via PayNow</li><li>(S$50,000 – S$79,999): S$1,000 Cash via PayNow</li><li>(S$80,000 - S$119,999): S$1,400 Cash via PayNow</li><li>(S$120,000 and above): S$1,800 Cash via PayNow</li></ul>",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+    ],
+    tiers:[
+      {amt:"Cash via PayNow", worth:1800},
+      {amt:"Cash via PayNow", worth:1400},
+      {amt:"Cash via PayNow", worth:1000},
+      {amt:"Cash via PayNow", worth:800},
+      {amt:"Cash via PayNow", worth:600},
+      {amt:"Cash via PayNow", worth:430},
+      {amt:"Cash via PayNow", worth:230},
+      {amt:"Cash via PayNow", worth:120},
+    ] },
+  { name:"Trust Bank Instant Loan", head:"Up to S$1,750 Cash", logo:"assets/logos/trust.png",
+    color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"Trust Instant Loan", productLabel:"",
+    title:"⚡ Limited Time Only: Up to S$1,750 Cash",
+    blurb:"Apply and get approved for a Trust Bank Instant Loan (min. S$8,000, 3-month tenure) to unlock up to S$1,750 in cashback!",
+    applyBy:"Aug 02, 2026",
+    qualify:[
+      "SingSaver Flash Deal promotion is valid until 2 August 2026.",
+      "Promotion is valid for new and existing Trust Bank personal loan customers.",
+      "Apply for a Trust Instant Loan with a min. amount of S$8,000 and min. tenure of 3 months to be eligible for reward.",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+      "Choice of reward varies depending on approved loan amount:",
+    ],
+    table:{ head:["Loan Amount","New Customers","Existing Customers"], rows:[
+      ["S$8,000 – S$9,999","S$100 Cash","S$80 Cash"],
+      ["S$10,000 – S$14,999","S$230 Cash","S$210"],
+      ["S$15,000 – S$19,999","S$410 Cash","S$370 Cash"],
+      ["S$20,000 – S$29,999","S$600 Cash","S$580 Cash"],
+      ["S$30,000 – S$49,999","S$800 Cash","S$780 Cash"],
+      ["S$50,000 – S$79,999","S$1,000 Cash","S$980 Cash"],
+      ["S$80,000 – S$119,999","S$1,400 Cash","S$1,380 Cash"],
+      ["S$120,000 and above","S$1,750 Cash","S$1,730 Cash"],
+    ] },
+    tiers:[
+      {amt:"Cash via PayNow", worth:1750},
+      {amt:"Cash via PayNow", worth:1400},
+      {amt:"Cash via PayNow", worth:1000},
+      {amt:"Cash via PayNow", worth:800},
+      {amt:"Cash via PayNow", worth:600},
+      {amt:"Cash via PayNow", worth:410},
+      {amt:"Cash via PayNow", worth:230},
+      {amt:"Cash via PayNow", worth:100},
+    ] },
+];
+
+const $ = id => document.getElementById(id);
+const amt=$('amt'), tenure=$('tenure'), cardResults=$('cardResults');
+const backdrop=$('backdrop'), rewardDrawer=$('rewardDrawer'), rewardBody=$('rewardBody'), rewardFoot=$('rewardFoot');
+// CHANGE 2 — "Your details" block (v20 pattern): its own Loan amount/Tenure fields (dAmt/dTenure) are
+// kept in two-way sync with the plain calculator's amt/tenure above (see the sync wiring further down)
+// so only one visible set of fields is ever needed per view, but the underlying value never disagrees
+// between views. Citizenship/Monthly income only ever exist inside this block.
+const dAmt=$('dAmt'), dTenure=$('dTenure'), citizenship=$('dCitizenship'), income=$('dIncome');
+
+const sgd = n => "S$" + Math.round(n).toLocaleString('en-SG');
+function parseNum(v){ return +String(v).replace(/[^\d.]/g,'') || 0; }
+function rewardQualifies(l, P, months){ return l.rewardMax>0 && P >= (l.minAmt||0) && months >= (l.minTenure||0); }
+const nameCell = (l,cls,h) => `<img class="${cls}" style="height:${h}px" src="${l.logo}" alt="${l.name}">`;
+
+// ============================================================
+// CHANGE 2 — per-loan eligibility (this step's proposed change). Illustrative thresholds only
+// (real per-lender rules are a data dependency — see LOANS[].eligIncome/eligForeignerOk/
+// eligForeignerIncome above). Guidance, not a gate: an ineligible loan's "Apply" button is never
+// disabled or hidden — this only ever renders a soft badge next to it.
+// ============================================================
+function computeEligibility(l, citizenshipVal, monthlyIncome){
+  const annualIncome = (monthlyIncome || 0) * 12;
+  const isForeigner = citizenshipVal === 'foreigner';
+  if (isForeigner && !l.eligForeignerOk) {
+    return { ok:false, reason:`May not be available to foreigners` };
+  }
+  const need = isForeigner ? (l.eligForeignerIncome || l.eligIncome) : l.eligIncome;
+  if (annualIncome < need) {
+    return { ok:false, reason:`Usually needs ${sgd(need)}/yr income` };
+  }
+  return { ok:true, reason:'' };
+}
+function currentCitizenship(){ return citizenship ? citizenship.value : 'sgpr'; }
+function currentMonthlyIncome(){ return income ? parseNum(income.value) : 5000; }
+// Soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate, "Apply"
+// always works). Two placements, matching the old prototype exactly:
+//  • TABLE Apply cell — a small "ⓘ Check eligibility" text LINK (only when the loan falls short).
+//  • CARDS — a "Check eligibility" pill in the badges row (beside the green "SingSaver Exclusive"
+//    pill), plus a one-line note at the bottom: amber reason when short, green "meet the basic
+//    criteria" when the details clear the illustrative minimum.
+function isExclusive(l){ return (l.categories||[]).includes('singsaver-exclusive'); }
+function eligLinkHTML(l){
+  const e = computeEligibility(l, currentCitizenship(), currentMonthlyIncome());
+  return e.ok ? `` : `<span class="tinfo--no x-new" title="${e.reason.replace(/"/g,'&quot;')}. You can still apply — the lender makes the final decision.">ⓘ Check eligibility</span>`;
+}
+function eligBadgesHTML(l){
+  const e = computeEligibility(l, currentCitizenship(), currentMonthlyIncome());
+  return `${isExclusive(l) ? `<span class="badge badge--excl">SingSaver Exclusive</span>` : ``}${e.ok ? `` : `<span class="badge badge--warn x-new">Check eligibility</span>`}`;
+}
+function eligNoteHTML(l){
+  const e = computeEligibility(l, currentCitizenship(), currentMonthlyIncome());
+  return e.ok
+    ? `<div class="loan__elig loan__elig--ok x-new">✓ You meet the basic criteria</div>`
+    : `<div class="loan__elig loan__elig--no x-new">ⓘ ${e.reason} — you can still apply; the lender decides.</div>`;
+}
+// Grey-out (old-prototype ".soft") for products the entered details fall short of — dims the row/card
+// so eligible options stand out. Change-2 only (see CSS); "Apply" stays full-colour and functional.
+function eligDimClass(l){ return computeEligibility(l, currentCitizenship(), currentMonthlyIncome()).ok ? '' : 'soft'; }
+
+function compute(){
+  const P = Math.max(1000, parseNum(amt.value) || 8000);
+  const months = Math.max(1, parseNum(tenure.value) || 12);
+  const years = months/12;
+  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti}; }), P, months };
+}
+
+function renderPct(rows){
+  return rows.map(r=>{
+    // Loans WITH a SingSaver reward always open the reward drawer (pill = current amount when it
+    // qualifies, a plain "See rewards" label when it doesn't yet). Loans with NO reward at all open a
+    // product-details/facts modal instead (real SectionGifts.tsx/openProductAside branch), matching live.
+    const qualifies = rewardQualifies(r, curP, curMonths);
+    const rewardCell = r.rewardMax > 0
+      ? `<button class="pct-reward" data-pct-reward="${r.idx}">${qualifies ? sgd(r.rewardMax) : 'See rewards'}</button>`
+      : `<button class="pct-reward pct-na" data-pct-facts="${r.idx}">–</button>`;
+    return `
+    <tr class="${eligDimClass(r)}">
+      <td class="pct-sticky"><div class="pct-loan">${nameCell(r,'',26)}<span>${r.full}</span></div></td>
+      <td>From ${(r.rate*100).toFixed(2)} % p.a.</td>
+      <td>${rewardCell}</td>
+      <td class="pct-monthly">${sgd(r.monthly)}<span style="color:var(--text-muted);font-weight:400">/mo</span></td>
+      <td>${sgd(r.total)}</td>
+      <td>From ${(r.eir*100).toFixed(2)} % p.a.</td>
+      <td class="pct-applycell"><div class="pct-apply"><button class="mhg-btn mhg-btn--outline-cta mhg-btn--small" data-apply="${r.idx}">Apply</button>${eligLinkHTML(r)}</div></td>
+    </tr>`; }).join('');
+}
+
+function renderCards(rows){
+  return `<div class="cards">${rows.map(r=>`
+    <div class="loan ${eligDimClass(r)}">
+      <span class="loan__tag">${r.tag}</span>
+      <div class="loan__head">
+        <div class="loan__id">
+          <span class="loan__logobox">${nameCell(r,'plogo-lg',32)}</span>
+          <span class="loan__name">${r.full}</span>
+        </div>
+        <div class="loan__ctawrap"><div class="loan__badges">${eligBadgesHTML(r)}</div><button class="mhg-btn mhg-btn--cta mhg-btn--small" data-apply="${r.idx}">Apply Now ↗</button></div>
+      </div>
+      <div class="loan__grid2 g2">
+        <div><div class="l">Monthly Repayment</div><div class="v">${sgd(r.monthly)}<small>/mo</small></div></div>
+        <div><div class="l">Annual Interest Rate</div><div class="v">From ${(r.rate*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">EIR</div><div class="v">From ${(r.eir*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">Processing Fee</div><div class="v">${r.fee?sgd(r.fee):'S$0'}</div></div>
+      </div>
+      ${r.rewardMax>0 ? (() => {
+        const qualifies = rewardQualifies(r, curP, curMonths);
+        return `<details class="acc acc--reward" open><summary>SingSaver Reward${qualifies?'':' — Update Loan Amount / Tenure to Qualify'}</summary><div class="acc__body">
+          ${qualifies
+            ? `<p class="offer-blurb">For a ${r.full} of ${sgd(curP)} over ${curMonths} months, you'll enjoy a SingSaver reward of <strong>${sgd(r.rewardMax)}</strong>, paid after your loan is approved.</p>`
+            : `<p class="offer-blurb">Update your loan amount to at least ${sgd(r.minAmt)} and loan tenure to at least ${r.minTenure} month to unlock exclusive gifts worth up to ${sgd(r.rewardMax)}.</p>`}
+        </div></details>` })() : ''}
+      <details class="acc"${r.rewardMax>0?'':' open'}><summary>Steps to Apply</summary><div class="acc__body">
+        <ol class="steplist">${r.steps.map((s,i)=>`<li>${i+1}. ${s}</li>`).join('')}</ol>
+      </div></details>
+      <details class="acc"><summary>SingSaver's take</summary><div class="acc__body">
+        <ul class="featlist">${r.feats.map(f=>`<li><span class="ic-pro">✓</span>${f}</li>`).join('')}</ul>
+      </div></details>
+      <details class="acc"><summary>Loan details</summary><div class="acc__body">
+        <div class="stepslabel">Eligibility</div>
+        ${[["Minimum Age", r.minAge+" years old"], ["Min. Annual Income", sgd(r.minIncome)]].map(([k,v])=>`<div class="dlrow"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+        <div class="stepslabel" style="margin-top:12px">Required Documents</div>
+        <ul class="steplist">${r.docs.map(d=>`<li>${d}</li>`).join('')}</ul>
+        <div class="stepslabel" style="margin-top:12px">Key Features</div>
+        <p class="offer-blurb">The information displayed above is for reference only. The actual rates offered to you will be based on your credit score and is subject to the provider's approval.</p>
+      </div></details>
+      ${eligNoteHTML(r)}
+    </div>`).join('')}</div>`;
+}
+
+// Real title from cms-components baseTranslations.ts: loan_reward_provider_gift = "Your Loan Rewards & Provider Gifts".
+function openReward(idx){
+  const l = LOANS[idx];
+  $('drawerTitle').textContent = 'Your Loan Rewards & Provider Gifts';
+  const bannerText = l.bandOffer || `Get up to ${sgd(l.rewardMax)} in cashback!`;
+  const bandsBlock = l.tierBands
+    ? `<p class="rgift__lbl" style="margin-top:14px">For other loan amounts and tenures you can choose from:</p>
+       <ul class="rgift__opts">${l.tierBands.map(b=>`<li><strong>${b.range}</strong> → ${b.cash}${b.worth ? ` (worth ${sgd(b.worth)})` : ''}</li>`).join('')}</ul>`
+    : `<div class="rgift__lbl" style="margin-top:14px">Reward options</div>
+       <ul class="rgift__opts"><li>${sgd(l.rewardMax)} cash, paid after your loan is approved and disbursed</li></ul>`;
+  rewardBody.innerHTML = `
+    <div class="rgift"><div class="rgift__bd">
+      <p class="offer-blurb" style="margin:0 0 10px">For a ${l.full} of ${sgd(curP)} over ${curMonths} months, you'll enjoy via Singsaver</p>
+      <div class="rgift__banner">${bannerText}</div>
+      ${bandsBlock}
+      <div class="rgift__lbl" style="margin-top:14px">Terms and Conditions</div>
+      <p class="rgift__tc">Reward is paid out after loan approval and disbursement — no claim form required. Requires a minimum loan amount of ${sgd(l.minAmt)} and minimum tenure of ${l.minTenure} months. Figures shown are illustrative for this prototype${l.tierBands ? ' except where noted as verified live' : ''}.</p>
+    </div></div>`;
+  rewardFoot.innerHTML = `<div class="rf__id"><img src="${l.logo}" alt="${l.name}" style="height:20px"><div class="rf__txt"><span class="rf__name">${l.full}</span><span class="rf__amt">${sgd(curP)} over ${curMonths} mths</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+  openDrawer(rewardDrawer);
+}
+
+// Product-details / facts modal — real branch for loans WITHOUT a SingSaver reward (SectionGifts.tsx's
+// openProductAside path): title = "<Bank> Personal Loan", Quick Facts / Product Card Top Badge / Eligibility.
+function openFacts(idx){
+  const l = LOANS[idx];
+  $('drawerTitle').textContent = l.full;
+  rewardBody.innerHTML = `
+    <div class="rgift"><div class="rgift__bd">
+    <div class="rgift__lbl">Quick Facts</div>
+    <ul class="rgift__opts">${l.feats.map(f=>`<li>${f}</li>`).join('')}</ul>
+    <div class="rgift__lbl" style="margin-top:14px">Product Card Top Badge</div>
+    <p style="margin:0 0 4px"><span class="loan__tag" style="margin:0">${l.tag}</span></p>
+    <div class="rgift__lbl" style="margin-top:14px">Eligibility</div>
+    <div class="dlrow"><span class="k">Minimum Age</span><span class="v">${l.minAge} years old</span></div>
+    <div class="dlrow"><span class="k">Min. Annual Income</span><span class="v">${sgd(l.minIncome)}</span></div>
+    </div></div>`;
+  rewardFoot.innerHTML = `<div class="rf__id"><img src="${l.logo}" alt="${l.name}" style="height:20px"><div class="rf__txt"><span class="rf__name">${l.full}</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+  openDrawer(rewardDrawer);
+}
+function openDrawer(d){ backdrop.classList.add('open'); d.classList.add('open'); d.setAttribute('aria-hidden','false'); }
+function closeDrawers(){ backdrop.classList.remove('open'); rewardDrawer.classList.remove('open'); rewardDrawer.setAttribute('aria-hidden','true'); }
+
+// ============================================================
+// REDESIGN STEP 1 — Sort & Filter state + logic (the only proposed
+// change in this file). Sort keys mirror the comparison-table columns;
+// category keys mirror the removed persona tabs; features/bank are
+// simple client-side filters over the LOANS sample. Guarded throughout
+// so a missing element/empty result set can never throw.
+// ============================================================
+const sfState = { sort:'popular', category:'all', features:{ instant:false, feeWaiver:false, zeroInterest:false }, banks:new Set() };
+
+const SORTERS = {
+  popular: (a,b)=> a.idx - b.idx,
+  monthly: (a,b)=> a.monthly - b.monthly,
+  total:   (a,b)=> a.total - b.total,
+  rate:    (a,b)=> a.rate - b.rate,
+  eir:     (a,b)=> a.eir - b.eir,
+  reward:  (a,b)=> (b.rewardMax||0) - (a.rewardMax||0),
+};
+
+function applySortFilter(rows){
+  const f = sfState.features;
+  const filtered = rows.filter(r=>{
+    if (sfState.category !== 'all' && !(r.categories||[]).includes(sfState.category)) return false;
+    if (f.instant && !r.instantApproval) return false;
+    if (f.feeWaiver && !r.feeWaiver) return false;
+    if (f.zeroInterest && r.rate !== 0) return false;
+    if (sfState.banks.size && !sfState.banks.has(r.name)) return false;
+    return true;
+  });
+  const sorter = SORTERS[sfState.sort] || SORTERS.popular;
+  return filtered.slice().sort(sorter);
+}
+
+function emptyStateHTML(){
+  return `<div class="sf-empty">No loans match your filters — try clearing one.<button type="button" class="mhg-btn mhg-btn--outline mhg-btn--small sf-empty-clear">Clear All</button></div>`;
+}
+
+let curP=8000, curMonths=12;
+function updateSortCap(){
+  const sc=document.getElementById('sortCap'); if(!sc) return;
+  const sel=document.getElementById('sfSort');
+  const label = sel ? sel.options[sel.selectedIndex].text : 'Popular';
+  sc.innerHTML = 'Sorted by <b>'+label+'</b> · rewards shown as <b>the maximum ("up to")</b>';
+}
+// CHANGE 2 — results count: "N loans · X you likely qualify for" (X = the shown loans whose entered
+// citizenship + income clear the illustrative eligibility threshold, after Step 1's sort/filter).
+// The aggregate "likely qualify for" count lives here on top of the table only; individual cards
+// never assert a positive per-loan claim — they only flag loans to check (yellow pill + note).
+function updateQualifyCap(shownRows){
+  const qc = $('qualifyCap'); if (!qc) return;
+  const citz = currentCitizenship(), inc = currentMonthlyIncome();
+  const n = shownRows.length;
+  const x = shownRows.filter(r=>computeEligibility(r, citz, inc).ok).length;
+  qc.innerHTML = `${n} loan${n===1?'':'s'} <span>· ${x} you likely qualify for</span>`;
+}
+// CHANGE 2 — "Your details" summary text (v20 pattern): kept in sync across both the details/summary
+// line (#detailsSummary, inside the open block) and the sticky bar (#stickySummaryTxt, shown once the
+// block scrolls out of view) — same string, two places, always current.
+function updateDetailsSummary(){
+  const citzLabel = currentCitizenship() === 'foreigner' ? 'Foreigner' : 'Singaporean/PR';
+  const summaryTxt = `${sgd(curP)} · ${curMonths} mths · ${citzLabel} · ${sgd(currentMonthlyIncome())}/mo`;
+  const ds = $('detailsSummary'); if (ds) ds.textContent = summaryTxt;
+  const st = $('stickySummaryTxt'); if (st) st.textContent = summaryTxt;
+}
+function render(){
+  const { rows, P, months } = compute();
+  curP = P; curMonths = months;
+  const shown = applySortFilter(rows);
+  if (!shown.length) {
+    $('pctBody').innerHTML = `<tr><td colspan="7" style="padding:0">${emptyStateHTML()}</td></tr>`;
+    cardResults.innerHTML = emptyStateHTML();
+  } else {
+    $('pctBody').innerHTML = renderPct(shown);
+    cardResults.innerHTML = renderCards(shown);
+  }
+  updateSortCap();
+  updateQualifyCap(shown);
+  updateDetailsSummary();
+}
+
+// Loan Amount + Tenure: the plain calculator's fields (amt/tenure — Baseline/Change 1) and the
+// Change-2 "Your details" block's own fields (dAmt/dTenure) are two-way synced here so only one set
+// is ever visible per view (CSS), but the underlying value is always consistent regardless of which
+// one the user edited. (Adapted from v20, which only ever has one set of these fields — this
+// redesign needs two because Baseline must keep the untouched plain calculator while Change 2
+// replaces it entirely with the grouped block.)
+const AMOUNT_PAIRS = [[amt, dAmt, true], [tenure, dTenure, false]];
+AMOUNT_PAIRS.forEach(([primary, mirror, isMoney])=>{
+  [primary, mirror].forEach(el=>{
+    if (!el) return;
+    const other = el===primary ? mirror : primary;
+    el.addEventListener('input', ()=>{ if (other) other.value = el.value; render(); });
+    el.addEventListener('blur', ()=>{
+      const formatted = isMoney ? parseNum(el.value).toLocaleString('en-SG') : String(parseNum(el.value));
+      el.value = formatted;
+      if (other) other.value = formatted;
+      render();
+    });
+  });
+});
+// CHANGE 2 — Citizenship + Monthly income: same live-recompute pattern as Loan Amount/Tenure above.
+if (citizenship) citizenship.addEventListener('change', render);
+if (income) {
+  income.addEventListener('input', render);
+  income.addEventListener('blur', ()=>{ income.value = parseNum(income.value).toLocaleString('en-SG'); render(); });
+}
+// CHANGE 2 — "Edit" on the sticky summary bar reopens "Your details" and scrolls back up to it (v20
+// pattern: v20's own details box sits right at the top of the page, so it just scrolls to page top;
+// this page has chrome above it, so scrollIntoView on the block itself is the equivalent here).
+const detailsBox = $('detailsBox');
+if ($('stickySummaryEdit')) $('stickySummaryEdit').addEventListener('click', ()=>{
+  if (detailsBox) { detailsBox.open = true; detailsBox.scrollIntoView({behavior:'smooth', block:'start'}); }
+  else { const c=$('calc'); if (c) c.scrollIntoView({behavior:'smooth', block:'start'}); }
+});
+
+$('pctBody').addEventListener('click', e=>{
+  const rb=e.target.closest('[data-pct-reward]'); if(rb){ openReward(+rb.dataset.pctReward); return; }
+  const fb=e.target.closest('[data-pct-facts]'); if(fb) openFacts(+fb.dataset.pctFacts);
+});
+document.addEventListener('click', e=>{ if(e.target.closest('[data-apply]')) e.preventDefault(); });
+$('rewardX').addEventListener('click', closeDrawers);
+backdrop.addEventListener('click', closeDrawers);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawers(); });
+
+$('menuBtn').addEventListener('click', ()=> $('siteNav').classList.toggle('open'));
+
+// intro / promo "show more" clamps
+$('introMore').addEventListener('click', ()=>{ const t=$('introTxt'); t.classList.toggle('clamped'); $('introMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
+$('promoMore').addEventListener('click', ()=>{ const t=$('promoTxt'); t.classList.toggle('clamped'); $('promoMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
+
+// Sticky calculator shadow-on-stuck (guarded IntersectionObserver; CSS position:sticky does the
+// actual pinning in Baseline/Change 1 — this only adds the shadow affordance once it's stuck).
+const calc = $('calc');
+if ('IntersectionObserver' in window) {
+  try {
+    const sentinel = document.createElement('div');
+    calc.parentNode.insertBefore(sentinel, calc);
+    new IntersectionObserver(([e])=>{ calc.classList.toggle('stuck', !e.isIntersecting); }, { threshold:1 }).observe(sentinel);
+  } catch(e){ /* non-fatal — sticky positioning still works without the shadow affordance */ }
+}
+
+// CHANGE 2 — "Your details" is open at the top; once it scrolls out of view, show the collapsed
+// sticky summary bar. Reused directly from v20's own pattern: observe #detailsBox itself (not a
+// zero-height sentinel) with threshold:0, and only show the bar once the box has scrolled UP past
+// the top of the viewport (boundingClientRect.top < 0) — not merely because it isn't intersecting
+// (e.g. before the user has scrolled down to it yet). Harmless no-op in Baseline/Change 1, where
+// `.sticky-summary` stays `display:none` regardless (CSS).
+const stickySummary = $('stickySummary');
+if (detailsBox && stickySummary && 'IntersectionObserver' in window) {
+  try {
+    new IntersectionObserver(([e])=>{
+      stickySummary.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top < 0);
+    }, { threshold:0 }).observe(detailsBox);
+  } catch(e){ /* non-fatal — sticky summary bar just never appears */ }
+}
+
+// "Don't miss out on these great deals" — real Promotional Campaigns PL block (CreditCardPromotion.tsx):
+// deal tabs across the top; selected deal = left column (title/blurb/Participating Products/How to Qualify)
+// + right column (reward-tier gift grid, desktop) — the same grid renders inline in the left column on mobile.
+const campTabs=$('campTabs'), campBody=$('campBody');
+campTabs.innerHTML = DEALS.map((d,i)=>`<button class="promoblk__tab ${i===0?'on':''}" data-deal="${i}"><b>${d.name}</b><span>${d.head}</span></button>`).join('');
+
+function giftTileHTML(t){
+  return `<div class="gifttile"><div class="gifttile__tag" title="Limited time only">Limited time only</div><div class="gifttile__body"><div><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${t.amt}</div></div></div><div class="gifttile__worth">Worth ${sgd(t.worth)}</div></div>`;
+}
+function giftBlockHTML(d){
+  return `<p class="promoblk__applyby">Apply by ${d.applyBy} to claim your reward.</p><div class="promoblk__grid">${d.tiers.map(giftTileHTML).join('')}</div>`;
+}
+// BASELINE-FIDELITY FIX 1 — positions the full-bleed campaign background: measures the block's
+// own offset from the viewport edge + the true viewport width (excl. scrollbar), rather than the
+// `100vw` CSS trick (which overflows the page by the scrollbar's width). Measuring .promoblk's own
+// live position (not assuming viewport-centering) keeps this correct even inside the Sort & Filter
+// two-column desktop layout, where .pl-results (and .promoblk within it) isn't centred on the page.
+function layoutCampaignBg(){
+  try {
+    const promo = document.querySelector('.promoblk');
+    const bg = $('campBg');
+    if (!promo || !bg) return;
+    const rect = promo.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth || window.innerWidth;
+    bg.style.left = (-rect.left) + 'px';
+    bg.style.width = vw + 'px';
+  } catch(e) { /* non-fatal — background just won't be full-bleed if layout can't be measured */ }
+}
+window.addEventListener('resize', layoutCampaignBg);
+window.addEventListener('load', layoutCampaignBg);
+
+function renderDeal(i){
+  const d = DEALS[i];
+  const bg = $('campBg'); // BASELINE-FIDELITY FIX 1 — swap tint to match the selected deal's campaign colour
+  if (bg) { bg.classList.remove('promoblk__bg--pink','promoblk__bg--green'); bg.classList.add('promoblk__bg--' + (d.color || 'pink')); }
+  const productLine = d.productLabel
+    ? `<span class="promoblk__prodname">${d.product}</span><span class="promoblk__prodlabel">: ${d.productLabel}</span>`
+    : `<span class="promoblk__prodname">${d.product}</span>`;
+  const tableHtml = d.table
+    ? `<table class="promoblk__tbl"><thead><tr>${d.table.head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${d.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+    : '';
+  campBody.innerHTML = `
+    <div class="promoblk__left">
+      <h3 class="promoblk__title">${d.title}</h3>
+      <p class="promoblk__blurb">${d.blurb}</p>
+      <div class="promoblk__giftslot--mobile">${giftBlockHTML(d)}</div>
+      <h4 class="promoblk__h4">Participating Products:</h4>
+      <div class="promoblk__product"><img src="${d.logo}" alt="${d.product}">${productLine}</div>
+      <h4 class="promoblk__h4">How to Qualify?</h4>
+      <ul class="promoblk__qual">${d.qualify.map(q=>`<li>${q}</li>`).join('')}</ul>
+      ${tableHtml}
+    </div>
+    <div class="promoblk__right promoblk__giftslot--desktop">${giftBlockHTML(d)}</div>`;
+}
+campTabs.addEventListener('click', e=>{ const b=e.target.closest('[data-deal]'); if(!b) return; [...campTabs.children].forEach(t=>t.classList.remove('on')); b.classList.add('on'); renderDeal(+b.dataset.deal); layoutCampaignBg(); });
+renderDeal(0);
+layoutCampaignBg();
+
+// Announcement bar — dismiss
+$('annClose').addEventListener('click', ()=> $('annBar').classList.add('hidden'));
+$('annLearnMore').addEventListener('click', ()=> document.querySelector('.promoblk').scrollIntoView({behavior:'smooth', block:'start'}));
+
+// BASELINE-FIDELITY FIX 2 — sticky bottom "Hot Pick" bar (real SimpleStickyFooter.tsx behaviour):
+// hidden until scrolled past 10px, auto-hides once the site footer scrolls into view, dismissible.
+(function initHotPick(){
+  const bar = $('hotPick');
+  if (!bar) return;
+  let closed = false, footerVisible = false;
+  function update(){ bar.classList.toggle('hidden', closed || footerVisible || !((window.scrollY || document.documentElement.scrollTop) > 10)); }
+  window.addEventListener('scroll', update, { passive:true });
+  update();
+  const footerEl = document.querySelector('.site-foot');
+  if (footerEl && 'IntersectionObserver' in window) {
+    try {
+      new IntersectionObserver(entries=>{ footerVisible = entries[0].isIntersecting; update(); }, { threshold:0.1 }).observe(footerEl);
+    } catch(e) { /* non-fatal — bar just won't auto-hide when the footer scrolls into view */ }
+  }
+  function closeBar(){ closed = true; update(); }
+  const xm = $('hotPickXMobile'), xd = $('hotPickXDesktop');
+  if (xm) xm.addEventListener('click', closeBar);
+  if (xd) xd.addEventListener('click', closeBar);
+})();
+
+// ============================================================
+// REDESIGN STEP 1 — Sort & Filter panel wiring (guarded: every lookup
+// checks the element exists before attaching, so a missing node can
+// never throw and abort the rest of render()).
+// ============================================================
+(function initSortFilter(){
+  const panel = $('sfPanel'), sfBackdrop = $('sfBackdrop'), openBtn = $('sfOpen'), closeBtn = $('sfClose');
+  if (!panel) return;
+
+  function openPanel(){
+    panel.classList.add('open'); if (sfBackdrop) sfBackdrop.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+    if (openBtn) openBtn.setAttribute('aria-expanded','true');
+  }
+  function closePanel(){
+    panel.classList.remove('open'); if (sfBackdrop) sfBackdrop.classList.remove('open');
+    panel.setAttribute('aria-hidden','true');
+    if (openBtn) openBtn.setAttribute('aria-expanded','false');
+  }
+  // Exposed so the Prototype view toggle (below) can close a left-open drawer when switching
+  // away from Change 1 — guarded, so a missing panel (shouldn't happen — we just returned early
+  // above if so) can never throw.
+  window.__sfClosePanel = closePanel;
+  if (openBtn) openBtn.addEventListener('click', openPanel);
+  if (closeBtn) closeBtn.addEventListener('click', closePanel);
+  if (sfBackdrop) sfBackdrop.addEventListener('click', closePanel);
+  document.addEventListener('keydown', e=>{ if (e.key==='Escape') closePanel(); });
+
+  // Bank filter — built from LOANS so it can never drift out of sync with the sample data.
+  const bankHost = $('sfBank');
+  if (bankHost) {
+    bankHost.innerHTML = LOANS.map(l=>`<label class="sf-check"><input type="checkbox" class="fBank" value="${l.name}"><span>${l.name}</span></label>`).join('');
+  }
+
+  // Sort By
+  const sortSel = $('sfSort');
+  if (sortSel) sortSel.addEventListener('change', ()=>{ sfState.sort = sortSel.value; render(); });
+
+  // Category pills (single-select)
+  const catHost = $('sfCategory');
+  if (catHost) {
+    catHost.addEventListener('click', e=>{
+      const b = e.target.closest('[data-cat]'); if (!b) return;
+      [...catHost.children].forEach(p=>p.classList.remove('on'));
+      b.classList.add('on');
+      sfState.category = b.dataset.cat;
+      render();
+    });
+  }
+
+  // Feature checkboxes
+  const fInstant = $('fInstant'), fFee = $('fFee'), fZero = $('fZero');
+  if (fInstant) fInstant.addEventListener('change', ()=>{ sfState.features.instant = fInstant.checked; render(); });
+  if (fFee) fFee.addEventListener('change', ()=>{ sfState.features.feeWaiver = fFee.checked; render(); });
+  if (fZero) fZero.addEventListener('change', ()=>{ sfState.features.zeroInterest = fZero.checked; render(); });
+
+  // Bank checkboxes (delegated — the list is generated above)
+  if (bankHost) {
+    bankHost.addEventListener('change', e=>{
+      const cb = e.target.closest('.fBank'); if (!cb) return;
+      if (cb.checked) sfState.banks.add(cb.value); else sfState.banks.delete(cb.value);
+      render();
+    });
+  }
+
+  // Clear All — resets state + every control, re-renders immediately
+  const clearBtn = $('sfClear');
+  function clearAll(){
+    sfState.sort = 'popular'; sfState.category = 'all';
+    sfState.features.instant = false; sfState.features.feeWaiver = false; sfState.features.zeroInterest = false;
+    sfState.banks.clear();
+    if (sortSel) sortSel.value = 'popular';
+    if (catHost) [...catHost.children].forEach(p=>p.classList.toggle('on', p.dataset.cat==='all'));
+    if (fInstant) fInstant.checked = false;
+    if (fFee) fFee.checked = false;
+    if (fZero) fZero.checked = false;
+    if (bankHost) bankHost.querySelectorAll('.fBank').forEach(cb=>{ cb.checked = false; });
+    render();
+  }
+  if (clearBtn) clearBtn.addEventListener('click', clearAll);
+
+  // Apply — changes are already live; on mobile/tablet this just confirms + closes the drawer
+  // (hidden entirely ≥1024px via CSS, since the panel is persistent there).
+  const applyBtn = $('sfApply');
+  if (applyBtn) applyBtn.addEventListener('click', closePanel);
+
+  // "Clear filters" button inside the empty-state (re-rendered into the DOM by render(), so delegate).
+  document.addEventListener('click', e=>{ if (e.target.closest('.sf-empty-clear')) clearAll(); });
+})();
+
+// ============================================================
+// PROTOTYPE VIEW TOGGLE — Baseline ⇄ Change 1 ⇄ Change 2, CUMULATIVE (built to extend: push a new
+// { id, label } onto PROTO_VIEWS + add its body[data-proto-view="..."] CSS block(s) to add
+// "Change 3 / 4" later; the button list + switch logic below both already key off this array, so
+// neither needs to change). Change 2 = everything Change 1 shows PLUS the calculator/eligibility
+// additions — see the cumulative CSS selector lists above (each lists every view a given piece of
+// Change-1 chrome should keep showing under).
+// ============================================================
+const PROTO_VIEWS = [
+  { id:'baseline', label:'Baseline' },
+  { id:'change1',  label:'Change 1 · Sort & Filter' },
+  { id:'change2',  label:'Change 2 · Calculator + eligibility' },
+];
+let currentProtoView = document.body.getAttribute('data-proto-view') || 'change2';
+
+function renderProtoViewToggle(){
+  const host = $('protoViewToggle');
+  if (!host) return;
+  host.innerHTML = PROTO_VIEWS.map(v=>
+    `<button type="button" class="proto-view-btn${v.id===currentProtoView?' on':''}" data-view="${v.id}" aria-pressed="${v.id===currentProtoView}">${v.label}</button>`
+  ).join('');
+}
+function setProtoView(id){
+  if (!PROTO_VIEWS.some(v=>v.id===id)) return;
+  currentProtoView = id;
+  document.body.setAttribute('data-proto-view', id);
+  renderProtoViewToggle();
+  // Only Baseline hides the Sort & Filter panel entirely (Change 1 and Change 2 both show it,
+  // cumulative) — so only force-close a left-open mobile/tablet drawer when landing on Baseline.
+  if (id === 'baseline' && typeof window.__sfClosePanel === 'function') window.__sfClosePanel();
+}
+const protoViewHost = $('protoViewToggle');
+if (protoViewHost) protoViewHost.addEventListener('click', e=>{
+  const b = e.target.closest('[data-view]'); if (!b) return;
+  setProtoView(b.dataset.view);
+});
+renderProtoViewToggle();
+
+// Demo toggles: "✨ Show changes" (dashed outlines + NEW chips) and "📱 Show mobile fold" guideline
+const marksBtn = $('marksToggle');
+if (marksBtn) marksBtn.addEventListener('click', ()=>{
+  const on = document.body.classList.toggle('marks');
+  marksBtn.classList.toggle('on', on); marksBtn.setAttribute('aria-pressed', String(on));
+});
+const foldBtn = $('foldToggle');
+// Position the fold guideline one *device viewport height* below the top of the real product
+// (the SingSaver header) — NOT below the page top, which would include the demo toolbar and read
+// too high. In DevTools device mode window.innerHeight = the selected device's height, so the line
+// lands exactly at the bottom of the first phone screenful. Recomputed on resize so switching
+// devices (or window size) keeps it accurate.
+function positionFold(){
+  const fm = document.querySelector('.foldmark');
+  const hdr = document.querySelector('header.site');
+  if (!fm || !hdr) return;
+  fm.style.top = (hdr.offsetTop + window.innerHeight) + 'px';
+}
+if (foldBtn) foldBtn.addEventListener('click', ()=>{
+  const on = document.body.classList.toggle('show-fold');
+  foldBtn.classList.toggle('on', on); foldBtn.setAttribute('aria-pressed', String(on));
+  if (on) positionFold();
+});
+window.addEventListener('resize', ()=>{ if (document.body.classList.contains('show-fold')) positionFold(); });
+
+render();
+</script>
+</body>
+</html>
