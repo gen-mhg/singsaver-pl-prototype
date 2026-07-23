@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" class="brand-singsaver">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG PL — Composite column: Strapi config → product table</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/grid.css">
+<link rel="stylesheet" href="assets/components/buttons.css">
+<style>
+  body { background: var(--fill-base); color: var(--text-primary); margin:0; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 20px 16px 90px; box-sizing:border-box; }
+  h1 { font-size: var(--mh-fs-display-1, 20px); margin:0 0 6px; }
+  .lede { font-size:13px; color:var(--text-secondary); line-height:1.55; margin:0 0 18px; max-width:80ch; }
+  .lede b { color:var(--text-primary); }
+  .demo { display:grid; grid-template-columns:1fr; gap:22px; align-items:start; }
+  @media (min-width:1040px){ .demo { grid-template-columns: 452px 1fr; } }
+  .col__cap { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin:0 0 8px; }
+
+  /* ===== Strapi module replica ===== */
+  .strapi { border:1px solid var(--borders-default); border-radius:6px; overflow:hidden; background:var(--fill-card); }
+  .strapi__bar { background:#EAF0FB; border-bottom:1px solid var(--borders-default); padding:10px 14px; font-size:13px; font-weight:700; color:var(--mh-primary-800,#003B96); display:flex; align-items:center; gap:8px; }
+  .strapi__body { padding:14px; }
+  .fldlbl { font-size:12px; font-weight:600; color:#32324D; margin:0 0 5px; }
+  .listlbl { font-size:12px; font-weight:600; color:#32324D; margin:2px 0 8px; }
+  .plo { background:#F6F6F9; border:1px solid var(--borders-default); border-radius:6px; padding:10px; }
+  /* collapsed item row (context) */
+  .item { background:var(--fill-card); border:1px solid var(--borders-default); border-radius:4px; padding:9px 12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+  .item .chev { width:22px; height:22px; border-radius:50%; background:#F0F0F4; color:#666687; display:inline-flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+  .item .nm { font-size:13px; color:#32324D; flex:1; }
+  .item .ic { color:#8E8EA9; font-size:13px; }
+  /* the expanded / editable composite item */
+  .item--open { display:block; border:1px solid var(--mh-primary-400,#4D6FC2); box-shadow:0 0 0 2px rgba(34,87,184,.12); padding:0; }
+  .item--open .ihead { background:#EAF0FB; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; border-radius:4px 4px 0 0; }
+  .item--open .ihead .t { font-size:12px; font-weight:700; color:var(--mh-primary-800,#003B96); }
+  .item--open .ibody { padding:14px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .sfield { margin-bottom:12px; }
+  .sfield:last-child { margin-bottom:0; }
+  .sfield label { font-size:12px; font-weight:600; color:#32324D; display:block; margin-bottom:5px; }
+  .sfield select, .sfield input[type=text] { width:100%; box-sizing:border-box; font:inherit; font-size:13px; padding:8px 10px; border:1px solid #DCDCE4; border-radius:4px; background:var(--fill-card); color:#32324D; }
+  .sfield select:disabled { color:var(--text-muted); background:#F6F6F9; }
+  /* Strapi FALSE/TRUE toggle */
+  .toggle { display:inline-flex; border:1px solid #DCDCE4; border-radius:4px; overflow:hidden; }
+  .toggle button { border:0; background:var(--fill-card); font:inherit; font-size:12px; font-weight:600; padding:7px 16px; cursor:pointer; color:#666687; }
+  .toggle button.on { background:#EAF0FB; color:var(--mh-primary-700,#0845A2); }
+  .composite-panel { margin-top:12px; padding-top:12px; border-top:1px dashed var(--borders-strong,#C0C0CF); }
+  .composite-panel .tag { font-size:10px; font-weight:700; color:var(--mh-primary-700,#0845A2); background:var(--mh-primary-50,#E7EBF6); padding:2px 7px; border-radius:999px; }
+  .warn { font-size:11px; color:#B4531E; margin:6px 0 0; line-height:1.4; display:none; }
+  .warn.show { display:block; }
+  .hint { font-size:11px; color:var(--text-muted); margin:10px 2px 0; line-height:1.45; }
+
+  /* ===== product table (full, mirrors product-table.html) ===== */
+  .ctlbar { display:flex; align-items:center; gap:8px; margin:0 0 10px; flex-wrap:wrap; }
+  .ctlbar label { font-size:12px; font-weight:600; color:var(--text-secondary); }
+  .ctlbar select { font:inherit; font-size:13px; padding:6px 8px; border:1px solid var(--borders-form-default, var(--mh-gray-300)); border-radius:8px; background:var(--fill-card); color:var(--text-primary); }
+  .pct-wrap { border:1px solid var(--borders-default); border-radius: var(--r-table, 12px); background: var(--fill-card); overflow:hidden; }
+  .pct-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; box-shadow: inset -10px 0 8px -8px rgba(15,23,42,.14); }
+  .pct-scroll::-webkit-scrollbar { display:none; }
+  .pct-table { border-collapse:separate; border-spacing:0; width:100%; min-width:720px; background:var(--fill-card); }
+  .pct-table th, .pct-table td { padding:12px 14px; text-align:left; white-space:nowrap; vertical-align:middle; }
+  .pct-table td { font-size:14px; font-weight:500; color:var(--text-primary); }
+  .pct-table thead th { background:var(--fill-alternative-1, var(--mh-gray-100)); font-size:14px; font-weight:700; color:var(--text-primary); white-space:normal; line-height:1.3; }
+  .pct-table tbody td { border-top:1px solid var(--borders-default); }
+  .pct-sticky { position:sticky; left:0; z-index:2; background:var(--fill-card); }
+  .pct-table thead th.pct-sticky { z-index:3; }
+  .pct-loan { display:flex; align-items:center; gap:10px; min-width:168px; }
+  .pct-loan img { height:22px; width:auto; max-width:52px; object-fit:contain; }
+  .pct-loan .nm { font-weight:700; white-space:normal; line-height:1.25; }
+  .apply-btn { font-size:12px; font-weight:700; color:#fff; background:var(--fill-primary); border:0; border-radius:var(--r-button,8px); padding:7px 12px; cursor:pointer; }
+  .money { font-weight:700; color:var(--text-primary); }
+  .reward { font-weight:700; color:var(--text-primary); }
+  /* composite / interest cell */
+  .cmp .p1 { font-size: var(--mh-fs-body-1,16px); font-weight: var(--mh-fw-semibold,600); color: var(--text-primary); line-height:1.2; }
+  .cmp .p2 { font-size: var(--mh-fs-caption,12px); font-weight: var(--mh-fw-regular,400); color: var(--text-muted); line-height:1.3; margin-top:2px; }
+  .cmp.sec-active .p1 { font-size: var(--mh-fs-caption,12px); font-weight: var(--mh-fw-regular,400); color: var(--text-muted); }
+  .cmp.sec-active .p2 { font-size: var(--mh-fs-body-1,16px); font-weight: var(--mh-fw-semibold,600); color: var(--text-primary); }
+  .tblnote { font-size:11px; color:var(--text-muted); margin:8px 0 0; }
+
+  /* gate */
+  #gate { position:fixed; inset:0; background:var(--fill-base); display:flex; align-items:center; justify-content:center; z-index:99; }
+  #gate form { background:var(--fill-card); border:1px solid var(--borders-default); border-radius:12px; padding:26px; width:280px; text-align:center; box-shadow:0 10px 30px rgba(15,23,42,.12); }
+  #gate input { width:100%; box-sizing:border-box; padding:10px; margin:12px 0; border:1px solid var(--borders-form-default, var(--mh-gray-300)); border-radius:8px; font-size:16px; }
+  #gate button { width:100%; padding:10px; border:0; border-radius:8px; background:var(--fill-primary); color:#fff; font-weight:700; cursor:pointer; }
+  #gate .err { color:#B4531E; font-size:12px; min-height:14px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<div id="gate"><form id="gateForm"><b>Composite column demo</b><input id="gatePw" type="password" placeholder="Password" autocomplete="off"><button type="submit">View</button><div class="err" id="gateErr"></div></form></div>
+
+<main class="wrap hidden" id="app">
+  <h1>Composite column — Strapi config → product table</h1>
+  <p class="lede">Proposed <b>reusable composite column</b> for the comparison-table module. The left mirrors the real Strapi <b>personal_loan_order</b> list: each column is an item with <b>column / visible / column_sizing / style</b>. Set an item's <b>column</b> to <b>“Composite (2 attributes)”</b> and extra fields appear to pick the two attributes + label. The right is the full product table — the Interest-rate column reflects the config live.</p>
+
+  <div class="demo">
+    <!-- ===== STRAPI CONFIG ===== -->
+    <div>
+      <p class="col__cap">CMS editor view · Strapi comparison-table module</p>
+      <div class="strapi">
+        <div class="strapi__bar">▤ Comparison table — SG Personal Loan</div>
+        <div class="strapi__body">
+          <p class="listlbl">personal_loan_order · item (7)</p>
+          <div class="plo">
+            <div class="item"><span class="chev">▾</span><span class="nm">Bank Logo</span><span class="ic">visible: TRUE</span></div>
+            <div class="item"><span class="chev">▾</span><span class="nm">Product Name</span><span class="ic">visible: TRUE</span></div>
+
+            <!-- editable composite item -->
+            <div class="item--open">
+              <div class="ihead"><span class="t">▲ Interest rate</span><span class="ic">⌫ ⠿</span></div>
+              <div class="ibody">
+                <div class="grid2">
+                  <div class="sfield">
+                    <label>column</label>
+                    <select id="selCol">
+                      <option value="COMPOSITE" selected>Composite (2 attributes)</option>
+                      <option value="ANNUAL_RATE">Annual interest rate (ANNUAL_RATE)</option>
+                      <option value="EIR">Effective Interest Rate (EIR)</option>
+                      <option value="MONTHLY_REPAYMENT">Monthly repayment (MONTHLY_REPAYMENT)</option>
+                      <option value="REWARD_VALUE">Reward Value</option>
+                    </select>
+                  </div>
+                  <div class="sfield">
+                    <label>visible</label>
+                    <div class="toggle" id="tglVis"><button type="button" data-v="false">FALSE</button><button type="button" data-v="true" class="on">TRUE</button></div>
+                  </div>
+                  <div class="sfield">
+                    <label>column_sizing</label>
+                    <select><option>Choose here</option><option>auto</option><option>fixed</option></select>
+                  </div>
+                  <div class="sfield">
+                    <label>style</label>
+                    <select><option>Choose here</option><option>default</option><option>emphasis</option></select>
+                  </div>
+                </div>
+
+                <!-- fields that appear ONLY when column = Composite -->
+                <div class="composite-panel" id="cmpPanel">
+                  <div class="sfield"><span class="tag">Composite column</span></div>
+                  <div class="grid2">
+                    <div class="sfield">
+                      <label>primary attribute (line 1)</label>
+                      <select id="selP"></select>
+                    </div>
+                    <div class="sfield">
+                      <label>secondary attribute (line 2)</label>
+                      <select id="selS"></select>
+                    </div>
+                  </div>
+                  <p class="warn" id="warnType">Multi-line attribute type (KEY_VALUE / range / table) — not allowed in a composite cell (product-card risk). Pick a single-value attribute.</p>
+                  <div class="grid2">
+                    <div class="sfield">
+                      <label>column label (header)</label>
+                      <input type="text" id="inpLabel" value="Interest rate">
+                    </div>
+                    <div class="sfield">
+                      <label>line-1 prefix</label>
+                      <input type="text" id="inpP1" value="From ">
+                    </div>
+                  </div>
+                  <div class="sfield">
+                    <label>line-2 label</label>
+                    <input type="text" id="inpP2" value="EIR">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="item"><span class="chev">▾</span><span class="nm">SingSaver Reward</span><span class="ic">visible: TRUE</span></div>
+            <div class="item"><span class="chev">▾</span><span class="nm">Monthly repayment</span><span class="ic">visible: TRUE</span></div>
+            <div class="item"><span class="chev">▾</span><span class="nm">Total Cost of Loan</span><span class="ic">visible: TRUE</span></div>
+            <div class="item"><span class="chev">▾</span><span class="nm">Apply Button</span><span class="ic">visible: TRUE</span></div>
+          </div>
+          <p class="hint">Try: switch <b>column</b> to a single attribute (composite fields disappear, column shows one line) · toggle <b>visible</b> off (the Interest-rate column leaves the table) · change the two attributes or labels. The <b>Sort by</b> control on the right shows the active-sort emphasis.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PRODUCT TABLE ===== -->
+    <div>
+      <p class="col__cap">Shopper view · full product comparison table</p>
+      <div class="ctlbar">
+        <label for="selSort">Sort by</label>
+        <select id="selSort">
+          <option value="popular">Popular (default)</option>
+          <option value="ANNUAL_RATE">Lowest Annual Interest Rate</option>
+          <option value="EIR">Lowest EIR</option>
+          <option value="MONTHLY_REPAYMENT">Lowest Monthly Payment</option>
+          <option value="TOTAL_INTEREST">Lowest Total Cost of Loan</option>
+        </select>
+      </div>
+      <div class="pct-wrap"><div class="pct-scroll">
+        <table class="pct-table">
+          <thead><tr id="thead"></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div></div>
+      <p class="tblnote" id="tblnote"></p>
+    </div>
+  </div>
+</main>
+
+<script>
+// ---- attributes selectable in a composite ----
+var ATTRS={
+  ANNUAL_RATE:        {label:'Annual interest rate (ANNUAL_RATE)', type:'percent', short:'AIR'},
+  EIR:                {label:'Effective Interest Rate (EIR)',      type:'percent', short:'EIR'},
+  MONTHLY_REPAYMENT:  {label:'Monthly repayment (MONTHLY_REPAYMENT)', type:'permonth', short:'Monthly'},
+  TOTAL_INTEREST:     {label:'Total Cost of Loan (TOTAL_INTEREST)', type:'money', short:'Total cost'},
+  HANDLING_FEE:       {label:'Handling Fee (HANDLING_FEE)',        type:'percent', short:'Fee'},
+  MAXIMUM_LOAN_AMOUNT:{label:'Max Loan Amount (MAXIMUM_LOAN_AMOUNT)', type:'money', short:'Max loan'},
+  REWARD_VALUE:       {label:'Reward Value',                        type:'money', short:'Reward'},
+  QUICK_FACTS:        {label:'Quick Facts (KEY_VALUE) — multi-line', type:'multiline', short:'Facts'}
+};
+var ATTR_ORDER=['ANNUAL_RATE','EIR','MONTHLY_REPAYMENT','TOTAL_INTEREST','HANDLING_FEE','MAXIMUM_LOAN_AMOUNT','REWARD_VALUE','QUICK_FACTS'];
+
+var P=10000, MONTHS=36, YEARS=3;
+var LOANS=[
+  {name:'Standard Chartered CashOne', logo:'assets/logos/standard-chartered.webp', air:0.0090, eir:0.0175, fee:0.010, max:250000, rewardNum:5825, reward:'Up to S$5,825'},
+  {name:'UOB Personal Loan',          logo:'assets/logos/uob.png',                 air:0.0100, eir:0.0193, fee:0.000, max:200000, rewardNum:1800, reward:'Up to S$1,800'},
+  {name:'Trust Instant Loan',         logo:'assets/logos/trust.png',               air:0.0100, eir:0.0228, fee:0.020, max:100000, rewardNum:1750, reward:'Up to S$1,750'},
+  {name:'CIMB Personal Loan',         logo:'assets/logos/cimb.png',                air:0.0100, eir:0.0194, fee:0.000, max:120000, rewardNum:1000, reward:'Up to S$1,000'},
+  {name:'DBS Personal Loan',          logo:'assets/logos/dbs.webp',                air:0.0148, eir:0.0322, fee:0.015, max:500000, rewardNum:6900, reward:'Up to S$6,900'}
+];
+function raw(l,key){
+  var interest=l.air*P*YEARS;
+  if(key==='ANNUAL_RATE') return l.air;
+  if(key==='EIR') return l.eir;
+  if(key==='MONTHLY_REPAYMENT') return (P+interest)/MONTHS;
+  if(key==='TOTAL_INTEREST') return interest;
+  if(key==='HANDLING_FEE') return l.fee;
+  if(key==='MAXIMUM_LOAN_AMOUNT') return l.max;
+  if(key==='REWARD_VALUE') return l.rewardNum;
+  return 0;
+}
+function fmt(key,v){
+  var t=ATTRS[key]?ATTRS[key].type:'money';
+  if(t==='percent')  return (v*100).toFixed(2)+'% p.a.';
+  if(t==='permonth') return 'S$'+Math.round(v).toLocaleString('en-SG')+'/mo';
+  return 'S$'+Math.round(v).toLocaleString('en-SG');
+}
+function sgd(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
+
+var selCol, selP, selS, inpLabel, inpP1, inpP2, tglVis, selSort, cmpPanel, warnType;
+var visible=true;
+
+function fillAttr(sel, def){
+  sel.innerHTML=ATTR_ORDER.map(function(k){
+    var m=ATTRS[k].type==='multiline';
+    return '<option value="'+k+'"'+(k===def?' selected':'')+(m?' disabled':'')+'>'+ATTRS[k].label+(m?'  (not allowed)':'')+'</option>';
+  }).join('');
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+function render(){
+  var colType=selCol.value;                 // COMPOSITE or a single attribute key
+  var isComposite = colType==='COMPOSITE';
+  cmpPanel.style.display = isComposite ? 'block' : 'none';
+  var p=selP.value, s=selS.value, label=inpLabel.value, pre1=inpP1.value, lab2=inpP2.value, sort=selSort.value;
+  var bad = ATTRS[selS.value].type==='multiline' || ATTRS[selP.value].type==='multiline';
+  warnType.classList.toggle('show', isComposite && bad);
+
+  // header for the interest column: composite = custom label; single = attribute label
+  var intHeader = isComposite ? (label||'Interest rate') : ATTRS[colType].label.replace(/\s*\(.*\)$/,'');
+
+  // sort rows
+  var rows=LOANS.slice();
+  if(sort!=='popular'){ rows.sort(function(a,b){ return raw(a,sort)-raw(b,sort); }); }
+
+  // header cells
+  var th='<th class="pct-sticky">Loan</th>';
+  if(visible) th+='<th>'+esc(intHeader)+'</th>';
+  th+='<th>SingSaver Reward</th><th>Monthly repayment</th><th>Total Cost of Loan</th><th></th>';
+  document.getElementById('thead').innerHTML=th;
+
+  var secActive = isComposite && (sort===s && s!==p);
+
+  document.getElementById('tbody').innerHTML=rows.map(function(r){
+    var interestCell='';
+    if(visible){
+      if(isComposite){
+        interestCell='<td><div class="cmp'+(secActive?' sec-active':'')+'">'
+          +'<div class="p1">'+esc(pre1)+fmt(p, raw(r,p))+'</div>'
+          +'<div class="p2">'+(lab2?esc(lab2)+' ':'')+fmt(s, raw(r,s))+'</div>'
+          +'</div></td>';
+      } else {
+        interestCell='<td><span class="money">'+fmt(colType, raw(r,colType))+'</span></td>';
+      }
+    }
+    return '<tr>'
+      +'<td class="pct-sticky"><div class="pct-loan"><img src="'+r.logo+'" alt="'+r.name+'"><span class="nm">'+r.name+'</span></div></td>'
+      +interestCell
+      +'<td><span class="reward">'+r.reward+'</span></td>'
+      +'<td><span class="money">From '+sgd(raw(r,'MONTHLY_REPAYMENT'))+'/mo</span></td>'
+      +'<td><span class="money">'+sgd(raw(r,'TOTAL_INTEREST'))+'</span></td>'
+      +'<td><button class="apply-btn">Apply</button></td>'
+      +'</tr>';
+  }).join('');
+
+  document.getElementById('tblnote').textContent = !visible
+    ? 'Interest-rate column hidden (visible = FALSE).'
+    : isComposite
+      ? 'Composite column "'+intHeader+'" = '+ATTRS[p].short+' (line 1) + '+ATTRS[s].short+' (line 2). Data stays two separate attributes.'
+      : 'Single-attribute column: '+ATTRS[colType].label+'.';
+}
+
+function init(){
+  selCol=document.getElementById('selCol'); selP=document.getElementById('selP'); selS=document.getElementById('selS');
+  inpLabel=document.getElementById('inpLabel'); inpP1=document.getElementById('inpP1'); inpP2=document.getElementById('inpP2');
+  tglVis=document.getElementById('tglVis'); selSort=document.getElementById('selSort'); cmpPanel=document.getElementById('cmpPanel'); warnType=document.getElementById('warnType');
+  fillAttr(selP,'ANNUAL_RATE'); fillAttr(selS,'EIR');
+  selCol.addEventListener('change', render);
+  selS.addEventListener('change', function(){ inpP2.value=ATTRS[selS.value].short; render(); });
+  selP.addEventListener('change', render);
+  [inpLabel,inpP1,inpP2].forEach(function(el){ el.addEventListener('input', render); });
+  selSort.addEventListener('change', render);
+  tglVis.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      visible = btn.getAttribute('data-v')==='true';
+      tglVis.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b===btn); });
+      render();
+    });
+  });
+  render();
+}
+
+// password gate — defined last so init() runs after data + functions exist
+(function(){
+  var PW='chc-moneyhero', app=document.getElementById('app'), gate=document.getElementById('gate');
+  function unlock(){ gate.style.display='none'; app.classList.remove('hidden'); init(); }
+  document.getElementById('gateForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(document.getElementById('gatePw').value===PW){ sessionStorage.setItem('pl_gate','1'); unlock(); }
+    else { document.getElementById('gateErr').textContent='Incorrect password'; }
+  });
+  if(sessionStorage.getItem('pl_gate')==='1'){ unlock(); }
+})();
+</script>
+</body>
+</html>
