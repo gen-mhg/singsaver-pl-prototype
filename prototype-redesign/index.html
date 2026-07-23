@@ -91,7 +91,7 @@
      entirely (hidden here) by the v20-pattern "Your details" grouped
      block below, which bundles Loan amount + Tenure + Citizenship +
      Monthly income into one collapsible card. */
-  body[data-proto-view="change2"] .calc { display:none; }
+  body[data-proto-view="change2"] .calc , body[data-proto-view="change3"] .calc { display:none; }
 
   /* ============================================================
      CHANGE 2 — "Your details" grouped block (matches prototype-v20.html's
@@ -103,7 +103,7 @@
      CSS further down + the IntersectionObserver in the script, also reused
      from v20). Shown only under Change 2 — see body[data-proto-view] rule. */
   .details { display:none; background: var(--fill-card); border:1px solid var(--borders-default); border-radius: var(--r-card-inner); margin-bottom: var(--space-3); }
-  body[data-proto-view="change2"] .details { display:block; }
+  body[data-proto-view="change2"] .details , body[data-proto-view="change3"] .details { display:block; }
   .details > summary { list-style:none; cursor:pointer; padding: 10px 14px; display:flex; align-items:center; justify-content:space-between; gap: 8px; }
   .details > summary::-webkit-details-marker { display:none; }
   .details__label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; display:block; }
@@ -516,11 +516,12 @@
   }
   /* CHANGE 2, desktop only: the full calculator is no longer sticky under Change 2 (see the
      body[data-proto-view="change2"] .calc override above) — the persistent top chrome is now the
+     much-shorter sticky-summary bar (~40px) instead, body[data-proto-view="change3"] .calc override above) — the persistent top chrome is now the
      much-shorter sticky-summary bar (~40px) instead, once scrolled that far. Tightens the panel's
      sticky offset to match (was 96px/112px sized for the taller sticky calculator), same "small gap"
      logic as the comment above. */
   @media (min-width:1024px){
-    body[data-proto-view="change2"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
+    body[data-proto-view="change2"] .sf-panel , body[data-proto-view="change3"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
   }
 
   /* ============================================================
@@ -552,7 +553,7 @@
   .pct-header .sf-trigger-row { margin:0; flex-shrink:0; }
   .pct-header .section-h { margin:0; min-width:0; }
   /* Change 2 swaps the "Compare Personal Loans" heading for the compact loan count (v20 layout). */
-  body[data-proto-view="change2"] #pctHeading { display:none; }
+  body[data-proto-view="change2"] #pctHeading , body[data-proto-view="change3"] #pctHeading { display:none; }
 
   /* Baseline ⇄ Change 1 ⇄ Change 2: which chrome shows (persona tabs vs Sort & Filter trigger/
      panel) and whether .pl-layout reserves a left column at all. Change 1's chrome (sf-trigger-row/
@@ -560,7 +561,7 @@
      else on the page (table, cards, promo blocks, FAQ, footer) renders identically in all views. */
   body[data-proto-view="baseline"] .tabs { display:flex; }
   body[data-proto-view="change1"] .tabs,
-  body[data-proto-view="change2"] .tabs { display:none; }
+  body[data-proto-view="change2"] .tabs , body[data-proto-view="change3"] .tabs { display:none; }
   body[data-proto-view="baseline"] .sf-trigger-row,
   body[data-proto-view="baseline"] .sf-panel,
   body[data-proto-view="baseline"] .sf-backdrop { display:none !important; }
@@ -573,15 +574,15 @@
      automatically in Baseline (where those panels are hidden anyway). */
   .ann { display:none; background:var(--fill-secondary); color:var(--fill-primary-dark); font-size:9px; font-weight:800; border-radius:4px; padding:2px 7px; white-space:nowrap; box-shadow:var(--shadow-md); }
   body.marks[data-proto-view="change1"] .ann,
-  body.marks[data-proto-view="change2"] .ann { display:inline-block; }
+  body.marks[data-proto-view="change2"] .ann , body.marks[data-proto-view="change3"] .ann { display:inline-block; }
   body.marks[data-proto-view="change1"] .x-new,
-  body.marks[data-proto-view="change2"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
+  body.marks[data-proto-view="change2"] .x-new , body.marks[data-proto-view="change3"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
   body.marks[data-proto-view="change1"] #sfPanel,
-  body.marks[data-proto-view="change2"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
+  body.marks[data-proto-view="change2"] #sfPanel , body.marks[data-proto-view="change3"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
   /* Change-1 (persists under Change 2): sort/state caption under the results heading */
   .sortcap { display:none; font-size:13px; color:var(--text-muted); margin:2px 0 12px; }
   body[data-proto-view="change1"] .sortcap,
-  body[data-proto-view="change2"] .sortcap { display:block; }
+  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap { display:block; }
   .sortcap b { color:var(--text-primary); font-weight:700; }
 
   /* ============================================================
@@ -592,8 +593,8 @@
      Change-1 sort caption sits on its own line below, tightened to v20's 12px in this view. */
   .qualifycap { display:none; flex:1; min-width:0; font-size:14px; font-weight:700; color:var(--text-primary); margin:0; line-height:1.3; }
   .qualifycap span { color:var(--text-muted); font-weight:400; font-size:12px; }
-  body[data-proto-view="change2"] .qualifycap { display:block; }
-  body[data-proto-view="change2"] .sortcap { font-size:12px; margin:2px 0 12px; }
+  body[data-proto-view="change2"] .qualifycap , body[data-proto-view="change3"] .qualifycap { display:block; }
+  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap { font-size:12px; margin:2px 0 12px; }
 
   /* Per-loan soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate).
      TABLE: a small "ⓘ Check eligibility" text link in the Apply cell (.tinfo--no, link colour).
@@ -603,7 +604,7 @@
      not the amber-accent tokens, to match the old prototype. Eligibility elements hidden outside
      Change 2 (badge--excl is merchandising, always shown). */
   .tinfo--ok, .tinfo--no { display:none; margin:6px 0 0; font-size:11px; line-height:1.2; font-weight:700; }
-  body[data-proto-view="change2"] .tinfo--no { display:block; }
+  body[data-proto-view="change2"] .tinfo--no , body[data-proto-view="change3"] .tinfo--no { display:block; }
   .tinfo--no { white-space:nowrap; color:var(--text-link); cursor:help; }
   .badge { display:inline-block; font-size:12px; font-weight:700; border-radius:var(--r-pill); padding:3px 10px; }
   .badge--excl { background:var(--color-olive-700,#5d8433); color:#fff; }
@@ -612,9 +613,9 @@
   .loan__elig--no { color:#8a5a00; }
   .loan__elig--ok { color:var(--success-dark,#33691e); }
   .badge--excl, .badge--warn, .loan__elig { display:none; }
-  body[data-proto-view="change2"] .badge--excl,
-  body[data-proto-view="change2"] .badge--warn { display:inline-block; }
-  body[data-proto-view="change2"] .loan__elig { display:block; }
+  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl,
+  body[data-proto-view="change2"] .badge--warn , body[data-proto-view="change3"] .badge--warn { display:inline-block; }
+  body[data-proto-view="change2"] .loan__elig , body[data-proto-view="change3"] .loan__elig { display:block; }
   .loan__badges { display:flex; flex-wrap:wrap; gap:6px; }
   .loan__badges:empty { display:none; }
   .pct-table td.pct-applycell { white-space:normal; }
@@ -624,13 +625,65 @@
   /* Grey-out for ineligible products (old-prototype ".soft") — Change 2 only. Dims the row/card and
      desaturates the logo so eligible options stand out; "Apply" and the eligibility flag stay full
      colour and clickable (never a gate). Hidden in Baseline/Change 1 (rows/cards render normally). */
-  body[data-proto-view="change2"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
-  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
-  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
-  body[data-proto-view="change2"] .loan.soft { background:#fafbfc; }
-  body[data-proto-view="change2"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
-  body[data-proto-view="change2"] .loan.soft .loan__name,
-  body[data-proto-view="change2"] .loan.soft .g2 .v { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft > td , body[data-proto-view="change3"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft , body[data-proto-view="change3"] .loan.soft { background:#fafbfc; }
+  body[data-proto-view="change2"] .loan.soft .loan__logobox img , body[data-proto-view="change3"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft .loan__name, body[data-proto-view="change3"] .loan.soft .loan__name,
+  body[data-proto-view="change2"] .loan.soft .g2 .v , body[data-proto-view="change3"] .loan.soft .g2 .v { color:var(--text-muted); }
+
+  /* ============================================================
+     CHANGE 3 — Merchandising: consolidate the scattered promos into ONE carousel (cumulative on
+     Change 1+2). Pattern adapted from CH-437 (CHC CMS-driven campaign banner): 1 banner = static,
+     2–5 = auto-rotating carousel (5s), responsive. Shown only when data-proto-view="change3".
+     In this view the four production promo surfaces fold into the single carousel:
+       • top "Limited Time" announcement bar (.annbar)
+       • "Fastest Fulfilment" card (.promo-card)
+       • "Don't miss out on these great deals" block (.promoblk)
+       • sticky bottom "Hot Pick" bar (.hotpick)
+     ============================================================ */
+  /* Fold in only the redundant STACKED banners — the top Limited-Time bar, Fastest Fulfilment card,
+     and bottom Hot Pick. The "Don't miss out" campaign-details block STAYS (per epic Req 4: "one
+     carousel that links to the campaign details") — the carousel's "See deal details" scrolls to it. */
+  body[data-proto-view="change3"] .annbar,
+  body[data-proto-view="change3"] .promo-card { display:none !important; }
+  body[data-proto-view="change3"] .hotpick { display:none !important; }
+  /* Brief highlight when "See deal details" scrolls the user to the campaign block */
+  .promoblk--flash { animation:promoFlash 1.6s ease; }
+  @keyframes promoFlash { 0%,100%{ box-shadow:0 0 0 0 rgba(246,183,60,0); } 25%{ box-shadow:0 0 0 3px var(--fill-secondary,#f6b73c); } }
+  .mcarousel { display:none; }
+  body[data-proto-view="change3"] .mcarousel { display:block; margin:var(--space-4) 0 var(--space-5); }
+  .mcarousel__h { font-size:15px; font-weight:700; margin:0 0 4px; }
+  .mcarousel__sub { font-size:12px; color:var(--text-muted); margin:0 0 12px; }
+  .mcarousel__vp { position:relative; overflow:hidden; border-radius:var(--r-card); }
+  .mcarousel__track { display:flex; transition:transform .4s cubic-bezier(.4,0,.2,1); }
+  .mcarousel__slide { flex:0 0 100%; min-width:0; }
+  /* Banner card */
+  .mbanner { position:relative; overflow:hidden; border:1px solid var(--borders-default); border-radius:var(--r-card); background:var(--fill-card); padding:18px 20px; min-height:150px; display:flex; align-items:center; gap:16px; }
+  .mbanner__bg { position:absolute; inset:0; z-index:0; pointer-events:none; }
+  .mbanner__bg--pink  { background:linear-gradient(105deg, var(--highlight-red-light), var(--fill-card) 70%); }
+  .mbanner__bg--green { background:linear-gradient(105deg, var(--highlight-green-light), var(--fill-card) 70%); }
+  .mbanner__bg--blue  { background:linear-gradient(105deg, var(--fill-primary-light), var(--fill-card) 70%); }
+  .mbanner__ic { position:relative; z-index:1; flex-shrink:0; width:56px; height:56px; border-radius:14px; background:var(--fill-card); border:1px solid var(--borders-soft); display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:var(--shadow-sm); }
+  .mbanner__ic img { max-width:40px; max-height:32px; width:auto; height:auto; object-fit:contain; }
+  .mbanner__body { position:relative; z-index:1; min-width:0; flex:1; }
+  .mbanner__eyebrow { font-size:11px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:var(--fill-secondary-dark); margin:0 0 3px; }
+  .mbanner__title { font-size:17px; font-weight:800; line-height:1.25; color:var(--text-primary); margin:0 0 5px; }
+  .mbanner__blurb { font-size:12.5px; line-height:1.5; color:var(--text-secondary); margin:0 0 12px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .mbanner__cta { display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .mbanner__applyby { font-size:11px; color:var(--text-muted); margin-top:8px; }
+  /* Arrows */
+  .mcarousel__arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:38px; height:38px; border-radius:50%; border:1px solid var(--borders-default); background:var(--fill-card); color:var(--text-primary); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md); }
+  .mcarousel__arrow:hover { background:var(--fill-alternative-1); }
+  .mcarousel__arrow--prev { left:8px; } .mcarousel__arrow--next { right:8px; }
+  @media (max-width:600px){ .mcarousel__arrow { width:32px; height:32px; font-size:14px; } .mcarousel__arrow--prev{left:4px;} .mcarousel__arrow--next{right:4px;} }
+  /* Dots + autoplay progress */
+  .mcarousel__dots { display:flex; justify-content:center; gap:8px; margin-top:12px; }
+  .mcarousel__dot { width:8px; height:8px; border-radius:50%; border:0; padding:0; background:var(--borders-form-default); cursor:pointer; transition:width .3s, background .3s; }
+  .mcarousel__dot.on { width:22px; border-radius:5px; background:var(--fill-primary); }
+  /* Single-banner (static) mode: no arrows/dots */
+  .mcarousel.is-static .mcarousel__arrow, .mcarousel.is-static .mcarousel__dots { display:none; }
 
   /* Sticky "Your details" summary bar — v20 pattern: replaces the full "Your details" block (see
      .details CSS above) once it scrolls out of view, driven by the same guarded IntersectionObserver
@@ -638,7 +691,7 @@
      viewport; only relevant/shown under Change 2 (harmless no-op in Baseline/Change 1 since
      `display:none` wins regardless). */
   .sticky-summary { position:fixed; top:0; left:0; right:0; z-index:41; background:var(--fill-primary-dark); box-shadow:0 4px 12px rgba(15,23,42,.14); transform:translateY(-100%); transition:transform .25s ease; display:none; }
-  body[data-proto-view="change2"] .sticky-summary { display:block; }
+  body[data-proto-view="change2"] .sticky-summary , body[data-proto-view="change3"] .sticky-summary { display:block; }
   .sticky-summary.show { transform:translateY(0); }
   .sticky-summary__inner { max-width:1130px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; box-sizing:border-box; }
   .sticky-summary__text { flex:1; min-width:0; display:flex; flex-direction:column; }
@@ -671,7 +724,7 @@
   .gate__err { color:var(--danger); font-size:12px; margin:10px 0 0; }
 </style>
 </head>
-<body class="marks" data-proto-view="change2">
+<body class="marks" data-proto-view="change3">
 <!-- password gate (demo, client-side only) -->
 <div id="gate" class="gate">
   <div class="gate__box">
@@ -768,6 +821,21 @@
     <summary><span class="qsum__icon">＋</span> Quick Summary</summary>
     <div class="qsum__body">Bank rates start from <b>0.90% p.a.</b> (EIR from 1.75% p.a.). SingSaver rewards and welcome offers vary by bank and loan amount — see the comparison table below for full details.</div>
   </details>
+
+  <!-- CHANGE 3 — consolidated promo carousel (adapts CH-437's CMS-driven campaign banner pattern:
+       1 = static, 2–5 = auto-rotating carousel @5s, responsive). Placed here — below Quick Summary,
+       above "Your details" (the old Fastest-Fulfilment slot) — so it sits high in the first fold.
+       Shown only in change3; the annbar, Fastest-Fulfilment card and sticky Hot Pick bar fold into
+       these slides (see CSS). The "Don't miss out" details block stays below and is what the slides'
+       "See deal details" link to. -->
+  <section class="mcarousel x-new" id="mCarousel" aria-roledescription="carousel" aria-label="Featured promotions">
+    <div class="mcarousel__vp">
+      <button type="button" class="mcarousel__arrow mcarousel__arrow--prev" id="mcPrev" aria-label="Previous promotion">‹</button>
+      <div class="mcarousel__track" id="mcTrack" aria-live="polite"></div>
+      <button type="button" class="mcarousel__arrow mcarousel__arrow--next" id="mcNext" aria-label="Next promotion">›</button>
+    </div>
+    <div class="mcarousel__dots" id="mcDots" role="tablist" aria-label="Choose promotion"></div>
+  </section>
 
   <!-- Fastest Fulfilment — real HeroCampaingFeature block -->
   <div class="promo-card">
@@ -1691,6 +1759,92 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
 })();
 
 // ============================================================
+// CHANGE 3 — Merchandising carousel. Adapts CH-437 (CHC CMS-driven campaign banner): build ONE
+// rotating banner carousel from the Fastest-Fulfilment message + the campaign DEALS. 1 slide =
+// static; 2–5 = auto-rotate every 5s (pauses on hover, keyboard focus, and when the tab is hidden).
+// Rotation only runs while Change 3 is the active view (gated via window.__mcStart/__mcStop, called
+// from setProtoView). Guarded so missing nodes can't throw.
+// ============================================================
+(function initMerchCarousel(){
+  const track=$('mcTrack'), dotsWrap=$('mcDots'), root=$('mCarousel'), prevBtn=$('mcPrev'), nextBtn=$('mcNext');
+  if (!track || !root || !dotsWrap) return;
+
+  // Lead with Fastest Fulfilment, then the campaign deals — capped at 5 total (CH-437 limit).
+  // Deal slides carry dealIndex → "See deal details" scrolls to that campaign's tab in the
+  // (kept) "Don't miss out" block. Fastest Fulfilment isn't a campaign, so it just points at the table.
+  const ffSlide = { eyebrow:'Fastest fulfilment', title:'Get your reward in 3 weeks', icon:'💸', color:'blue',
+    blurb:'Apply for a UOB, Standard Chartered CashOne or Trust Bank loan and your SingSaver reward is sent within 3 weeks of approval — no extra steps.' };
+  const dealSlides = DEALS.map((d,i)=>({ eyebrow:'Limited time only', title:d.head, blurb:d.blurb, logo:d.logo, color:d.color, applyBy:d.applyBy, dealIndex:i }));
+  const SLIDES = [ffSlide, ...dealSlides].slice(0,5);
+  const n = SLIDES.length;
+
+  function slideHTML(s){
+    const media = s.logo ? `<span class="mbanner__ic"><img src="${s.logo}" alt=""></span>` : `<span class="mbanner__ic">${s.icon||'🎁'}</span>`;
+    const ctas = (s.dealIndex != null)
+      ? `<button type="button" class="mhg-btn mhg-btn--cta mhg-btn--small" data-mc-apply>Apply now ↗</button>
+         <button type="button" class="mhg-btn mhg-btn--outline-cta mhg-btn--small" data-mc-details="${s.dealIndex}">See deal details</button>`
+      : `<button type="button" class="mhg-btn mhg-btn--cta mhg-btn--small" data-mc-table>See eligible loans</button>`;
+    return `<div class="mcarousel__slide" role="group" aria-roledescription="slide">
+      <div class="mbanner">
+        <div class="mbanner__bg mbanner__bg--${s.color||'pink'}"></div>
+        ${media}
+        <div class="mbanner__body">
+          <p class="mbanner__eyebrow">${s.eyebrow}</p>
+          <h3 class="mbanner__title">${s.title}</h3>
+          <p class="mbanner__blurb">${s.blurb}</p>
+          <span class="mbanner__cta">${ctas}</span>
+          ${s.applyBy ? `<div class="mbanner__applyby">Apply by ${s.applyBy}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+  track.innerHTML = SLIDES.map(slideHTML).join('');
+  dotsWrap.innerHTML = SLIDES.map((_,i)=>`<button type="button" class="mcarousel__dot${i===0?' on':''}" role="tab" aria-label="Go to promotion ${i+1}" data-mc-dot="${i}"></button>`).join('');
+  if (n <= 1) root.classList.add('is-static');   // single banner → static, no rotation/controls
+
+  let idx = 0, timer = null;
+  const REVOLVE = 5000;   // CH-437: auto-rotate every 5 seconds
+  const active = ()=> document.body.getAttribute('data-proto-view') === 'change3';
+  function apply(){
+    track.style.transform = `translateX(-${idx*100}%)`;
+    [...track.children].forEach((sl,i)=> sl.setAttribute('aria-hidden', String(i!==idx)));
+    [...dotsWrap.children].forEach((d,i)=>{ d.classList.toggle('on', i===idx); d.setAttribute('aria-selected', String(i===idx)); });
+  }
+  function goTo(i){ idx=(i+n)%n; apply(); }
+  function start(){ if (n>1 && !timer && active()) timer=setInterval(()=>goTo(idx+1), REVOLVE); }
+  function stop(){ if (timer){ clearInterval(timer); timer=null; } }
+  function restart(){ stop(); start(); }   // reset the 5s clock after manual navigation
+
+  if (nextBtn) nextBtn.addEventListener('click', ()=>{ goTo(idx+1); restart(); });
+  if (prevBtn) prevBtn.addEventListener('click', ()=>{ goTo(idx-1); restart(); });
+  dotsWrap.addEventListener('click', e=>{ const b=e.target.closest('[data-mc-dot]'); if(!b) return; goTo(+b.dataset.mcDot); restart(); });
+  // CTA wiring — "See deal details" → scroll to that campaign's tab in the (kept) promo block;
+  // "See eligible loans" → the comparison table. "Apply now" → provider redirect in production.
+  function scrollToEl(el){ if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  function openCampaignDetail(i){
+    const block = document.querySelector('.promoblk');
+    const tab = document.querySelector('#campTabs [data-deal="'+i+'"]');
+    if (tab) tab.click();   // reuses the block's own tab handler → renderDeal(i) + tint
+    if (block){ scrollToEl(block); block.classList.remove('promoblk--flash'); void block.offsetWidth; block.classList.add('promoblk--flash'); }
+  }
+  track.addEventListener('click', e=>{
+    const det = e.target.closest('[data-mc-details]');
+    if (det){ openCampaignDetail(+det.dataset.mcDetails); return; }
+    if (e.target.closest('[data-mc-table]')){ scrollToEl(document.querySelector('.pct-section')); }
+  });
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', start);
+  document.addEventListener('visibilitychange', ()=>{ if (document.hidden) stop(); else start(); });
+
+  apply();
+  window.__mcStart = ()=>{ stop(); goTo(0); start(); };   // called when Change 3 becomes active
+  window.__mcStop  = stop;                                 // called when leaving Change 3
+  start();   // default view is change3
+})();
+
+// ============================================================
 // REDESIGN STEP 1 — Sort & Filter panel wiring (guarded: every lookup
 // checks the element exists before attaching, so a missing node can
 // never throw and abort the rest of render()).
@@ -1792,8 +1946,9 @@ const PROTO_VIEWS = [
   { id:'baseline', label:'Baseline' },
   { id:'change1',  label:'Change 1 · Sort & Filter' },
   { id:'change2',  label:'Change 2 · Calculator + eligibility' },
+  { id:'change3',  label:'Change 3 · Merchandising' },
 ];
-let currentProtoView = document.body.getAttribute('data-proto-view') || 'change2';
+let currentProtoView = document.body.getAttribute('data-proto-view') || 'change3';
 
 function renderProtoViewToggle(){
   const host = $('protoViewToggle');
@@ -1810,6 +1965,9 @@ function setProtoView(id){
   // Only Baseline hides the Sort & Filter panel entirely (Change 1 and Change 2 both show it,
   // cumulative) — so only force-close a left-open mobile/tablet drawer when landing on Baseline.
   if (id === 'baseline' && typeof window.__sfClosePanel === 'function') window.__sfClosePanel();
+  // Change 3's promo carousel only auto-rotates while it's the active (visible) view.
+  if (id === 'change3') { if (window.__mcStart) window.__mcStart(); }
+  else if (window.__mcStop) window.__mcStop();
 }
 const protoViewHost = $('protoViewToggle');
 if (protoViewHost) protoViewHost.addEventListener('click', e=>{
