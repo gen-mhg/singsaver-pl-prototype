@@ -1,0 +1,95 @@
+/* ─────────────────────────────────────────────────────────────
+   MHG Alpha Design System — LAYOUT GRID
+   Source: Figma "Grid Definition" page (node 1604:1307).
+   Load after tokens.css. Two grids exist: Product and Campaign.
+
+   Breakpoints (match tokens.css): mobile ≤767, tablet 768–1279,
+   desktop 1280–1439, desktop-lg 1440+. Reference device widths in
+   Figma: 360, 428, 768, 1024, 1280, 1366, 1440, 1920, 2560.
+
+   PRODUCT grid (default app/page content)
+   ┌────────────┬───────┬────────┬──────────────────┬──────────┐
+   │ breakpoint │ gap   │ margin │ content width    │ columns  │
+   ├────────────┼───────┼────────┼──────────────────┼──────────┤
+   │ 0–767      │ 16px  │ 16px   │ 328 – 736px      │ fluid    │
+   │ 768–1279   │ 16px  │ 24px   │ 720 – 1247px     │ fluid    │
+   │ 1280–1439  │ 24px  │ 32px   │ 1130px (capped)  │ 12       │
+   │ 1440+      │ 24px  │ 40px   │ 1130px (capped)  │ 12       │
+   └────────────┴───────┴────────┴──────────────────┴──────────┘
+   Desktop content caps at 1130px = 12 cols × 72.17px + 11 × 24px gap.
+
+   CAMPAIGN grid (campaign / landing pages)
+   ┌────────────┬───────┬────────┬──────────────────┬──────────┐
+   │ 0–767      │ 16px  │ 16px   │ 328 – 736px      │ 1        │
+   │ 768+       │ 16px  │ 24px   │ 720 – 976px      │ 2        │
+   └────────────┴───────┴────────┴──────────────────┴──────────┘
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Product grid — mobile (≤767) defaults */
+  --grid-margin:        16px;   /* page gutter (outer) */
+  --grid-gap:           16px;   /* gutter between columns */
+  --grid-max:           none;   /* content max-width (uncapped until desktop) */
+  --grid-columns:       4;      /* mobile column count for .mhg-grid */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --grid-margin:      24px;
+    --grid-gap:         16px;
+    --grid-max:         1247px;
+    --grid-columns:     8;
+  }
+}
+@media (min-width: 1280px) {
+  :root {
+    --grid-margin:      32px;
+    --grid-gap:         24px;
+    --grid-max:         1130px;   /* hard cap */
+    --grid-columns:     12;
+  }
+}
+@media (min-width: 1440px) {
+  :root {
+    --grid-margin:      40px;
+    --grid-gap:         24px;
+    --grid-max:         1130px;
+    --grid-columns:     12;
+  }
+}
+
+/* Centered page container with responsive gutters + content cap.
+   Mobile/tablet fill available width; desktop caps content at 1130px
+   (+ gutters). max-width is only set from 1280 up. */
+.mhg-container {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--grid-margin);
+}
+@media (min-width: 1280px) {
+  .mhg-container { max-width: calc(1130px + (var(--grid-margin) * 2)); }
+}
+
+/* 12-column (responsive) grid for laying out content inside a container. */
+.mhg-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  column-gap: var(--grid-gap);
+  row-gap: var(--grid-gap);
+}
+
+/* Campaign variant — set on the container/grid for campaign & landing pages. */
+.mhg-container--campaign { max-width: calc(976px + (var(--grid-margin) * 2)); }
+@media (min-width: 768px) {
+  .mhg-grid--campaign { --grid-columns: 2; --grid-gap: 16px; }
+}
+@media (max-width: 767px) {
+  .mhg-grid--campaign { --grid-columns: 1; }
+}
+
+/* Column-span helpers (1–12). Use inside .mhg-grid at desktop. */
+.mhg-col-1{grid-column:span 1}.mhg-col-2{grid-column:span 2}.mhg-col-3{grid-column:span 3}
+.mhg-col-4{grid-column:span 4}.mhg-col-5{grid-column:span 5}.mhg-col-6{grid-column:span 6}
+.mhg-col-7{grid-column:span 7}.mhg-col-8{grid-column:span 8}.mhg-col-9{grid-column:span 9}
+.mhg-col-10{grid-column:span 10}.mhg-col-11{grid-column:span 11}.mhg-col-12{grid-column:span 12}

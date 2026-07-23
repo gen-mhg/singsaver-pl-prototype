@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en" class="brand-singsaver">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEO Intro — Collapse behind "Read more" (SingSaver Personal Loans)</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/grid.css">
+<link rel="stylesheet" href="assets/components/buttons.css">
+<style>
+  body { background: var(--fill-base); color: var(--text-primary); margin:0; }
+  .baseline-tag { background:#0f172a; color:#fff; font-size:11px; font-weight:700; text-align:center; padding:5px; letter-spacing:.02em; }
+
+  /* Site header + nav — real TheHeader/DropdownMenu/AccountButton (cms-components):
+     one flex row = hamburger(mobile)+logo | centred desktop nav | Log in text (desktop) + round avatar (always). */
+  .site { position:relative; z-index:40; background:var(--fill-card); border-bottom:1px solid var(--borders-default); display:flex; align-items:center; gap:10px; padding:10px 14px; }
+  .site__menu { border:0; background:none; font-size:20px; cursor:pointer; color:var(--text-primary); width:34px; height:34px; border-radius:8px; flex-shrink:0; }
+  .site__menu:hover { background:var(--fill-primary-light); }
+  .site__logo { height:22px; flex-shrink:0; }
+  .site__right { display:flex; align-items:center; gap:12px; margin-left:auto; flex-shrink:0; }
+  .site__login { display:none; font-weight:700; font-size:14px; color:var(--fill-primary-dark); text-decoration:none; }
+  .site__acct { border:0; cursor:pointer; width:32px; height:32px; border-radius:50%; background:var(--fill-primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .site__nav { display:none; }
+  .site__nav.open { display:flex; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--fill-card); border-bottom:1px solid var(--borders-default); padding:4px 14px 10px; box-shadow:0 8px 16px rgba(15,23,42,.10); }
+  .site__nav.open a { padding:9px 0; font-size:14px; font-weight:600; color:var(--text-primary); text-decoration:none; border-bottom:1px solid var(--borders-soft); }
+  .site__nav.open a:last-child { border-bottom:0; }
+  @media(min-width:1024px){
+    .site__menu{display:none}
+    .site__nav{display:flex !important; position:static; flex-direction:row; flex:1; gap:22px; justify-content:center; box-shadow:none; border-bottom:0; padding:0; background:none}
+    .site__nav a{padding:10px 0; border-bottom:0; font-size:14px; font-weight:700; color:var(--text-secondary); text-decoration:none}
+    .site__nav a:hover{color:var(--text-primary)}
+    .site__login{display:inline-block}
+  }
+
+  /* Announcement bar — real "top-page-sticky-content" campaign banner */
+  .annbar { display:flex; align-items:center; justify-content:space-between; gap:10px; background:linear-gradient(to right, var(--fill-primary-dark), var(--fill-primary)); color:#fff; padding:8px 14px; font-size:12px; line-height:1.4; }
+  .annbar.hidden { display:none; }
+  .annbar__txt { flex:1; min-width:0; }
+  .annbar__link { color:#fff; text-decoration:underline; font-weight:700; white-space:nowrap; cursor:pointer; }
+  .annbar__x { border:0; background:none; color:#fff; opacity:.85; cursor:pointer; font-size:13px; width:26px; height:26px; border-radius:8px; flex-shrink:0; }
+  .annbar__x:hover { background:rgba(255,255,255,.18); }
+
+  .crumb { font-size:12px; color:var(--text-muted); margin:10px 0 8px; }
+  .wrap { max-width: 1130px; margin: 0 auto; padding: var(--space-3) var(--space-4) var(--space-10); box-sizing:border-box; }
+  @media (min-width:768px){ .wrap { padding-left:24px; padding-right:24px; } }
+  @media (min-width:1280px){ .wrap { padding-left:40px; padding-right:40px; } }
+
+  .head h1 { font-size: 20px; line-height: 1.22; margin: 0 0 4px; }
+  .head__meta { color: var(--text-muted); font-size: 12px; margin: 0 0 6px; }
+  .intro-wrap { position:relative; }
+  .intro-txt { font-size:13px; line-height:1.5; color: var(--text-secondary); margin:0; overflow:hidden; }
+  .intro-txt.clamped { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .intro-more { border:0; background:none; color: var(--text-link); font-weight:700; font-size:13px; cursor:pointer; padding:4px 0 0; text-decoration:underline; }
+
+  /* Persona filter tabs — real live labels/order/emoji, horizontal scroll strip of pill links */
+  .tabs { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:10px 0 6px; margin-bottom:2px; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tabpill { flex:0 0 auto; border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:7px 14px; font-size:13px; font-weight:600; color:var(--text-primary); text-decoration:none; white-space:nowrap; }
+  .tabpill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
+
+  /* Quick Summary */
+  .qsum { margin: var(--space-2) 0; }
+  .qsum > summary { list-style:none; cursor:pointer; font-weight:700; color:var(--text-primary); font-size:14px; padding:8px 0; display:flex; align-items:center; gap:6px; }
+  .qsum > summary::-webkit-details-marker{display:none}
+  .qsum__icon { font-weight:400; }
+  .qsum__body { font-size:13px; color:var(--text-secondary); padding:2px 0 10px; line-height:1.5; }
+
+  /* Fastest Fulfilment banner (real HeroCampaingFeature block) */
+  .promo-card { display:flex; gap:12px; align-items:flex-start; border:1px solid var(--borders-default); border-radius: var(--r-card); background:var(--fill-card); padding: var(--space-3); margin: var(--space-3) 0; }
+  .promo-card__ic { width:56px; height:56px; flex-shrink:0; border-radius:var(--r-card-inner); background:var(--fill-primary-light); display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .promo-card__body { min-width:0; }
+  .promo-card b { font-size:14px; display:block; margin-bottom:2px; }
+  .promo-card p { margin:2px 0 0; font-size:13px; color:var(--text-secondary); line-height:1.45; }
+  .promo-card p.clamped { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .promo-card__more { border:0; background:none; color:var(--text-link); font-weight:700; font-size:12px; cursor:pointer; padding:4px 0 0; text-decoration:underline; }
+
+  /* Loan Amount + Tenure calculator (real PersonalLoanFilter — 2 fields, sticky) */
+  .calc { position:sticky; top:0; z-index:20; background:var(--fill-base); padding: var(--space-2) 0; margin-bottom:2px; }
+  .calc__row { display:flex; gap:10px; }
+  .calc__fld { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .calc__lbl { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--text-secondary); }
+  .calc__help { color:var(--text-muted); cursor:help; font-size:12px; border:1px solid var(--borders-default); border-radius:50%; width:15px; height:15px; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+  .calc__fld input { border:1px solid var(--borders-form-default); border-radius: var(--r-button); padding:9px 10px; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); background:var(--fill-card); width:100%; box-sizing:border-box; }
+  .calc__fld input:focus { outline:2px solid var(--fill-primary); border-color:transparent; }
+  .calc.stuck { box-shadow: 0 4px 10px rgba(15,23,42,.08); border-bottom:1px solid var(--borders-default); }
+
+  .section-h { font-size:15px; font-weight:700; margin: var(--space-4) 0 var(--space-1); }
+  .section-hint { font-size:11px; color:var(--text-muted); margin: 0 0 var(--space-2); }
+
+  /* Comparison table — real ComparisonTableBuilder/PLColumnSource structure */
+  .pct-section { margin: var(--space-3) 0 var(--space-4); }
+  .pct-wrap { border:1px solid var(--borders-default); border-radius: var(--r-table); background: var(--fill-card); overflow:hidden; position:relative; }
+  .pct-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; box-shadow: inset -10px 0 8px -8px rgba(15,23,42,.14); }
+  .pct-scroll::-webkit-scrollbar { display:none; }
+  .pct-table { border-collapse:separate; border-spacing:0; width:100%; min-width:760px; background:var(--fill-card); }
+  .pct-table th, .pct-table td { padding:12px 14px; text-align:left; white-space:nowrap; vertical-align:middle; }
+  /* No column/vertical grid-lines and no inter-row vertical rules on live — only a
+     subtle horizontal row separator (border-top) on a white background (verified: ComparisonTableBuilder.tsx
+     never adds a vertical border between tbody cells; this replica drops the header's border-l too so nothing reads as a grid). */
+  .pct-table td { font-size:13px; font-weight:500; }
+  .pct-table thead th { background:var(--fill-alternative-1); font-size:14px; font-weight:700; color:var(--text-primary); white-space:normal; line-height:1.3; }
+  .pct-table tbody td { border-top:1px solid var(--borders-default); }
+  .pct-table tbody tr:hover td { background:var(--fill-base); }
+  @media (min-width:768px){
+    .pct-table thead th { font-size:15px; }
+    .pct-table td { font-size:14px; }
+  }
+  .pct-sticky { position:sticky; left:0; z-index:2; background:var(--fill-card); }
+  .pct-table thead th.pct-sticky { background:var(--fill-alternative-1); z-index:3; }
+  .pct-table tbody tr:hover td.pct-sticky { background:var(--fill-base); }
+  .pct-loan { display:flex; align-items:center; gap:10px; min-width:172px; }
+  .pct-loan img { height:26px; width:auto; max-width:64px; object-fit:contain; flex-shrink:0; }
+  .pct-loan span { font-weight:700; font-size:13px; color:var(--text-primary); white-space:normal; line-height:1.25; }
+  .pct-reward { border:0; background:var(--fill-primary-light); padding:5px 10px; font:inherit; font-weight:700; font-size:13px; color:var(--fill-primary-dark); cursor:pointer; text-align:left; border-radius:var(--r-tooltip); }
+  .pct-reward:hover { background:var(--fill-primary-subtle,#e3edff); }
+  .pct-reward.pct-na { background:none; padding:0; color:var(--text-muted); font-weight:400; cursor:pointer; }
+  .pct-reward.pct-na:hover { background:none; text-decoration:underline; }
+  .mhg-btn--outline-cta { background:var(--fill-card); color:var(--buttons-cta); border-color:var(--buttons-cta); }
+  .mhg-btn--outline-cta:hover:not(:disabled):not([aria-disabled="true"]) { background:var(--fill-alternative-1); color:var(--buttons-cta-hover); border-color:var(--buttons-cta-hover); }
+  .pct-monthly { font-weight:700; color:var(--fill-primary-dark); }
+  .pct-src { font-size:11px; color:var(--text-muted); margin:8px 2px 0; }
+  @media (min-width:768px){ .pct-loan span, .pct-reward { font-size:14px; } }
+  @media (min-width:1280px){ .pct-table { min-width:100%; } }
+
+  /* Show All Loans — real chevron header + logo strip, part of the ComparisonTable component */
+  .showall { border-top:1px solid var(--borders-default); background:var(--fill-card); }
+  .showall > summary { list-style:none; cursor:pointer; padding:12px 14px; font-weight:700; font-size:13px; display:flex; align-items:center; gap:8px; }
+  .showall > summary::-webkit-details-marker { display:none; }
+  .showall__chev { display:inline-block; color:var(--text-muted); transition:transform .2s; font-weight:400; }
+  .showall[open] .showall__chev { transform:rotate(90deg); }
+  .showall__body { padding:0 14px 14px; }
+  .showall__note { font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+  .showall__strip { display:flex; flex-wrap:wrap; gap:8px; }
+  .showall__chip { border:1px solid var(--borders-default); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600; color:var(--text-primary); background:var(--fill-alternative-1); }
+
+  /* SingSaver Tips */
+  .tips { border-radius: var(--r-card); overflow:hidden; border:1px solid var(--borders-default); margin: var(--space-4) 0; }
+  .tips__h { background: var(--fill-primary); color:var(--text-on-dark); font-weight:700; padding:10px 14px; font-size:14px; }
+  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; color:var(--text-secondary); }
+
+  /* Why Trust SingSaver */
+  .wts { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); margin: var(--space-3) 0; }
+  .wts > summary { list-style:none; cursor:pointer; padding:12px 14px; display:flex; align-items:center; gap:8px; font-weight:700; font-size:14px; }
+  .wts > summary::-webkit-details-marker { display:none; }
+  .wts img { height:20px; }
+  .wts__body { padding:0 14px 14px; font-size:13px; color:var(--text-secondary); line-height:1.55; }
+  .wts__body ul { margin:8px 0 0; padding-left:18px; }
+  .wts__body li { margin-bottom:6px; }
+
+  /* "Don't miss out on these great deals" — real Promotional Campaigns PL block
+     (fe-services CreditCardPromotion.tsx + ComponentCredtiCardPromotion/* — the actual component the live PL page
+     renders for this section, NOT the generic PromotionalBanner). Deal tabs across the top; selected deal =
+     left column (title/blurb/Participating Products/How to Qualify) + right column (reward-tier gift grid). */
+  .promoblk { margin: var(--space-4) 0; }
+  .promoblk__h { font-size:15px; font-weight:700; margin:0 0 10px; }
+  .promoblk__tabs { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:16px; }
+  .promoblk__tabs::-webkit-scrollbar { display:none; }
+  .promoblk__tab { flex:0 0 auto; text-align:left; border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; padding:10px 14px; cursor:pointer; min-width:170px; }
+  .promoblk__tab b { display:block; font-size:13px; color:var(--text-primary); line-height:1.3; }
+  .promoblk__tab span { font-size:12px; color:var(--text-muted); }
+  .promoblk__tab.on { background:var(--fill-primary-light); border-color:var(--fill-primary); }
+  .promoblk__body { display:flex; flex-direction:column; gap:20px; }
+  .promoblk__left { min-width:0; }
+  .promoblk__title { font-size:18px; font-weight:800; margin:0 0 8px; line-height:1.3; }
+  .promoblk__blurb { font-size:13px; color:var(--text-secondary); line-height:1.55; margin:0 0 14px; }
+  .promoblk__h4 { font-size:13px; font-weight:700; margin:0 0 8px; }
+  .promoblk__product { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .promoblk__product img { height:22px; width:auto; max-width:56px; object-fit:contain; flex-shrink:0; }
+  .promoblk__prodname { font-weight:700; color:var(--text-link); font-size:13px; }
+  .promoblk__prodlabel { font-size:13px; color:var(--text-secondary); }
+  .promoblk__qual { font-size:12.5px; line-height:1.6; color:var(--text-secondary); margin:0 0 16px; padding-left:18px; }
+  .promoblk__qual li { margin-bottom:6px; }
+  .promoblk__qual ul { margin:6px 0; padding-left:18px; }
+  .promoblk__qual a { color:var(--text-link); text-decoration:underline; }
+  .promoblk__tbl { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0 12px; }
+  .promoblk__tbl th, .promoblk__tbl td { border:1px solid var(--borders-default); padding:6px 8px; text-align:left; }
+  .promoblk__tbl th { background:var(--fill-alternative-1); font-weight:700; }
+  .promoblk__right { min-width:0; }
+  .promoblk__applyby { font-size:12.5px; font-weight:600; color:var(--text-primary); margin:0 0 10px; }
+  .promoblk__grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .gifttile { border:1px solid var(--borders-default); border-radius:12px; overflow:hidden; background:var(--fill-card); display:flex; flex-direction:column; }
+  .gifttile__tag { background:var(--highlight-red-light); color:var(--highlight-red-dark); font-size:10px; font-weight:700; text-align:center; padding:3px 4px; }
+  .gifttile__body { flex:1; display:flex; align-items:center; justify-content:center; padding:12px 8px; min-height:64px; }
+  .gifttile__ic { font-size:22px; line-height:1; margin-bottom:4px; }
+  .gifttile__amt { font-size:11px; font-weight:700; color:var(--text-primary); text-align:center; line-height:1.3; }
+  .gifttile__worth { background:var(--fill-alternative-1); color:var(--text-secondary); font-size:10.5px; font-weight:600; text-align:center; padding:5px 4px; }
+  /* Real component renders the gift grid inline in the left column on mobile/tablet (ProductCampaignGifts,
+     "block lg:hidden"), and as its own right column on desktop ("hidden lg:block") — not both at once. */
+  .promoblk__giftslot--mobile { display:block; margin:0 0 16px; }
+  .promoblk__giftslot--desktop { display:none; }
+  @media (min-width:768px){
+    .promoblk__body { flex-direction:row; justify-content:space-between; gap:32px; }
+    .promoblk__left { flex:1; max-width:636px; }
+    .promoblk__right { flex-shrink:0; width:340px; }
+    .promoblk__grid { grid-template-columns:repeat(3,1fr); }
+    .promoblk__giftslot--mobile { display:none; }
+    .promoblk__giftslot--desktop { display:block; }
+  }
+  @media (min-width:1280px){ .promoblk__right { width:390px; } }
+
+  /* ============================================================
+     BASELINE-FIDELITY FIX 1 — full-bleed campaign background tint that
+     switches per selected deal tab. Real component: fe-services
+     src/components/cms/components-user/ComponentCredtiCardPromotion/
+     ProductCampaignBackground.tsx ("ProductsCampaignBackground") +
+     helpers/getColorSchema.ts — an absolutely-positioned, full-bleed div
+     sits behind the whole block; its gradient = the active campaign's
+     CMS-configured `color` field (green/red/blue/yellow/orange) resolved
+     to `linear-gradient(to right, var(--colors-campaign-{c}-1), white)`.
+     Those --colors-campaign-* vars are CMS/Figma-only and aren't in this
+     repo's tokens.css, so APPROXIMATED with the closest existing tokens:
+     DBS + UOB both use the "red" schema (--highlight-red-light →
+     --fill-card, i.e. rose/pink); SCB + Trust both use the "green" schema
+     (--highlight-green-light → --fill-card, mint). The real component only
+     has 5 discrete colour keys, so two campaigns sharing one key is
+     expected — the "rose" vs "very light pink" / "mint" vs "light
+     mint-green" difference the brief describes reads as a difference in
+     surrounding copy/tile density, not a distinct colour value.
+     Full-bleed is done by JS-measuring the true viewport width + the
+     block's own offset from the viewport edge (layoutCampaignBg() below),
+     not the `100vw` CSS trick (which overflows the page by the
+     scrollbar's width) — a more robust rebuild of the same idea the real
+     component uses (a `visualViewport`-driven inline pixel width). */
+  .promoblk { position:relative; z-index:0; }
+  .promoblk__bg { position:absolute; top:0; bottom:0; left:0; z-index:-1; pointer-events:none; transition:background .3s ease; }
+  .promoblk__bg--pink  { background: linear-gradient(to right, var(--highlight-red-light), var(--fill-card)); }
+  .promoblk__bg--green { background: linear-gradient(to right, var(--highlight-green-light), var(--fill-card)); }
+
+  /* Product detail cards (real cms-components ProductCard/ set) */
+  .cards { display:flex; flex-direction:column; gap: var(--space-3); }
+  .loan { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); padding: var(--space-4); box-shadow: var(--shadow-card); }
+  .loan__tag { display:inline-block; background: var(--fill-primary-light); color: var(--text-link); font-size:11px; font-weight:700; border-radius: var(--r-pill); padding:3px 10px; margin-bottom: var(--space-3); }
+  .loan__head { display:flex; flex-direction:column; align-items:stretch; gap:12px; margin-bottom: var(--space-3); }
+  .loan__id { display:flex; align-items:center; gap:10px; min-width:0; }
+  .loan__logobox { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:52px; height:52px; box-sizing:border-box; padding:6px; border:1px solid var(--borders-default); border-radius: var(--r-card-inner); background: var(--fill-card); }
+  .plogo-lg { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+  .loan__name { font-weight:800; font-size:14px; line-height:1.3; color:var(--text-primary); }
+  .loan__ctawrap .mhg-btn { width:100%; }
+  @media (min-width: 768px){ .loan__head{flex-direction:row;align-items:flex-start;justify-content:space-between;gap:10px} .loan__ctawrap .mhg-btn{width:auto} }
+
+  .loan__grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin: var(--space-3) 0; }
+  .g2 .l { font-size:11px; color:var(--text-muted); } .g2 .v { font-size:15px; font-weight:700; } .g2 .v small{font-weight:400;font-size:11px;color:var(--text-muted)}
+  @media (min-width: 768px){ .loan__grid2{grid-template-columns:repeat(4,1fr)} }
+
+  .acc { border-top:1px solid var(--borders-soft); }
+  .acc > summary { list-style:none; cursor:pointer; padding:10px 0; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:13px; }
+  .acc > summary::-webkit-details-marker { display:none; }
+  .acc > summary::after { content:"▾"; color:var(--text-muted); font-size:10px; } .acc[open] > summary::after { content:"▴"; }
+  .acc__body { padding: 0 0 12px; font-size:12px; color:var(--text-secondary); }
+  .acc--reward { background:var(--fill-primary-light); border-radius:var(--r-card-inner); border-top:0; padding:0 12px; margin:0 0 4px; }
+  .acc--reward > summary { padding:12px 0; }
+  .acc--reward .acc__body { padding-bottom:14px; }
+  .offer-blurb { font-size:13px; color:var(--text-secondary); margin:0 0 8px; line-height:1.5; }
+  .dlrow { display:flex; justify-content:space-between; gap:12px; padding:6px 0; font-size:14px; }
+  .dlrow .k { color:var(--text-secondary); } .dlrow .v { font-weight:700; color:var(--text-primary); text-align:right; }
+  .featlist { list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .featlist li { display:flex; gap:8px; font-size:13px; color:var(--text-secondary); align-items:flex-start; line-height:1.4; }
+  .ic-pro { color:var(--success); font-weight:800; }
+  .stepslabel { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); margin:0 0 6px; }
+  .steplist { margin:0 0 4px; padding-left:0; list-style:none; font-size:13px; color:var(--text-secondary); line-height:1.5; }
+  .steplist li { margin-bottom:6px; }
+
+  /* FAQ (real, verbatim) */
+  .faq { margin:var(--space-5) 0 var(--space-4); }
+  .faq__item { border-bottom:1px solid var(--borders-soft); }
+  .faq__item > summary { list-style:none; cursor:pointer; padding:14px 2px; font-weight:700; font-size:14px; display:flex; justify-content:space-between; gap:10px; }
+  .faq__item > summary::-webkit-details-marker { display:none; }
+  .faq__item > summary::after { content:"+"; color:var(--text-muted); font-weight:400; } .faq__item[open] > summary::after { content:"–"; }
+  .faq__item p { margin:0 2px 14px; font-size:13px; line-height:1.55; color:var(--text-secondary); }
+
+  /* Long-form editorial section — headings only, stubbed */
+  .stub-note { font-size:12px; color:var(--text-muted); background:var(--fill-alternative-1); border:1px dashed var(--borders-default); border-radius:8px; padding:10px 12px; margin:0 0 12px; line-height:1.5; }
+  .stub-list { columns:1; margin:0; padding-left:18px; font-size:13px; color:var(--text-secondary); line-height:2; }
+  @media (min-width:768px){ .stub-list{columns:2; column-gap:32px;} }
+
+  /* Site footer (real) */
+  .site-foot { background:#0a1929; color:#cbd5e1; padding:28px 16px 20px; margin-top:var(--space-5); }
+  .site-foot__grid { max-width:1040px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:22px 16px; }
+  .site-foot__col h4 { font-size:13px; font-weight:700; color:#fff; margin:0 0 10px; }
+  .site-foot__col a { display:block; font-size:13px; color:#cbd5e1; text-decoration:none; padding:4px 0; }
+  .site-foot__col a:hover { color:#fff; }
+  .site-foot__legal { max-width:1040px; margin:22px auto 0; border-top:1px solid rgba(255,255,255,.12); padding-top:16px; font-size:11px; color:#94a3b8; line-height:1.6; }
+  @media (min-width:768px){ .site-foot__grid { grid-template-columns:repeat(3,1fr); } }
+  @media (min-width:1024px){ .site-foot__grid { grid-template-columns:repeat(6,1fr); } }
+
+  .trust-foot { margin-top: var(--space-5); font-size:11px; color: var(--text-muted); border-top:1px solid var(--borders-soft); padding-top: 12px; }
+
+  /* ============================================================
+     BASELINE-FIDELITY FIX 2 — sticky bottom "Hot Pick" promo bar
+     (currently missing). Real component: fe-services
+     src/components/cms/components-user/SimpleStickyFooter.tsx — a CMS-driven
+     `ComponentSimpleStickyFooter`: title + RichText content + one Button +
+     a colour_shema. The RED scheme = light rose/pink bar background
+     (`bg-highlights/red-light`) + a red outline button
+     (`border-campaign/red-3`/`text-campaign/red-3`, hover-fills solid) —
+     exactly the "light-pink bar / red outline Apply Now" the task
+     describes. Approximated with this repo's --highlight-red-light /
+     --highlight-red-dark tokens since --colors-campaign-red-3 isn't in
+     tokens.css (see new .mhg-btn--outline-red in buttons.css). Behaviour
+     matches the real component: hidden until the user has scrolled >10px,
+     auto-hides once the site footer scrolls into view (guarded
+     IntersectionObserver), dismissible via ✕ — session-only, no
+     persistence (matches the real component's plain React state, not
+     localStorage/sessionStorage). */
+  .hotpick { position:fixed; left:0; right:0; bottom:0; z-index:46; background:var(--highlight-red-light); box-shadow:0 -4px 16px rgba(15,23,42,.12); transform:translateY(0); transition:transform .3s ease-out; }
+  .hotpick.hidden { transform:translateY(100%); }
+  .hotpick__inner { max-width:990px; margin:0 auto; display:flex; flex-direction:column; gap:8px; padding:12px 16px calc(10px + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; }
+  .hotpick__main { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .hotpick__title { margin:0; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; font-size:14px; font-weight:700; color:var(--highlight-red-dark); line-height:1.35; }
+  .hotpick__titlelink { color:inherit; text-decoration:none; }
+  .hotpick__titlelink:hover { text-decoration:underline; }
+  .hotpick__body { margin:0; font-size:12px; line-height:1.5; color:var(--text-secondary); }
+  .hotpick__cta { display:flex; align-items:center; }
+  .hotpick__apply { width:100%; }
+  .hotpick__x { border:0; background:none; cursor:pointer; font-size:15px; line-height:1; color:var(--text-primary); flex-shrink:0; width:26px; height:26px; border-radius:6px; }
+  .hotpick__x:hover { background:rgba(15,23,42,.06); }
+  .hotpick__x--desktop { display:none; }
+  @media (min-width:1024px){
+    .hotpick__inner { flex-direction:row; align-items:center; justify-content:space-evenly; gap:24px; padding:14px 56px 14px 20px; position:relative; }
+    .hotpick__main { flex:1; }
+    .hotpick__x--mobile { display:none; }
+    .hotpick__x--desktop { display:inline-flex; align-items:center; justify-content:center; position:absolute; right:16px; top:50%; transform:translateY(-50%); }
+    .hotpick__apply { width:auto; }
+  }
+  /* Keep clear of any open drawer/panel so its footer controls (Apply/Close) stay reachable. */
+  body:has(.backdrop.open) .hotpick { transform:translateY(100%) !important; }
+
+  /* Reward drawer (real RewardsMobileDrawer / RewardsDesktopDialog / RewardBody shell) */
+  .backdrop { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; z-index:50; } .backdrop.open{display:block}
+  .drawer { position:fixed; left:auto; right:0; top:0; bottom:0; width:min(520px,92%); max-width:92%; height:100%; max-height:100%; background:var(--fill-card); border-radius:0; z-index:51; transform:translateX(100%); transition:transform .25s ease; display:flex; flex-direction:column; box-shadow:-8px 0 24px rgba(15,23,42,.18); }
+  .drawer.open { transform:translateX(0); }
+  .drawer__head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:16px; border-bottom:1px solid var(--borders-soft); }
+  .drawer__head h3 { margin:0; font-size:16px; }
+  .drawer__x { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; }
+  .drawer__body { overflow-y:auto; padding:16px; background: var(--fill-alternative-1); }
+  .drawer__foot { display:flex; align-items:center; gap:10px; padding:14px 16px; border-top:1px solid var(--borders-soft); background: var(--fill-card); }
+  .drawer__foot .nm { font-weight:700; font-size:13px; flex:1; }
+  .rgift { border:1px solid var(--borders-default); border-radius:16px; overflow:hidden; background:var(--fill-card); }
+  .rgift__hd { display:flex; gap:10px; align-items:flex-start; padding:14px; background:var(--fill-primary-light); border-bottom:1px solid var(--borders-default); }
+  .rgift__ic { font-size:20px; line-height:1; }
+  .rgift__t { font-weight:800; font-size:14px; color:var(--fill-primary-dark); }
+  .rgift__bd { padding:14px; background:var(--fill-card); }
+  .rgift__lbl { font-size:12px; font-weight:700; color:var(--text-primary); margin:10px 0 4px; }
+  .rgift__opts { margin:0 0 4px; padding-left:18px; font-size:13px; color:var(--text-secondary); }
+  .rgift__opts li { margin-bottom:6px; line-height:1.45; }
+  .rgift__tc { font-size:11.5px; color:var(--text-muted); line-height:1.5; margin:0; }
+  .rgift__banner { background:var(--fill-primary-light); color:var(--fill-primary-dark); font-weight:800; font-size:14px; padding:12px 14px; border-radius:var(--r-card-inner); margin:0 0 6px; }
+  .rf__id { display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
+  .rf__txt { display:flex; flex-direction:column; min-width:0; }
+  .rf__name { font-weight:700; font-size:13px; white-space:normal; }
+  .rf__amt { font-size:11px; color:var(--text-muted); }
+  /* Desktop/tablet: real AsideModal.tsx is a RIGHT-SIDE panel (md:inset-y-0 md:left-auto md:w-[640px] lg:w-[720px]),
+     never a centered/full-screen dialog — only mobile (<768px) stays full-screen/bottom-sheet. */
+  @media (min-width: 768px){
+    .drawer{ left:auto; right:0; top:0; bottom:0; margin:0; width:520px; max-width:calc(100% - 0px); height:100%; max-height:100%; border-radius:0; transform:translateX(100%); transition:transform .3s ease; box-shadow:-8px 0 24px rgba(15,23,42,.18); }
+    .drawer.open{ transform:translateX(0); }
+  }
+  @media (min-width: 1280px){ .drawer{ width:580px; } }
+
+  /* password gate (demo — client-side only) */
+  .gate { position:fixed; inset:0; z-index:9999; background:var(--fill-page,#f4f6f8); display:flex; align-items:center; justify-content:center; padding:24px; }
+  .gate[hidden] { display:none; }
+  .gate__box { max-width:360px; width:100%; text-align:center; background:var(--fill-card,#fff); border:1px solid var(--borders-default); border-radius:16px; padding:28px 24px; box-shadow:0 8px 30px rgba(15,23,42,.12); }
+  .gate__logo { height:26px; margin-bottom:16px; }
+  .gate__h { font-size:18px; font-weight:800; margin:0 0 6px; }
+  .gate__p { font-size:13px; color:var(--text-muted); margin:0 0 16px; line-height:1.5; }
+  .gate form { display:flex; flex-direction:column; gap:10px; }
+  .gate input { padding:11px 12px; border:1px solid var(--borders-form-default); border-radius:10px; font-size:16px; }
+  .gate button { padding:11px 12px; border:0; border-radius:10px; background:var(--fill-primary); color:#fff; font-weight:700; font-size:15px; cursor:pointer; }
+  .gate__err { color:var(--danger); font-size:12px; margin:10px 0 0; }
+</style>
+
+  <style id="seo-mockup-css">
+  /* ---- SEO intro mockup chrome (EN) ---- */
+  .seo-bar { position:sticky; top:0; z-index:60; background:#0f1c2e; color:#fff; padding:9px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-family:var(--font-family-base,'Albert Sans',system-ui,sans-serif); }
+  .seo-bar__label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#c7d2e0; }
+  .seo-seg { display:inline-flex; background:rgba(255,255,255,.12); border-radius:999px; padding:3px; gap:2px; }
+  .seo-seg button { border:0; background:transparent; color:#c7d2e0; font:inherit; font-size:12px; font-weight:700; padding:6px 15px; border-radius:999px; cursor:pointer; }
+  .seo-seg button.on { background:#fff; color:#0f1c2e; }
+  .seo-bar__note { font-size:11px; color:#aeb9c8; }
+  .seo-why { border:0; background:none; color:#f6b73c; font:inherit; font-size:11px; font-weight:700; cursor:pointer; padding:0; text-decoration:underline; }
+  .seo-why-panel { background:#fff7e6; border-bottom:1px solid #f0d9a0; color:#6b4e00; font-size:12px; line-height:1.5; padding:10px 16px; }
+  .seo-why-panel b { color:#5a4300; }
+  /* ---- Intro toggle control ---- */
+  .intro-more { display:inline-flex; align-items:center; gap:5px; border:0; background:none; color:var(--text-link); font-weight:700; font-size:14px; cursor:pointer; padding:8px 0 0; text-decoration:none; }
+  .intro-more:hover { text-decoration:underline; }
+  .intro-more .caret { font-size:10px; line-height:1; }
+  /* Current (live) = exactly what the live page does today: intro truncated to 2 lines + underlined
+     "show more" that expands to the full text. */
+  body[data-seo="current"] .intro-more { text-decoration:underline; }
+  body[data-seo="current"] .intro-wrap:not(.open) #introTxt { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  body[data-seo="current"] .intro-wrap.open #introTxt { display:block; }
+  /* Proposed = further declutter: intro fully collapsed behind "Read more ▾" until expanded. */
+  body[data-seo="proposed"] .intro-wrap:not(.open) #introTxt { display:none; }
+  body[data-seo="proposed"] .intro-wrap.open #introTxt { display:block; }
+  /* Mobile-fold toggle button (in the demo toolbar) */
+  .seo-fold-btn { border:1px solid rgba(255,255,255,.35); background:transparent; color:#fff; font:inherit; font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px; cursor:pointer; white-space:nowrap; }
+  .seo-fold-btn.on { background:var(--fill-secondary,#f6b73c); color:#0f1c2e; border-color:var(--fill-secondary,#f6b73c); }
+  /* First-fold guideline — top is set by JS (header.offsetTop + viewport height, i.e. measured from
+     the START OF THE PAGE / site header, not the demo toolbar). Shown only when toggled on. */
+  .foldmark { display:none; }
+  body.show-fold .foldmark { display:block; position:absolute; left:0; right:0; border-top:2px dashed var(--fill-secondary,#f6b73c); z-index:8; pointer-events:none; }
+  body.show-fold .foldmark span { position:absolute; right:10px; top:-10px; background:var(--fill-secondary,#f6b73c); color:#0f1c2e; font-size:9px; font-weight:800; padding:2px 7px; border-radius:4px; white-space:nowrap; }
+  /* "Show changes" markings — highlight the one change (the collapsed intro) in Proposed view only */
+  .seo-ann { display:none; }
+  body.marks[data-seo="proposed"] #introWrap { outline:2px dashed var(--fill-secondary,#f6b73c); outline-offset:5px; border-radius:6px; }
+  body.marks[data-seo="proposed"] .seo-ann { display:inline-block; margin-top:12px; background:var(--fill-secondary,#f6b73c); color:#0f1c2e; font-size:10px; font-weight:800; border-radius:4px; padding:3px 8px; }
+  </style>
+</head>
+<body data-seo="proposed" class="marks">
+<!-- password gate (demo, client-side only) -->
+<div id="gate" class="gate">
+  <div class="gate__box">
+    <img src="assets/singsaver-color.svg" alt="SingSaver" class="gate__logo">
+    <h1 class="gate__h">Prototype preview</h1>
+    <p class="gate__p">This is an internal SingSaver prototype. Please enter the password to view it.</p>
+    <form id="gateForm">
+      <input id="gatePw" type="password" placeholder="Password" autocomplete="off" autofocus>
+      <button type="submit">View prototype</button>
+    </form>
+    <p id="gateErr" class="gate__err" hidden>Incorrect password — please try again.</p>
+  </div>
+</div>
+<script>
+  (function(){
+    var KEY='ss-pl-baseline-auth', PW='chc-moneyhero', g=document.getElementById('gate');
+    function getAuth(){ try { return sessionStorage.getItem(KEY); } catch(err) { return null; } }
+    function setAuth(){ try { sessionStorage.setItem(KEY,'1'); } catch(err) { /* sessionStorage unavailable (private mode / iframe) — gate still clears for this view */ } }
+    if (getAuth()==='1') { g.hidden=true; }
+    document.getElementById('gateForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      if (document.getElementById('gatePw').value===PW) { setAuth(); g.hidden=true; }
+      else { document.getElementById('gateErr').hidden=false; }
+    });
+  })();
+</script>
+
+<div class="seo-bar">
+  <span class="seo-bar__label">SEO intro proposal</span>
+  <div class="seo-seg" id="seoSeg">
+    <button data-seo="current">Current (live)</button>
+    <button data-seo="proposed" class="on">Proposed</button>
+  </div>
+  <button type="button" class="seo-fold-btn on" id="marksToggle" aria-pressed="true">✨ Show changes</button>
+  <button type="button" class="seo-fold-btn" id="foldToggle" aria-pressed="false">📱 Show mobile fold</button>
+  <span class="seo-bar__note">Proposed collapses the intro behind &ldquo;Read more&rdquo; to lift the table up the first fold. <button type="button" class="seo-why" id="seoWhy">Why it&rsquo;s SEO-safe &#9432;</button></span>
+</div>
+<div class="seo-why-panel" id="seoWhyPanel" hidden><b>SEO-safe:</b> the full intro stays in the page HTML — it&rsquo;s collapsed with CSS and revealed on click (the text is never removed or injected later), so Google still crawls and indexes every word. Nothing about the copy, keywords or links changes; only the default visible height does.</div>
+
+<header class="site">
+  <button class="site__menu" id="menuBtn" aria-label="Open menu">☰</button>
+  <a href="#" aria-label="SingSaver home"><img class="site__logo" src="assets/singsaver-color.svg" alt="SingSaver"></a>
+  <nav class="site__nav" id="siteNav" aria-label="Primary">
+    <a href="#">Credit Cards</a><a href="#">Insurance</a><a href="#">Loans</a><a href="#">Banking</a><a href="#">Investments</a><a href="#">Blog</a><a href="#">Reward Tracker</a>
+  </nav>
+  <div class="site__right">
+    <a href="#" class="site__login">Log in</a>
+    <button class="site__acct" aria-label="Log in">👤</button>
+  </div>
+</header>
+<!-- Mobile first-fold guideline — positioned by JS one device-viewport below the START OF THE PAGE
+     (the SingSaver site header above), NOT below the demo toolbar/notes. -->
+<div class="foldmark" aria-hidden="true"><span>↑ first fold — bottom of the selected device's viewport</span></div>
+<!-- Announcement bar — real top-page-sticky-content campaign banner (colour approximated with signature teal token; live uses a per-campaign colour var not present in tokens.css) -->
+<div class="annbar" id="annBar">
+  <span class="annbar__txt">⚡ <strong>Limited Time Only: Up to S$5,825 Cashback</strong> – with Standard Chartered CashOne Personal Loan – <span class="annbar__link" id="annLearnMore">Learn more</span></span>
+  <button class="annbar__x" id="annClose" aria-label="Close campaign banner">✕</button>
+</div>
+
+<div class="wrap">
+
+  <nav class="crumb">🏠 &nbsp;/&nbsp; Personal Loans &nbsp;/&nbsp; Best Personal Loans In Singapore July 2026</nav>
+
+  <header class="head">
+    <h1>Best Personal Loans In Singapore July 2026</h1>
+    <p class="head__meta">Updated: 21 Jul 2026</p>
+    <div class="intro-wrap" id="introWrap">
+      <p class="intro-txt" id="introTxt">Find the best personal loan in Singapore! SingSaver helps you to compare personal loans from the top banks and licensed money lenders instantly, locking in the lowest interest rates with fast cash disbursement. Apply now to secure an instant loan approvals while scoring exclusive cashback and stackable welcome perks.</p>
+      <button class="intro-more" id="introMore" type="button">Read more <span class="caret">&#9662;</span></button>
+      <div><span class="seo-ann">✨ NEW — intro collapsed behind &ldquo;Read more&rdquo;</span></div>
+    </div>
+  </header>
+
+  <!-- Persona filter tabs — real live carousel: 🏦 All Loans · 📉 Lowest Interest · 🤝 Alternate Lenders ·
+       🔥 SingSaver Exclusive · 🔄 Balance Transfer · 🧩 Debt Consolidation · ⚡ Fast Cash · 💳 Credit Line ·
+       🌱 Bad Credit · 🌏 Foreigners — each a link to its own page on the live site; shown here as visual pills. -->
+  <nav class="tabs" aria-label="Browse personal loans by category">
+    <a class="tabpill on" href="#">🏦 All Loans</a>
+    <a class="tabpill" href="#">📉 Lowest Interest</a>
+    <a class="tabpill" href="#">🤝 Alternate Lenders</a>
+    <a class="tabpill" href="#">🔥 SingSaver Exclusive</a>
+    <a class="tabpill" href="#">🔄 Balance Transfer</a>
+    <a class="tabpill" href="#">🧩 Debt Consolidation</a>
+    <a class="tabpill" href="#">⚡ Fast Cash</a>
+    <a class="tabpill" href="#">💳 Credit Line</a>
+    <a class="tabpill" href="#">🌱 Bad Credit</a>
+    <a class="tabpill" href="#">🌏 Foreigners</a>
+  </nav>
+
+  <details class="qsum">
+    <summary><span class="qsum__icon">＋</span> Quick Summary</summary>
+    <div class="qsum__body">Bank rates start from <b>0.90% p.a.</b> (EIR from 1.75% p.a.). SingSaver rewards and welcome offers vary by bank and loan amount — see the comparison table below for full details.</div>
+  </details>
+
+  <!-- Fastest Fulfilment — real HeroCampaingFeature block -->
+  <div class="promo-card">
+    <div class="promo-card__ic">💸</div>
+    <div class="promo-card__body">
+      <b>Fastest Fulfilment: Get your reward in 3 weeks!</b>
+      <p class="clamped" id="promoTxt">Apply for a UOB Personal Loan, Standard Chartered CashOne Personal Loan or a Trust Bank Instant Loan and enjoy faster reward delivery. Once your loan is approved, your SingSaver reward will be sent within 3 weeks with no extra steps needed.</p>
+      <button class="promo-card__more" id="promoMore" type="button">Show more</button>
+    </div>
+  </div>
+
+  <!-- Loan Amount + Tenure calculator — real PersonalLoanFilter (two fields only) -->
+  <div class="calc" id="calc">
+    <div class="calc__row">
+      <div class="calc__fld">
+        <label class="calc__lbl" for="amt">Loan Amount (S$) <span class="calc__help" title="Most lenders offer loans between S$1,000 and S$100,000 depending on your profile.">ⓘ</span></label>
+        <input type="text" id="amt" inputmode="numeric" value="8,000">
+      </div>
+      <div class="calc__fld">
+        <label class="calc__lbl" for="tenure">Tenure (months) <span class="calc__help" title="Loan tenure ranges from 6 to 84 months. Longer tenures mean smaller monthly payments but more interest overall.">ⓘ</span></label>
+        <input type="text" id="tenure" inputmode="numeric" value="12">
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison table — real cms-components ComparisonTableBuilder / PLColumnSource -->
+  <section class="pct-section">
+    <div class="section-h">Compare Personal Loans</div>
+    <div class="pct-wrap">
+      <div class="pct-scroll">
+        <table class="pct-table">
+          <thead>
+            <tr>
+              <th class="pct-sticky">Loan</th>
+              <th>Annual Interest Rate</th>
+              <th>SingSaver Reward</th>
+              <th>Monthly Repayment</th>
+              <th>Total Cost of Loan</th>
+              <th>EIR</th>
+              <th>Apply</th>
+            </tr>
+          </thead>
+          <tbody id="pctBody"></tbody>
+        </table>
+      </div>
+      <!-- Show All Loans — real chevron header + additional-lender strip, part of the table component -->
+      <details class="showall">
+        <summary><span class="showall__chev">›</span> Show All Loans <b>(25)</b></summary>
+        <div class="showall__body">
+          <p class="showall__note">The loans above are SingSaver's top picks. SingSaver compares <b>25 personal-loan products</b> in total — the rest appear here (banks + MAS-licensed moneylenders):</p>
+          <div class="showall__strip">
+            <span class="showall__chip">Citibank</span><span class="showall__chip">POSB</span><span class="showall__chip">Maybank</span><span class="showall__chip">OCBC</span><span class="showall__chip">MariBank</span>
+            <span class="showall__chip">Credible.sg</span><span class="showall__chip">Credit Trust</span><span class="showall__chip">Cash Direct</span><span class="showall__chip">MM Credit</span><span class="showall__chip">1-Money</span><span class="showall__chip">R2D Credit</span><span class="showall__chip">SGP Credit</span><span class="showall__chip">CashMax</span>
+          </div>
+          <p class="showall__note" style="margin-top:8px">Licensed moneylenders are listed separately from banks per MAS guidance.</p>
+        </div>
+      </details>
+    </div>
+    <p class="pct-src">Table structure &amp; column order match the live production comparison table for Personal Loans.</p>
+  </section>
+
+  <!-- SingSaver Tips — real StandoutTextBlockComponent -->
+  <div class="tips"><div class="tips__h">SingSaver Tips</div><div class="tips__b">📉💰 Loan rates in Singapore have hit a 5-year low, with several bank loans starting from just 0.90% p.a. (EIR from 1.75% p.a.).</div></div>
+
+  <!-- Why Trust SingSaver — real ExpandableCard -->
+  <details class="wts">
+    <summary><img src="assets/singsaver-color.svg" alt=""> Why Trust SingSaver</summary>
+    <div class="wts__body">
+      <p>Personal finance is not just about finding the cheapest products, but also about making smart financial decisions.</p>
+      <ul>
+        <li>We compare rates and rewards across all major banks and licensed moneylenders in Singapore.</li>
+        <li>Our recommendations are based on published rates, fees and eligibility criteria — not sponsorship.</li>
+        <li>Every SingSaver Reward is paid out after your loan is approved and disbursed.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- "Don't miss out on these great deals" — real Promotional Campaigns PL block
+       (fe-services CreditCardPromotion.tsx: deal tabs + two-column layout, left = title/blurb/Participating
+       Products/How to Qualify, right = reward-tier gift grid) -->
+  <section class="promoblk">
+    <!-- BASELINE-FIDELITY FIX 1: full-bleed per-campaign background tint (see CSS comment above) -->
+    <div class="promoblk__bg promoblk__bg--pink" id="campBg" aria-hidden="true"></div>
+    <div class="promoblk__h">Don't miss out on these great deals:</div>
+    <div class="promoblk__tabs" id="campTabs"></div>
+    <div class="promoblk__body" id="campBody"></div>
+  </section>
+
+  <div class="section-h">Compare in detail</div>
+  <p class="section-hint">Full eligibility, fees, features and application steps for each loan above.</p>
+  <div id="cardResults"></div>
+
+  <!-- FAQ — real, verbatim from the live page -->
+  <section class="faq">
+    <div class="section-h">Frequently asked questions about personal loans in Singapore</div>
+    <details class="faq__item"><summary>How do personal loans work?</summary><p>A personal loan provides you with a lump sum of money that you repay with interest over a set period. You'll make regular monthly repayments until the loan is fully repaid.</p></details>
+    <details class="faq__item"><summary>How long does it take to get a personal loan?</summary><p>Approval and disbursement time for personal loans varies from lender to lender. Some lenders offer same-day or next-day approval and disbursement, while others may take a few days to process your application. However, before taking on a loan, it is important to know if you're eligible. Pre-qualify with SingSaver to save time and avoid applying for loans you're unlikely to get.</p></details>
+    <details class="faq__item"><summary>Can foreigners get a loan in Singapore?</summary><p>Yes, foreigners can apply for personal loans in Singapore, but they may have to meet additional eligibility criteria, such as having a valid work pass and a higher-than-average minimum annual income.</p></details>
+    <details class="faq__item"><summary>What bank is easiest to get a personal loan from?</summary><p>Different banks have different eligibility criteria for personal loans. Some banks may have more lenient requirements than others. However, as a general rule of thumb, a minimum annual income of S$20,000-30,000 is required for Singaporean citizens and PRs.</p></details>
+    <details class="faq__item"><summary>What is the lending rate in Singapore?</summary><p>The lending rate in Singapore refers to the interest rate charged on loans. It can vary depending on the type of loan, the lender, and the borrower's credit profile. Average lending rates for personal loans can range from 2.5% to 10% p.a., but these are subject to individual assessment and prevailing market conditions.</p></details>
+    <details class="faq__item"><summary>How does a personal loan affect your credit score?</summary><p>Taking out a personal loan can affect your credit score in both positive and negative ways. Making timely repayments can improve your credit score, while late payments or defaulting on the loan can negatively impact your score.</p></details>
+    <details class="faq__item"><summary>How much would a $5000 loan cost per month?</summary><p>The monthly cost of a $5,000 loan depends on the interest rate and repayment period. You can use SingSaver's personal loan calculator to estimate your monthly repayments accurately based on your preferred loan terms.</p></details>
+    <details class="faq__item"><summary>Which bank has the lowest interest rate for personal loans in Singapore?</summary><p>Personal loan interest rates in Singapore vary depending on the bank, your income, credit score, and loan tenure. The lowest rates may be offered by banks running limited-time promotions, so it's best to compare current offers to find the most suitable option.</p></details>
+  </section>
+
+  <!-- Long-form editorial / guide content below the FAQ on the live page — stubbed to headings only -->
+  <section>
+    <div class="section-h">More about personal loans in Singapore</div>
+    <p class="stub-note">The live page carries ~30 long-form editorial sections (guides, methodology, glossary) around and below the FAQ. They're stubbed to headings only here — full prose isn't reproduced.</p>
+    <ol class="stub-list">
+      <li>What is a personal loan and how can I use one?</li>
+      <li>Features of personal loans</li>
+      <li>What affects loan interest rates?</li>
+      <li>Factors that affect loan approval</li>
+      <li>Browse personal loans for foreigners</li>
+      <li>SingSaver's guide to choosing a personal loan</li>
+      <li>Assessing your financial needs</li>
+      <li>Key factors to consider</li>
+      <li>Shop for loans online</li>
+      <li>How to compare personal loans</li>
+      <li>EIR meaning</li>
+      <li>Funding time</li>
+      <li>Payment flexibility</li>
+      <li>Monthly payment, fees, loan amount and tenure</li>
+      <li>Eligibility criteria</li>
+      <li>Customer reviews and ratings</li>
+      <li>Types of personal loans</li>
+      <li>How to qualify for personal loans</li>
+      <li>Required documents for licensed moneylender loans</li>
+      <li>Why Choose SingSaver?</li>
+      <li>Personal loan application process</li>
+      <li>Personal loan interest rates: A guide</li>
+      <li>Interest rates vs. EIR</li>
+      <li>Can you pay off a loan with another loan?</li>
+      <li>Factors influencing interest rates</li>
+      <li>How we rate loans</li>
+    </ol>
+  </section>
+
+  <p class="trust-foot">SingSaver compares 350+ products from 60+ institutions. Rankings follow our published methodology. Production-baseline replica · sample rates &amp; rewards are illustrative for this prototype.</p>
+</div>
+
+<!-- Site footer — real link structure + legal disclaimer excerpt -->
+<footer class="site-foot">
+  <div class="site-foot__grid">
+    <div class="site-foot__col"><h4>Credit Cards</h4><a href="#">Categories</a><a href="#">Resources</a><a href="#">Providers</a></div>
+    <div class="site-foot__col"><h4>Insurance</h4><a href="#">Travel</a><a href="#">Life &amp; Health</a></div>
+    <div class="site-foot__col"><h4>Loans</h4><a href="#">Resources</a><a href="#">Providers</a></div>
+    <div class="site-foot__col"><h4>Promotions &amp; Campaigns</h4><a href="#">Travel Insurance Promotions</a><a href="#">Best Deal Guarantee</a></div>
+    <div class="site-foot__col"><h4>Resources</h4><a href="#">Blog</a><a href="#">Reward Tracker</a><a href="#">Help Centre</a><a href="#">Giveaway Winners</a></div>
+    <div class="site-foot__col"><h4>About Us</h4><a href="#">Why SingSaver</a><a href="#">Terms &amp; Conditions</a><a href="#">Privacy Policy</a><a href="#">Affiliates</a><a href="#">Careers</a><a href="#">Press</a></div>
+  </div>
+  <div class="site-foot__legal">
+    © 2015 – 2026 SingSaver PTE LTD. All rights reserved.<br>
+    This online platform is operated by SingSaver Pte. Ltd. All insurance product-related transactions on the SingSaver Website are arranged and administered by SingSaver Insurance Brokers Pte. Ltd., a wholly owned subsidiary of SingSaver Pte. Ltd. and a licensed and authorised broker regulated by the Monetary Authority of Singapore ("MAS"). SingSaver Pte. Ltd. (which administers all other financial products on the SingSaver Website) is not regulated by MAS.
+  </div>
+</footer>
+
+<!-- BASELINE-FIDELITY FIX 2: sticky bottom "Hot Pick" promo bar — real SimpleStickyFooter.tsx
+     (CMS-driven bottom-sticky banner). RED colour scheme: light rose/pink bar + red outline
+     Apply button (approximated — see CSS comment above). -->
+<div class="hotpick hidden" id="hotPick" role="region" aria-label="Hot pick promotion">
+  <div class="hotpick__inner">
+    <div class="hotpick__main">
+      <h3 class="hotpick__title">
+        <a href="#" class="hotpick__titlelink" data-apply="hotpick">🔥 Hot Pick: Enjoy UOB Personal Loan up to S$1,800 cashback</a>
+        <button type="button" class="hotpick__x hotpick__x--mobile" id="hotPickXMobile" aria-label="Close hot pick banner">✕</button>
+      </h3>
+      <p class="hotpick__body">⏰ Limited-time offer: Enjoy up to S$1,800 Cash when you apply and get approved for a UOB Personal Loan. T&amp;Cs apply.</p>
+    </div>
+    <div class="hotpick__cta">
+      <button type="button" class="mhg-btn mhg-btn--outline-red hotpick__apply" data-apply="hotpick">Apply Now</button>
+    </div>
+  </div>
+  <button type="button" class="hotpick__x hotpick__x--desktop" id="hotPickXDesktop" aria-label="Close hot pick banner">✕</button>
+</div>
+
+<!-- Shared backdrop -->
+<div class="backdrop" id="backdrop"></div>
+
+<!-- Reward drawer — real RewardsMobileDrawer / RewardsDesktopDialog + RewardBody shell -->
+<aside class="drawer" id="rewardDrawer" aria-hidden="true" aria-label="Loan reward">
+  <div class="drawer__head"><h3 id="drawerTitle">Your Loan Rewards &amp; Provider Gifts</h3><button class="drawer__x" id="rewardX" aria-label="Close">✕</button></div>
+  <div class="drawer__body" id="rewardBody"></div>
+  <div class="drawer__foot" id="rewardFoot"></div>
+</aside>
+
+<script>
+// Sample data — 7 lenders, structure/labels match production; rates & reward figures are illustrative.
+const LOANS = [
+  { name:"Standard Chartered", full:"Standard Chartered CashOne Personal Loan", tag:"Flexible repayment and instant approvals", logo:"assets/logos/standard-chartered.webp",
+    rate:0.0090, eir:0.0175, fee:0, rewardMax:120, minAmt:8000, minTenure:36,
+    steps:["Go to Standard Chartered's website and click \"Apply Now\" button under Personal Loans","Fill out an application and submit all required documents","Wait for approval of personal loan from Standard Chartered"],
+    feats:["Enjoy low interest rates from 0.90% p.a. (EIR ~1.75% p.a.) for longer tenures.","Get instant loan approval and cash disbursement in as quick as 15 minutes.","Min. loan amount of S$1,000, max. up to S$250,000."],
+    minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners applying via SingPass, please prepare a copy of Passport, Employment Pass, and one proof-of-address document."],
+    // Real reward-drawer content (RewardAsideModal) verified live for the SCB CashOne campaign — reference
+    // example named in the brief; used here for the drawer only, the card's own illustrative S$120/S$8,000/36mo
+    // stub above is left unchanged per instructions.
+    bandOffer:"Get up to S$5,825 in cashback!",
+    tierBands:[
+      {range:"S$250,000 and above (36–60 mth tenure)", cash:"S$1,800 Cash + 1.61% Cashback", worth:4025},
+      {range:"S$120,000 – S$249,999 (36–60 mth tenure)", cash:"S$1,800 Cash + 1.61% Cashback", worth:1932},
+      {range:"S$80,000 – S$119,999 (36–60 mth tenure)", cash:"S$1,400 Cash + 1.61% Cashback", worth:1288},
+      {range:"S$50,000 – S$79,999 (36–60 mth tenure)", cash:"S$1,000 Cash + 1.61% Cashback", worth:805},
+      {range:"S$30,000 – S$49,999 (36–60 mth tenure)", cash:"S$800 Cash + 0.61% Cashback", worth:183},
+      {range:"S$20,000 – S$29,999 (36–60 mth tenure)", cash:"S$600 Cash + 0.61% Cashback", worth:122},
+      {range:"S$18,000 – S$19,999 (36–60 mth tenure)", cash:"S$410 Cash + 0.61% Cashback", worth:109},
+      {range:"S$15,000 – S$17,999", cash:"S$410 Cash via PayNow"},
+      {range:"S$10,000 – S$14,999", cash:"S$230 Cash via PayNow"},
+      {range:"S$8,000 – S$9,999", cash:"S$120 Cash via PayNow"},
+    ] },
+  { name:"UOB", full:"UOB Personal Loan", tag:"Instant approval and disbursement", logo:"assets/logos/uob.png",
+    rate:0.0100, eir:0.0193, fee:0, rewardMax:120, minAmt:8000, minTenure:12,
+    steps:["Go to UOB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your UOB Personal Loan"],
+    feats:["Instant approval and disbursement for existing UOB customers.","Low processing fee, no early-repayment penalty on selected plans.","Suitable for Singaporeans/PRs and eligible foreigners."],
+    minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."] },
+  { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
+    rate:0.0100, eir:0.0194, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
+    steps:["Open the Trust Bank app and select Instant Loan","Fill out an application in-app — no paperwork needed","Get your approval decision and disbursement in-app"],
+    feats:["Fully in-app application for existing Trust customers.","No processing fee, flexible repayment tenures.","Instant approval for eligible applicants."],
+    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the Trust app for Singaporeans / PRs."] },
+  { name:"CIMB", full:"CIMB Personal Loan", tag:"Low income requirement", logo:"assets/logos/cimb.png",
+    rate:0.0100, eir:0.0194, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    steps:["Go to CIMB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your CIMB Personal Loan"],
+    feats:["Low minimum annual income requirement of S$24,000.","Open to Singaporeans, PRs and eligible foreigners.","Fixed monthly instalments for the full loan tenure."],
+    minAge:21, minIncome:24000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."] },
+  { name:"GXS", full:"GXS FlexiLoan", tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png",
+    rate:0.0108, eir:0.0210, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    steps:["Open the GXS Bank app and select FlexiLoan","Set your credit limit and draw down what you need","Repay flexibly — interest is charged only on what you draw"],
+    feats:["Draw down only what you need, interest charged on the drawn amount only.","No early-repayment fee.","Fully digital application via the GXS app."],
+    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the GXS app for Singaporeans / PRs."] },
+  { name:"HSBC", full:"HSBC Personal Loan", tag:"Long tenures up to 84 months", logo:"assets/logos/hsbc.webp",
+    rate:0.0130, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    steps:["Go to HSBC's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your HSBC Personal Loan"],
+    feats:["Long tenures of up to 84 months for lower monthly repayments.","Preferential rates for HSBC Premier/Advance customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
+    minAge:21, minIncome:45000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."] },
+  { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
+    rate:0.0148, eir:0.0322, fee:0, rewardMax:100, minAmt:8000, minTenure:36,
+    steps:["Go to DBS's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents (or apply instantly via digibank if you're an existing DBS/POSB customer)","Wait for approval of your DBS Personal Loan"],
+    feats:["Instant approval for existing DBS/POSB customers via digibank.","Cash disbursement as fast as the same day for existing customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
+    minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."] },
+];
+
+// Real "Don't miss out on these great deals" — fe-services CreditCardPromotion.tsx (Promotional Campaigns PL block).
+// Tab labels, titles, blurbs, "How to Qualify?" bullets, apply-by dates and reward-tier "Worth" values are all
+// read directly off the live rendered/RSC page (curl https://www.singsaver.com.sg/personal-loan), 21 Jul 2026 —
+// not illustrative, except: UOB/Trust per-tile "worth" = the tier's own flat cash amount (verified pattern: their
+// gifts are plain "S$X Cash via PayNow" with no separate cashback multiplier, so worth = face value); the
+// "Participating Products" one-liner is only confirmed for DBS ("Highest provider cashback") — SCB/UOB/Trust
+// render with no one-liner in the live SSR snapshot captured, so left blank (matches the component: label is optional).
+const DEALS = [
+  { name:"DBS Personal Loan", head:"Up to S$6,900 Cashback", logo:"assets/logos/dbs.webp",
+    color:"pink", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"DBS Personal Loan", productLabel:"Highest provider cashback",
+    title:"⚡ Limited Time Only: Get S$900 Cash + 3% Cashback on Your Loan",
+    blurb:"Apply and get approved for a DBS Personal Loan (min. S$10,000, 3-year tenure) to unlock up to S$900 Cash, plus 3% cashback on your approved loan amount (up to S$6,900)!",
+    applyBy:"Aug 16, 2026",
+    qualify:[
+      "SingSaver Flash Deal promotion is valid from 15 June 2026 to 16 August 2026.",
+      "Promotion is valid for new and existing DBS/POSB personal loan customers.",
+      "Apply and get approved for a DBS or POSB Personal Loan with min. amount of S$10,000 and min. tenure of 3 years to be eligible for reward.",
+      "Reward varies depending on approved loan amount:<ul><li>(S$10,000 – S$14,999): S$200 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$15,000 – S$19,999): S$300 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$20,000 – S$29,999): S$400 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$30,000 – S$49,999): S$500 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li><li>(S$50,000 and above): S$900 Cash, plus 3% unlimited Cashback (fulfilled by DBS/POSB)</li></ul>",
+      "Promotion is stackable with welcome offer from DBS/POSB (additional T&amp;Cs apply): <strong>Get 3% cashback on approved loan amount</strong>.",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+    ],
+    tiers:[
+      {amt:"S$900 Cash + 3% Cashback", worth:6900},
+      {amt:"S$900 Cash + 3% Cashback", worth:2400},
+      {amt:"S$500 Cash + 3% Cashback", worth:1400},
+      {amt:"S$400 Cash + 3% Cashback", worth:1000},
+      {amt:"S$300 Cash + 3% Cashback", worth:750},
+      {amt:"S$200 Cash + 3% Cashback", worth:500},
+    ] },
+  { name:"SCB CashOne Personal Loan", head:"Up to S$5,825 Cashback", logo:"assets/logos/standard-chartered.webp",
+    color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"Standard Chartered CashOne Personal Loan", productLabel:"",
+    title:"⚡ Limited Time Only: Up to S$5,825 Cashback",
+    blurb:"Apply and get approved for a Standard Chartered CashOne Personal Loan (min. S$8,000, 3-year tenure) to unlock up to S$1,800 Cash, plus 1.61% cashback on your approved loan amount (up to S$4,025)!",
+    applyBy:"Aug 02, 2026",
+    qualify:[
+      "SingSaver Exclusive Offer promotion runs from 15 July 2026 to 2 August 2026.",
+      "Promotion is valid for new and existing Standard Chartered personal loan customers.",
+      "Apply and get approved for a Standard Chartered CashOne personal loan with a min. amount of S$8,000 and min. tenure of 3 years to be eligible for reward.",
+      "Promotion is stackable with welcome offer from Standard Chartered (additional T&amp;Cs apply): <strong>get up to 1.61% cashback on your approved loan amount</strong>.",
+      "Choice of reward varies depending on approved loan amount:<ul><li>(S$8,000 – S$9,999): S$120 Cash via PayNow</li><li>(S$10,000 – S$14,999): S$230 Cash via PayNow</li><li>(S$15,000 – S$17,999): S$410 Cash via PayNow</li><li>(S$18,000 – S$19,999): S$410 Cash via PayNow + 0.61% Cashback (fulfilled by SCB)</li><li>(S$20,000 – S$29,999): S$600 Cash via PayNow + 0.61% Cashback (fulfilled by SCB)</li><li>(S$30,000 – S$49,999): S$800 Cash via PayNow + 0.61% Cashback (fulfilled by SCB)</li><li>(S$50,000 – S$79,999): S$1,000 Cash via PayNow + 1.61% Cashback (fulfilled by SCB)</li><li>(S$80,000 - S$119,999): S$1,400 Cash via PayNow + 1.61% Cashback (fulfilled by SCB)</li><li>(S$120,000 and above): S$1,800 Cash via PayNow + 1.61% Cashback (fulfilled by SCB)</li></ul>",
+      "<strong>Fastest Reward Fulfilment</strong>: Receive your reward in as little as <strong>3 weeks</strong>!",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+    ],
+    tiers:[
+      {amt:"S$1,800 Cash + 1.61% Cashback", worth:4025},
+      {amt:"S$1,800 Cash + 1.61% Cashback", worth:1932},
+      {amt:"S$1,400 Cash + 1.61% Cashback", worth:1288},
+      {amt:"S$1,000 Cash + 1.61% Cashback", worth:805},
+      {amt:"S$800 Cash + 0.61% Cashback", worth:183},
+      {amt:"S$600 Cash + 0.61% Cashback", worth:122},
+      {amt:"S$410 Cash + 0.61% Cashback", worth:109},
+      {amt:"S$410 Cash via PayNow", worth:410},
+    ] },
+  { name:"UOB Personal Loan", head:"Up to S$1,800 cashback", logo:"assets/logos/uob.png",
+    color:"pink", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"UOB Personal Loan", productLabel:"",
+    title:"⚡ Limited Time Only: Up to S$1,800 Cash",
+    blurb:"Apply and get approved for a UOB Personal Loan (min. S$8,000, 1-year tenure) to unlock up to S$1,800 in cashback!",
+    applyBy:"Aug 02, 2026",
+    qualify:[
+      "SingSaver Flash Deal promotion is valid from 15 July 2026 to 2 August 2026.",
+      "Promotion is valid for new and existing UOB personal loan customers.",
+      "Apply for a UOB personal loan with a min. amount of S$8,000 and min. tenure of 12 months to be eligible for reward.",
+      "Choice of reward varies depending on approved loan amount:<ul><li>(S$8,000 – S$9,999): S$120 Cash via PayNow</li><li>(S$10,000 – S$14,999): S$230 Cash via PayNow</li><li>(S$15,000 – S$19,999): S$430 Cash via PayNow</li><li>(S$20,000 – S$29,999): S$600 Cash via PayNow</li><li>(S$30,000 – S$49,999): S$800 Cash via PayNow</li><li>(S$50,000 – S$79,999): S$1,000 Cash via PayNow</li><li>(S$80,000 - S$119,999): S$1,400 Cash via PayNow</li><li>(S$120,000 and above): S$1,800 Cash via PayNow</li></ul>",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+    ],
+    tiers:[
+      {amt:"Cash via PayNow", worth:1800},
+      {amt:"Cash via PayNow", worth:1400},
+      {amt:"Cash via PayNow", worth:1000},
+      {amt:"Cash via PayNow", worth:800},
+      {amt:"Cash via PayNow", worth:600},
+      {amt:"Cash via PayNow", worth:430},
+      {amt:"Cash via PayNow", worth:230},
+      {amt:"Cash via PayNow", worth:120},
+    ] },
+  { name:"Trust Bank Instant Loan", head:"Up to S$1,750 Cash", logo:"assets/logos/trust.png",
+    color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
+    product:"Trust Instant Loan", productLabel:"",
+    title:"⚡ Limited Time Only: Up to S$1,750 Cash",
+    blurb:"Apply and get approved for a Trust Bank Instant Loan (min. S$8,000, 3-month tenure) to unlock up to S$1,750 in cashback!",
+    applyBy:"Aug 02, 2026",
+    qualify:[
+      "SingSaver Flash Deal promotion is valid until 2 August 2026.",
+      "Promotion is valid for new and existing Trust Bank personal loan customers.",
+      "Apply for a Trust Instant Loan with a min. amount of S$8,000 and min. tenure of 3 months to be eligible for reward.",
+      "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
+      "Choice of reward varies depending on approved loan amount:",
+    ],
+    table:{ head:["Loan Amount","New Customers","Existing Customers"], rows:[
+      ["S$8,000 – S$9,999","S$100 Cash","S$80 Cash"],
+      ["S$10,000 – S$14,999","S$230 Cash","S$210"],
+      ["S$15,000 – S$19,999","S$410 Cash","S$370 Cash"],
+      ["S$20,000 – S$29,999","S$600 Cash","S$580 Cash"],
+      ["S$30,000 – S$49,999","S$800 Cash","S$780 Cash"],
+      ["S$50,000 – S$79,999","S$1,000 Cash","S$980 Cash"],
+      ["S$80,000 – S$119,999","S$1,400 Cash","S$1,380 Cash"],
+      ["S$120,000 and above","S$1,750 Cash","S$1,730 Cash"],
+    ] },
+    tiers:[
+      {amt:"Cash via PayNow", worth:1750},
+      {amt:"Cash via PayNow", worth:1400},
+      {amt:"Cash via PayNow", worth:1000},
+      {amt:"Cash via PayNow", worth:800},
+      {amt:"Cash via PayNow", worth:600},
+      {amt:"Cash via PayNow", worth:410},
+      {amt:"Cash via PayNow", worth:230},
+      {amt:"Cash via PayNow", worth:100},
+    ] },
+];
+
+const $ = id => document.getElementById(id);
+const amt=$('amt'), tenure=$('tenure'), cardResults=$('cardResults');
+const backdrop=$('backdrop'), rewardDrawer=$('rewardDrawer'), rewardBody=$('rewardBody'), rewardFoot=$('rewardFoot');
+
+const sgd = n => "S$" + Math.round(n).toLocaleString('en-SG');
+function parseNum(v){ return +String(v).replace(/[^\d.]/g,'') || 0; }
+function rewardQualifies(l, P, months){ return l.rewardMax>0 && P >= (l.minAmt||0) && months >= (l.minTenure||0); }
+const nameCell = (l,cls,h) => `<img class="${cls}" style="height:${h}px" src="${l.logo}" alt="${l.name}">`;
+
+function compute(){
+  const P = Math.max(1000, parseNum(amt.value) || 8000);
+  const months = Math.max(1, parseNum(tenure.value) || 12);
+  const years = months/12;
+  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti}; }), P, months };
+}
+
+function renderPct(rows){
+  return rows.map(r=>{
+    // Loans WITH a SingSaver reward always open the reward drawer (pill = current amount when it
+    // qualifies, a plain "See rewards" label when it doesn't yet). Loans with NO reward at all open a
+    // product-details/facts modal instead (real SectionGifts.tsx/openProductAside branch), matching live.
+    const qualifies = rewardQualifies(r, curP, curMonths);
+    const rewardCell = r.rewardMax > 0
+      ? `<button class="pct-reward" data-pct-reward="${r.idx}">${qualifies ? sgd(r.rewardMax) : 'See rewards'}</button>`
+      : `<button class="pct-reward pct-na" data-pct-facts="${r.idx}">–</button>`;
+    return `
+    <tr>
+      <td class="pct-sticky"><div class="pct-loan">${nameCell(r,'',26)}<span>${r.full}</span></div></td>
+      <td>From ${(r.rate*100).toFixed(2)} % p.a.</td>
+      <td>${rewardCell}</td>
+      <td class="pct-monthly">${sgd(r.monthly)}<span style="color:var(--text-muted);font-weight:400">/mo</span></td>
+      <td>${sgd(r.total)}</td>
+      <td>From ${(r.eir*100).toFixed(2)} % p.a.</td>
+      <td><button class="mhg-btn mhg-btn--outline-cta mhg-btn--small" data-apply="${r.idx}">Apply</button></td>
+    </tr>`; }).join('');
+}
+
+function renderCards(rows){
+  return `<div class="cards">${rows.map(r=>`
+    <div class="loan">
+      <span class="loan__tag">${r.tag}</span>
+      <div class="loan__head">
+        <div class="loan__id">
+          <span class="loan__logobox">${nameCell(r,'plogo-lg',32)}</span>
+          <span class="loan__name">${r.full}</span>
+        </div>
+        <div class="loan__ctawrap"><button class="mhg-btn mhg-btn--cta mhg-btn--small" data-apply="${r.idx}">Apply Now ↗</button></div>
+      </div>
+      <div class="loan__grid2 g2">
+        <div><div class="l">Monthly Repayment</div><div class="v">${sgd(r.monthly)}<small>/mo</small></div></div>
+        <div><div class="l">Annual Interest Rate</div><div class="v">From ${(r.rate*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">EIR</div><div class="v">From ${(r.eir*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">Processing Fee</div><div class="v">${r.fee?sgd(r.fee):'S$0'}</div></div>
+      </div>
+      ${r.rewardMax>0 ? (() => {
+        const qualifies = rewardQualifies(r, curP, curMonths);
+        return `<details class="acc acc--reward" open><summary>SingSaver Reward${qualifies?'':' — Update Loan Amount / Tenure to Qualify'}</summary><div class="acc__body">
+          ${qualifies
+            ? `<p class="offer-blurb">For a ${r.full} of ${sgd(curP)} over ${curMonths} months, you'll enjoy a SingSaver reward of <strong>${sgd(r.rewardMax)}</strong>, paid after your loan is approved.</p>`
+            : `<p class="offer-blurb">Update your loan amount to at least ${sgd(r.minAmt)} and loan tenure to at least ${r.minTenure} month to unlock exclusive gifts worth up to ${sgd(r.rewardMax)}.</p>`}
+        </div></details>` })() : ''}
+      <details class="acc"${r.rewardMax>0?'':' open'}><summary>Steps to Apply</summary><div class="acc__body">
+        <ol class="steplist">${r.steps.map((s,i)=>`<li>${i+1}. ${s}</li>`).join('')}</ol>
+      </div></details>
+      <details class="acc"><summary>SingSaver's take</summary><div class="acc__body">
+        <ul class="featlist">${r.feats.map(f=>`<li><span class="ic-pro">✓</span>${f}</li>`).join('')}</ul>
+      </div></details>
+      <details class="acc"><summary>Loan details</summary><div class="acc__body">
+        <div class="stepslabel">Eligibility</div>
+        ${[["Minimum Age", r.minAge+" years old"], ["Min. Annual Income", sgd(r.minIncome)]].map(([k,v])=>`<div class="dlrow"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+        <div class="stepslabel" style="margin-top:12px">Required Documents</div>
+        <ul class="steplist">${r.docs.map(d=>`<li>${d}</li>`).join('')}</ul>
+        <div class="stepslabel" style="margin-top:12px">Key Features</div>
+        <p class="offer-blurb">The information displayed above is for reference only. The actual rates offered to you will be based on your credit score and is subject to the provider's approval.</p>
+      </div></details>
+    </div>`).join('')}</div>`;
+}
+
+// Real title from cms-components baseTranslations.ts: loan_reward_provider_gift = "Your Loan Rewards & Provider Gifts".
+function openReward(idx){
+  const l = LOANS[idx];
+  $('drawerTitle').textContent = 'Your Loan Rewards & Provider Gifts';
+  const bannerText = l.bandOffer || `Get up to ${sgd(l.rewardMax)} in cashback!`;
+  const bandsBlock = l.tierBands
+    ? `<p class="rgift__lbl" style="margin-top:14px">For other loan amounts and tenures you can choose from:</p>
+       <ul class="rgift__opts">${l.tierBands.map(b=>`<li><strong>${b.range}</strong> → ${b.cash}${b.worth ? ` (worth ${sgd(b.worth)})` : ''}</li>`).join('')}</ul>`
+    : `<div class="rgift__lbl" style="margin-top:14px">Reward options</div>
+       <ul class="rgift__opts"><li>${sgd(l.rewardMax)} cash, paid after your loan is approved and disbursed</li></ul>`;
+  rewardBody.innerHTML = `
+    <div class="rgift"><div class="rgift__bd">
+      <p class="offer-blurb" style="margin:0 0 10px">For a ${l.full} of ${sgd(curP)} over ${curMonths} months, you'll enjoy via Singsaver</p>
+      <div class="rgift__banner">${bannerText}</div>
+      ${bandsBlock}
+      <div class="rgift__lbl" style="margin-top:14px">Terms and Conditions</div>
+      <p class="rgift__tc">Reward is paid out after loan approval and disbursement — no claim form required. Requires a minimum loan amount of ${sgd(l.minAmt)} and minimum tenure of ${l.minTenure} months. Figures shown are illustrative for this prototype${l.tierBands ? ' except where noted as verified live' : ''}.</p>
+    </div></div>`;
+  rewardFoot.innerHTML = `<div class="rf__id"><img src="${l.logo}" alt="${l.name}" style="height:20px"><div class="rf__txt"><span class="rf__name">${l.full}</span><span class="rf__amt">${sgd(curP)} over ${curMonths} mths</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+  openDrawer(rewardDrawer);
+}
+
+// Product-details / facts modal — real branch for loans WITHOUT a SingSaver reward (SectionGifts.tsx's
+// openProductAside path): title = "<Bank> Personal Loan", Quick Facts / Product Card Top Badge / Eligibility.
+function openFacts(idx){
+  const l = LOANS[idx];
+  $('drawerTitle').textContent = l.full;
+  rewardBody.innerHTML = `
+    <div class="rgift"><div class="rgift__bd">
+    <div class="rgift__lbl">Quick Facts</div>
+    <ul class="rgift__opts">${l.feats.map(f=>`<li>${f}</li>`).join('')}</ul>
+    <div class="rgift__lbl" style="margin-top:14px">Product Card Top Badge</div>
+    <p style="margin:0 0 4px"><span class="loan__tag" style="margin:0">${l.tag}</span></p>
+    <div class="rgift__lbl" style="margin-top:14px">Eligibility</div>
+    <div class="dlrow"><span class="k">Minimum Age</span><span class="v">${l.minAge} years old</span></div>
+    <div class="dlrow"><span class="k">Min. Annual Income</span><span class="v">${sgd(l.minIncome)}</span></div>
+    </div></div>`;
+  rewardFoot.innerHTML = `<div class="rf__id"><img src="${l.logo}" alt="${l.name}" style="height:20px"><div class="rf__txt"><span class="rf__name">${l.full}</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+  openDrawer(rewardDrawer);
+}
+function openDrawer(d){ backdrop.classList.add('open'); d.classList.add('open'); d.setAttribute('aria-hidden','false'); }
+function closeDrawers(){ backdrop.classList.remove('open'); rewardDrawer.classList.remove('open'); rewardDrawer.setAttribute('aria-hidden','true'); }
+
+let curP=8000, curMonths=12;
+function render(){
+  const { rows, P, months } = compute();
+  curP = P; curMonths = months;
+  $('pctBody').innerHTML = renderPct(rows);
+  cardResults.innerHTML = renderCards(rows);
+}
+
+[amt,tenure].forEach(el=>{
+  el.addEventListener('input', render);
+  el.addEventListener('blur', ()=>{ const n = parseNum(el.value); el.value = el===amt ? n.toLocaleString('en-SG') : String(n); render(); });
+});
+
+$('pctBody').addEventListener('click', e=>{
+  const rb=e.target.closest('[data-pct-reward]'); if(rb){ openReward(+rb.dataset.pctReward); return; }
+  const fb=e.target.closest('[data-pct-facts]'); if(fb) openFacts(+fb.dataset.pctFacts);
+});
+document.addEventListener('click', e=>{ if(e.target.closest('[data-apply]')) e.preventDefault(); });
+$('rewardX').addEventListener('click', closeDrawers);
+backdrop.addEventListener('click', closeDrawers);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawers(); });
+
+$('menuBtn').addEventListener('click', ()=> $('siteNav').classList.toggle('open'));
+
+// intro / promo "show more" clamps
+// SEO intro mockup — before/after toggle + Read more / Read less
+(function(){
+  var body=document.body, wrap=document.getElementById('introWrap'), btn=document.getElementById('introMore');
+  function setLabel(){
+    var open=wrap.classList.contains('open');
+    if (body.getAttribute('data-seo')==='proposed'){
+      btn.innerHTML = open ? 'Read less <span class="caret">\u25B4</span>' : 'Read more <span class="caret">\u25BE</span>';
+    } else {
+      btn.textContent = open ? 'show less' : 'show more';   // live label
+    }
+  }
+  btn.addEventListener('click', function(){ wrap.classList.toggle('open'); setLabel(); });
+  function applySeo(mode){ body.setAttribute('data-seo', mode); document.querySelectorAll('#seoSeg button').forEach(function(b){ b.classList.toggle('on', b.dataset.seo===mode); }); wrap.classList.remove('open'); setLabel(); }
+  document.getElementById('seoSeg').addEventListener('click', function(e){ var b=e.target.closest('button'); if(b) applySeo(b.dataset.seo); });
+  var why=document.getElementById('seoWhy'), panel=document.getElementById('seoWhyPanel');
+  if(why) why.addEventListener('click', function(){ panel.hidden = !panel.hidden; if(body.classList.contains('show-fold')) positionFold(); });
+  // Mobile first-fold guideline — one device-viewport below the START OF THE PAGE (the SingSaver
+  // site header), never counting the demo toolbar/notes above it. innerHeight = the emulated device
+  // height in DevTools, so the line marks the true bottom of the phone's first fold.
+  var foldBtn=document.getElementById('foldToggle');
+  function positionFold(){ var fm=document.querySelector('.foldmark'), hdr=document.querySelector('header.site'); if(fm&&hdr) fm.style.top=(hdr.offsetTop+window.innerHeight)+'px'; }
+  if(foldBtn) foldBtn.addEventListener('click', function(){ var on=body.classList.toggle('show-fold'); foldBtn.classList.toggle('on',on); foldBtn.setAttribute('aria-pressed',String(on)); if(on) positionFold(); });
+  window.addEventListener('resize', function(){ if(body.classList.contains('show-fold')) positionFold(); });
+  // "Show changes" — highlight the single change (collapsed intro) in Proposed view
+  var marksBtn=document.getElementById('marksToggle');
+  if(marksBtn) marksBtn.addEventListener('click', function(){ var on=body.classList.toggle('marks'); marksBtn.classList.toggle('on',on); marksBtn.setAttribute('aria-pressed',String(on)); });
+  applySeo('proposed');
+})();
+$('promoMore').addEventListener('click', ()=>{ const t=$('promoTxt'); t.classList.toggle('clamped'); $('promoMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
+
+// sticky calculator shadow-on-stuck (guarded IntersectionObserver; CSS position:sticky does the actual pinning)
+const calc = $('calc');
+if ('IntersectionObserver' in window) {
+  try {
+    const sentinel = document.createElement('div');
+    calc.parentNode.insertBefore(sentinel, calc);
+    new IntersectionObserver(([e])=>{ calc.classList.toggle('stuck', !e.isIntersecting); }, { threshold:1 }).observe(sentinel);
+  } catch(e){ /* non-fatal — sticky positioning still works without the shadow affordance */ }
+}
+
+// "Don't miss out on these great deals" — real Promotional Campaigns PL block (CreditCardPromotion.tsx):
+// deal tabs across the top; selected deal = left column (title/blurb/Participating Products/How to Qualify)
+// + right column (reward-tier gift grid, desktop) — the same grid renders inline in the left column on mobile.
+const campTabs=$('campTabs'), campBody=$('campBody');
+campTabs.innerHTML = DEALS.map((d,i)=>`<button class="promoblk__tab ${i===0?'on':''}" data-deal="${i}"><b>${d.name}</b><span>${d.head}</span></button>`).join('');
+
+function giftTileHTML(t){
+  return `<div class="gifttile"><div class="gifttile__tag" title="Limited time only">Limited time only</div><div class="gifttile__body"><div><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${t.amt}</div></div></div><div class="gifttile__worth">Worth ${sgd(t.worth)}</div></div>`;
+}
+function giftBlockHTML(d){
+  return `<p class="promoblk__applyby">Apply by ${d.applyBy} to claim your reward.</p><div class="promoblk__grid">${d.tiers.map(giftTileHTML).join('')}</div>`;
+}
+// BASELINE-FIDELITY FIX 1 — positions the full-bleed campaign background: measures the block's
+// own offset from the viewport edge + the true viewport width (excl. scrollbar), rather than the
+// `100vw` CSS trick (which overflows the page by the scrollbar's width).
+function layoutCampaignBg(){
+  try {
+    const promo = document.querySelector('.promoblk');
+    const bg = $('campBg');
+    if (!promo || !bg) return;
+    const rect = promo.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth || window.innerWidth;
+    bg.style.left = (-rect.left) + 'px';
+    bg.style.width = vw + 'px';
+  } catch(e) { /* non-fatal — background just won't be full-bleed if layout can't be measured */ }
+}
+window.addEventListener('resize', layoutCampaignBg);
+window.addEventListener('load', layoutCampaignBg);
+
+function renderDeal(i){
+  const d = DEALS[i];
+  const bg = $('campBg'); // BASELINE-FIDELITY FIX 1 — swap tint to match the selected deal's campaign colour
+  if (bg) { bg.classList.remove('promoblk__bg--pink','promoblk__bg--green'); bg.classList.add('promoblk__bg--' + (d.color || 'pink')); }
+  const productLine = d.productLabel
+    ? `<span class="promoblk__prodname">${d.product}</span><span class="promoblk__prodlabel">: ${d.productLabel}</span>`
+    : `<span class="promoblk__prodname">${d.product}</span>`;
+  const tableHtml = d.table
+    ? `<table class="promoblk__tbl"><thead><tr>${d.table.head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${d.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+    : '';
+  campBody.innerHTML = `
+    <div class="promoblk__left">
+      <h3 class="promoblk__title">${d.title}</h3>
+      <p class="promoblk__blurb">${d.blurb}</p>
+      <div class="promoblk__giftslot--mobile">${giftBlockHTML(d)}</div>
+      <h4 class="promoblk__h4">Participating Products:</h4>
+      <div class="promoblk__product"><img src="${d.logo}" alt="${d.product}">${productLine}</div>
+      <h4 class="promoblk__h4">How to Qualify?</h4>
+      <ul class="promoblk__qual">${d.qualify.map(q=>`<li>${q}</li>`).join('')}</ul>
+      ${tableHtml}
+    </div>
+    <div class="promoblk__right promoblk__giftslot--desktop">${giftBlockHTML(d)}</div>`;
+}
+campTabs.addEventListener('click', e=>{ const b=e.target.closest('[data-deal]'); if(!b) return; [...campTabs.children].forEach(t=>t.classList.remove('on')); b.classList.add('on'); renderDeal(+b.dataset.deal); layoutCampaignBg(); });
+renderDeal(0);
+layoutCampaignBg();
+
+// Announcement bar — dismiss
+$('annClose').addEventListener('click', ()=> $('annBar').classList.add('hidden'));
+$('annLearnMore').addEventListener('click', ()=> document.querySelector('.promoblk').scrollIntoView({behavior:'smooth', block:'start'}));
+
+// BASELINE-FIDELITY FIX 2 — sticky bottom "Hot Pick" bar (real SimpleStickyFooter.tsx behaviour):
+// hidden until scrolled past 10px, auto-hides once the site footer scrolls into view, dismissible.
+(function initHotPick(){
+  const bar = $('hotPick');
+  if (!bar) return;
+  let closed = false, footerVisible = false;
+  function update(){ bar.classList.toggle('hidden', closed || footerVisible || !((window.scrollY || document.documentElement.scrollTop) > 10)); }
+  window.addEventListener('scroll', update, { passive:true });
+  update();
+  const footerEl = document.querySelector('.site-foot');
+  if (footerEl && 'IntersectionObserver' in window) {
+    try {
+      new IntersectionObserver(entries=>{ footerVisible = entries[0].isIntersecting; update(); }, { threshold:0.1 }).observe(footerEl);
+    } catch(e) { /* non-fatal — bar just won't auto-hide when the footer scrolls into view */ }
+  }
+  function closeBar(){ closed = true; update(); }
+  const xm = $('hotPickXMobile'), xd = $('hotPickXDesktop');
+  if (xm) xm.addEventListener('click', closeBar);
+  if (xd) xd.addEventListener('click', closeBar);
+})();
+
+render();
+</script>
+</body>
+</html>
