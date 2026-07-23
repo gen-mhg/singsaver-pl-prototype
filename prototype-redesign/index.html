@@ -649,6 +649,10 @@
   body[data-proto-view="change3"] .annbar,
   body[data-proto-view="change3"] .promo-card { display:none !important; }
   body[data-proto-view="change3"] .hotpick { display:none !important; }
+  /* Ad-landing demo note (EN chrome) — shown only when ?cms_amount/?cms_tenure/?provider present */
+  .ad-note { display:flex; align-items:center; gap:10px; background:#fff7e6; border-bottom:1px solid #f0d9a0; color:#6b4e00; font-size:12px; line-height:1.4; padding:8px 14px; }
+  .ad-note b { color:#5a4300; }
+  .ad-note button { margin-left:auto; flex-shrink:0; border:0; background:none; color:#6b4e00; cursor:pointer; font-size:14px; line-height:1; }
   /* Brief highlight when "See deal details" scrolls the user to the campaign block */
   .promoblk--flash { animation:promoFlash 1.6s ease; }
   @keyframes promoFlash { 0%,100%{ box-shadow:0 0 0 0 rgba(246,183,60,0); } 25%{ box-shadow:0 0 0 3px var(--fill-secondary,#f6b73c); } }
@@ -1776,6 +1780,15 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     blurb:'Apply for a UOB, Standard Chartered CashOne or Trust Bank loan and your SingSaver reward is sent within 3 weeks of approval — no extra steps.' };
   const dealSlides = DEALS.map((d,i)=>({ eyebrow:'Limited time only', title:d.head, blurb:d.blurb, logo:d.logo, color:d.color, applyBy:d.applyBy, dealIndex:i }));
   const SLIDES = [ffSlide, ...dealSlides].slice(0,5);
+  // Ad-landing: arriving from a provider deep-link (?provider=dbs) leads the carousel with that
+  // bank's slide (CH-437-style relevance order) — so a DBS clicker doesn't land on the SCB slide.
+  try {
+    const pv = (new URLSearchParams(location.search).get('provider') || '').toLowerCase();
+    if (pv){
+      const pi = SLIDES.findIndex(s=> s.logo && s.logo.toLowerCase().indexOf(pv) > -1);
+      if (pi > 0) SLIDES.unshift(SLIDES.splice(pi,1)[0]);
+    }
+  } catch(e){ /* no-op */ }
   const n = SLIDES.length;
 
   function slideHTML(s){
@@ -2000,6 +2013,40 @@ if (foldBtn) foldBtn.addEventListener('click', ()=>{
   if (on) positionFold();
 });
 window.addEventListener('resize', ()=>{ if (document.body.classList.contains('show-fold')) positionFold(); });
+
+// ============================================================
+// AD-LANDING PREFILL — mirrors production: paid PL ads deep-link to /personal-loan/{provider} with
+// ?cms_amount & ?cms_tenure (fe-services loanSearchParams reads these). Reading them here means
+// "Your details" (and the plain calculator) land pre-filled to the amount/tenure the ad promised,
+// so eligibility + the reward the user sees match the ad. ?provider leads the carousel with that
+// bank (see the carousel init). Try: ?cms_amount=50000&cms_tenure=36&provider=dbs
+// ============================================================
+(function applyAdLanding(){
+  var q; try { q = new URLSearchParams(window.location.search); } catch(e){ return; }
+  var qAmount = q.get('cms_amount') || q.get('amount');
+  var qTenure = q.get('cms_tenure') || q.get('tenure');
+  var provider = (q.get('provider') || '').toLowerCase();
+  var a = qAmount ? parseNum(qAmount) : 0, t = qTenure ? parseNum(qTenure) : 0;
+  if (a){ var fa = a.toLocaleString('en-SG'); if (amt) amt.value = fa; if (dAmt) dAmt.value = fa; }
+  if (t){ var ft = String(t); if (tenure) tenure.value = ft; if (dTenure) dTenure.value = ft; }
+  if (!a && !t && !provider) return;
+  // Demo chrome (EN): a slim note so stakeholders see this is the simulated ad-landing state.
+  var labels = { 'dbs':'DBS', 'standard-chartered':'Standard Chartered', 'uob':'UOB', 'trust':'Trust Bank' };
+  var pv = labels[provider] || '';
+  var det = [];
+  if (a) det.push('S$' + a.toLocaleString('en-SG'));
+  if (t) det.push(t + ' months');
+  var msg = '📣 Simulating arrival from ' + (pv ? 'the <b>' + pv + '</b> ad' : 'a paid ad')
+    + (det.length ? ' — details pre-filled to <b>' + det.join(' / ') + '</b>' : '')
+    + '. Eligibility + reward reflect the promised deal.';
+  var bar = document.createElement('div');
+  bar.className = 'ad-note';
+  bar.innerHTML = '<span>' + msg + '</span><button type="button" aria-label="Dismiss simulated ad-landing note">✕</button>';
+  bar.querySelector('button').addEventListener('click', function(){ bar.remove(); });
+  var anchor = document.querySelector('.proto-view-bar');
+  if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+  else document.body.insertBefore(bar, document.body.firstChild);
+})();
 
 render();
 </script>
