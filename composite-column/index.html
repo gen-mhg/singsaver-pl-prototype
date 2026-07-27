@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SG PL — Composite column: Strapi config → product table</title>
+<title>SG PL — Interest rate column: Strapi config → product table</title>
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/tokens.css">
 <link rel="stylesheet" href="assets/grid.css">
@@ -30,26 +30,28 @@
   .item .chev { width:22px; height:22px; border-radius:50%; background:#F0F0F4; color:#666687; display:inline-flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
   .item .nm { font-size:13px; color:#32324D; flex:1; }
   .item .ic { color:#8E8EA9; font-size:13px; }
+  .item .badge { font-size:10px; font-weight:700; color:#666687; background:#F0F0F4; border-radius:999px; padding:2px 8px; }
   /* the expanded / editable composite item */
   .item--open { display:block; border:1px solid var(--mh-primary-400,#4D6FC2); box-shadow:0 0 0 2px rgba(34,87,184,.12); padding:0; }
   .item--open .ihead { background:#EAF0FB; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; border-radius:4px 4px 0 0; }
   .item--open .ihead .t { font-size:12px; font-weight:700; color:var(--mh-primary-800,#003B96); }
   .item--open .ibody { padding:14px; }
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:520px){ .grid2 { grid-template-columns:1fr; } }
   .sfield { margin-bottom:12px; }
   .sfield:last-child { margin-bottom:0; }
   .sfield label { font-size:12px; font-weight:600; color:#32324D; display:block; margin-bottom:5px; }
   .sfield select, .sfield input[type=text] { width:100%; box-sizing:border-box; font:inherit; font-size:13px; padding:8px 10px; border:1px solid #DCDCE4; border-radius:4px; background:var(--fill-card); color:#32324D; }
-  .sfield select:disabled { color:var(--text-muted); background:#F6F6F9; }
+  .sfield select:disabled, .sfield input:disabled { color:#666687; background:#F6F6F9; cursor:not-allowed; }
   /* Strapi FALSE/TRUE toggle */
   .toggle { display:inline-flex; border:1px solid #DCDCE4; border-radius:4px; overflow:hidden; }
   .toggle button { border:0; background:var(--fill-card); font:inherit; font-size:12px; font-weight:600; padding:7px 16px; cursor:pointer; color:#666687; }
   .toggle button.on { background:#EAF0FB; color:var(--mh-primary-700,#0845A2); }
-  .composite-panel { margin-top:12px; padding-top:12px; border-top:1px dashed var(--borders-strong,#C0C0CF); }
-  .composite-panel .tag { font-size:10px; font-weight:700; color:var(--mh-primary-700,#0845A2); background:var(--mh-primary-50,#E7EBF6); padding:2px 7px; border-radius:999px; }
-  .warn { font-size:11px; color:#B4531E; margin:6px 0 0; line-height:1.4; display:none; }
-  .warn.show { display:block; }
+  .fixed-panel { margin-top:12px; padding-top:12px; border-top:1px dashed var(--borders-strong,#C0C0CF); }
+  .fixed-panel .tag { font-size:10px; font-weight:700; color:var(--mh-primary-700,#0845A2); background:var(--mh-primary-50,#E7EBF6); padding:2px 7px; border-radius:999px; }
+  .fixed-panel .lock { font-size:10px; font-weight:700; color:#666687; margin-left:6px; }
   .hint { font-size:11px; color:var(--text-muted); margin:10px 2px 0; line-height:1.45; }
+  .hint b { color:var(--text-secondary); }
 
   /* ===== product table (full, mirrors product-table.html) ===== */
   .ctlbar { display:flex; align-items:center; gap:8px; margin:0 0 10px; flex-wrap:wrap; }
@@ -71,7 +73,7 @@
   .apply-btn { font-size:12px; font-weight:700; color:#fff; background:var(--fill-primary); border:0; border-radius:var(--r-button,8px); padding:7px 12px; cursor:pointer; }
   .money { font-weight:700; color:var(--text-primary); }
   .reward { font-weight:700; color:var(--text-primary); }
-  /* composite / interest cell */
+  /* interest rate cell (AIR over EIR) */
   .cmp .p1 { font-size: var(--mh-fs-body-1,16px); font-weight: var(--mh-fw-semibold,600); color: var(--text-primary); line-height:1.2; }
   .cmp .p2 { font-size: var(--mh-fs-caption,12px); font-weight: var(--mh-fw-regular,400); color: var(--text-muted); line-height:1.3; margin-top:2px; }
   .cmp.sec-active .p1 { font-size: var(--mh-fs-caption,12px); font-weight: var(--mh-fw-regular,400); color: var(--text-muted); }
@@ -83,16 +85,16 @@
   #gate form { background:var(--fill-card); border:1px solid var(--borders-default); border-radius:12px; padding:26px; width:280px; text-align:center; box-shadow:0 10px 30px rgba(15,23,42,.12); }
   #gate input { width:100%; box-sizing:border-box; padding:10px; margin:12px 0; border:1px solid var(--borders-form-default, var(--mh-gray-300)); border-radius:8px; font-size:16px; }
   #gate button { width:100%; padding:10px; border:0; border-radius:8px; background:var(--fill-primary); color:#fff; font-weight:700; cursor:pointer; }
-  #gate .err { color:#B4531E; font-size:12px; min-height:14px; }
+  #gate .err { color:var(--danger,#B4531E); font-size:12px; min-height:14px; }
   .hidden { display:none; }
 </style>
 </head>
 <body>
-<div id="gate"><form id="gateForm"><b>Composite column demo</b><input id="gatePw" type="password" placeholder="Password" autocomplete="off"><button type="submit">View</button><div class="err" id="gateErr"></div></form></div>
+<div id="gate"><form id="gateForm"><b>Interest rate column demo</b><input id="gatePw" type="password" placeholder="Password" autocomplete="off"><button type="submit">View</button><div class="err" id="gateErr"></div></form></div>
 
 <main class="wrap hidden" id="app">
-  <h1>Composite column — Strapi config → product table</h1>
-  <p class="lede">Proposed <b>reusable composite column</b> for the comparison-table module. The left mirrors the real Strapi <b>personal_loan_order</b> list: each column is an item with <b>column / visible / column_sizing / style</b>. Set an item's <b>column</b> to <b>“Composite (2 attributes)”</b> and extra fields appear to pick the two attributes + label. The right is the full product table — the Interest-rate column reflects the config live.</p>
+  <h1>Interest rate column — Strapi config → product table</h1>
+  <p class="lede">A fixed, purpose-built <b>Interest rate</b> column for the SG PL comparison table. It stacks two existing attributes in one cell — <b>Annual Interest Rate</b> (top) and <b>EIR</b> (bottom) — to free a column slot, without merging the data. The two attributes and the labels are <b>hardcoded</b> — there is no attribute picker and no editable labels. It's <b>additive</b>: the separate AIR and EIR columns stay available. The right shows the live product table; both AIR and EIR remain independently sortable via <b>Sort by</b>.</p>
 
   <div class="demo">
     <!-- ===== STRAPI CONFIG ===== -->
@@ -101,12 +103,12 @@
       <div class="strapi">
         <div class="strapi__bar">▤ Comparison table — SG Personal Loan</div>
         <div class="strapi__body">
-          <p class="listlbl">personal_loan_order · item (7)</p>
+          <p class="listlbl">personal_loan_order · item (9)</p>
           <div class="plo">
             <div class="item"><span class="chev">▾</span><span class="nm">Bank Logo</span><span class="ic">visible: TRUE</span></div>
             <div class="item"><span class="chev">▾</span><span class="nm">Product Name</span><span class="ic">visible: TRUE</span></div>
 
-            <!-- editable composite item -->
+            <!-- the fixed Interest rate column item (expanded) -->
             <div class="item--open">
               <div class="ihead"><span class="t">▲ Interest rate</span><span class="ic">⌫ ⠿</span></div>
               <div class="ibody">
@@ -114,10 +116,10 @@
                   <div class="sfield">
                     <label>column</label>
                     <select id="selCol">
-                      <option value="COMPOSITE" selected>Composite (2 attributes)</option>
-                      <option value="ANNUAL_RATE">Annual interest rate (ANNUAL_RATE)</option>
+                      <option value="INTEREST_RATE" selected>Interest rate</option>
+                      <option value="ANNUAL_RATE">Annual interest rate (ANNUAL_FLAT_RATE)</option>
                       <option value="EIR">Effective Interest Rate (EIR)</option>
-                      <option value="MONTHLY_REPAYMENT">Monthly repayment (MONTHLY_REPAYMENT)</option>
+                      <option value="MONTHLY_REPAYMENT">Monthly repayment</option>
                       <option value="REWARD_VALUE">Reward Value</option>
                     </select>
                   </div>
@@ -135,44 +137,46 @@
                   </div>
                 </div>
 
-                <!-- fields that appear ONLY when column = Composite -->
-                <div class="composite-panel" id="cmpPanel">
-                  <div class="sfield"><span class="tag">Composite column</span></div>
+                <!-- fixed, read-only: what the Interest rate column always shows -->
+                <div class="fixed-panel" id="fixedPanel">
+                  <div class="sfield"><span class="tag">Interest rate column</span><span class="lock">🔒 fixed — not configurable</span></div>
                   <div class="grid2">
                     <div class="sfield">
-                      <label>primary attribute (line 1)</label>
-                      <select id="selP"></select>
+                      <label>line 1 (top)</label>
+                      <select disabled><option>Annual interest rate (ANNUAL_FLAT_RATE)</option></select>
                     </div>
                     <div class="sfield">
-                      <label>secondary attribute (line 2)</label>
-                      <select id="selS"></select>
+                      <label>line 2 (bottom)</label>
+                      <select disabled><option>Effective Interest Rate (EIR)</option></select>
                     </div>
                   </div>
-                  <p class="warn" id="warnType">Multi-line attribute type (KEY_VALUE / range / table) — not allowed in a composite cell (product-card risk). Pick a single-value attribute.</p>
                   <div class="grid2">
                     <div class="sfield">
                       <label>column label (header)</label>
-                      <input type="text" id="inpLabel" value="Interest rate">
+                      <input type="text" value="Interest rate" disabled>
                     </div>
                     <div class="sfield">
                       <label>line-1 prefix</label>
-                      <input type="text" id="inpP1" value="From ">
+                      <input type="text" value="From" disabled>
                     </div>
                   </div>
                   <div class="sfield">
                     <label>line-2 label</label>
-                    <input type="text" id="inpP2" value="EIR">
+                    <input type="text" value="EIR" disabled>
                   </div>
+                  <p class="hint">These are hardcoded for the Interest rate column — no attribute picker, no editable labels. The separate <b>Annual Interest Rate</b> and <b>EIR</b> columns remain available to add too (this column is additive).</p>
                 </div>
               </div>
             </div>
 
+            <div class="item"><span class="chev">▾</span><span class="nm">Annual Interest Rate</span><span class="badge">available</span><span class="ic">visible: FALSE</span></div>
+            <div class="item"><span class="chev">▾</span><span class="nm">EIR</span><span class="badge">available</span><span class="ic">visible: FALSE</span></div>
             <div class="item"><span class="chev">▾</span><span class="nm">SingSaver Reward</span><span class="ic">visible: TRUE</span></div>
             <div class="item"><span class="chev">▾</span><span class="nm">Monthly repayment</span><span class="ic">visible: TRUE</span></div>
             <div class="item"><span class="chev">▾</span><span class="nm">Total Cost of Loan</span><span class="ic">visible: TRUE</span></div>
             <div class="item"><span class="chev">▾</span><span class="nm">Apply Button</span><span class="ic">visible: TRUE</span></div>
           </div>
-          <p class="hint">Try: switch <b>column</b> to a single attribute (composite fields disappear, column shows one line) · toggle <b>visible</b> off (the Interest-rate column leaves the table) · change the two attributes or labels. The <b>Sort by</b> control on the right shows the active-sort emphasis.</p>
+          <p class="hint">Try: toggle <b>visible</b> off (the Interest rate column leaves the table) · use <b>Sort by</b> on the right to sort by AIR or EIR — the active line is emphasised in the cell. The separate AIR and EIR columns are kept (visible: FALSE here) so nothing is lost.</p>
         </div>
       </div>
     </div>
@@ -202,18 +206,17 @@
 </main>
 
 <script>
-// ---- attributes selectable in a composite ----
+// ---- product attributes ----
 var ATTRS={
-  ANNUAL_RATE:        {label:'Annual interest rate (ANNUAL_RATE)', type:'percent', short:'AIR'},
-  EIR:                {label:'Effective Interest Rate (EIR)',      type:'percent', short:'EIR'},
-  MONTHLY_REPAYMENT:  {label:'Monthly repayment (MONTHLY_REPAYMENT)', type:'permonth', short:'Monthly'},
-  TOTAL_INTEREST:     {label:'Total Cost of Loan (TOTAL_INTEREST)', type:'money', short:'Total cost'},
-  HANDLING_FEE:       {label:'Handling Fee (HANDLING_FEE)',        type:'percent', short:'Fee'},
-  MAXIMUM_LOAN_AMOUNT:{label:'Max Loan Amount (MAXIMUM_LOAN_AMOUNT)', type:'money', short:'Max loan'},
-  REWARD_VALUE:       {label:'Reward Value',                        type:'money', short:'Reward'},
-  QUICK_FACTS:        {label:'Quick Facts (KEY_VALUE) — multi-line', type:'multiline', short:'Facts'}
+  ANNUAL_RATE:        {label:'Annual Interest Rate', type:'percent', short:'AIR'},
+  EIR:                {label:'EIR',                   type:'percent', short:'EIR'},
+  MONTHLY_REPAYMENT:  {label:'Monthly repayment',     type:'permonth', short:'Monthly'},
+  TOTAL_INTEREST:     {label:'Total Cost of Loan',    type:'money', short:'Total cost'},
+  REWARD_VALUE:       {label:'Reward Value',          type:'money', short:'Reward'}
 };
-var ATTR_ORDER=['ANNUAL_RATE','EIR','MONTHLY_REPAYMENT','TOTAL_INTEREST','HANDLING_FEE','MAXIMUM_LOAN_AMOUNT','REWARD_VALUE','QUICK_FACTS'];
+
+// the Interest rate column is FIXED — these are hardcoded, not editor-chosen
+var IR = { P:'ANNUAL_RATE', S:'EIR', HEADER:'Interest rate', PRE1:'From ', LAB2:'EIR' };
 
 var P=10000, MONTHS=36, YEARS=3;
 var LOANS=[
@@ -229,8 +232,6 @@ function raw(l,key){
   if(key==='EIR') return l.eir;
   if(key==='MONTHLY_REPAYMENT') return (P+interest)/MONTHS;
   if(key==='TOTAL_INTEREST') return interest;
-  if(key==='HANDLING_FEE') return l.fee;
-  if(key==='MAXIMUM_LOAN_AMOUNT') return l.max;
   if(key==='REWARD_VALUE') return l.rewardNum;
   return 0;
 }
@@ -241,28 +242,19 @@ function fmt(key,v){
   return 'S$'+Math.round(v).toLocaleString('en-SG');
 }
 function sgd(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
-
-var selCol, selP, selS, inpLabel, inpP1, inpP2, tglVis, selSort, cmpPanel, warnType;
-var visible=true;
-
-function fillAttr(sel, def){
-  sel.innerHTML=ATTR_ORDER.map(function(k){
-    var m=ATTRS[k].type==='multiline';
-    return '<option value="'+k+'"'+(k===def?' selected':'')+(m?' disabled':'')+'>'+ATTRS[k].label+(m?'  (not allowed)':'')+'</option>';
-  }).join('');
-}
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
-function render(){
-  var colType=selCol.value;                 // COMPOSITE or a single attribute key
-  var isComposite = colType==='COMPOSITE';
-  cmpPanel.style.display = isComposite ? 'block' : 'none';
-  var p=selP.value, s=selS.value, label=inpLabel.value, pre1=inpP1.value, lab2=inpP2.value, sort=selSort.value;
-  var bad = ATTRS[selS.value].type==='multiline' || ATTRS[selP.value].type==='multiline';
-  warnType.classList.toggle('show', isComposite && bad);
+var selCol, tglVis, selSort, fixedPanel;
+var visible=true;
 
-  // header for the interest column: composite = custom label; single = attribute label
-  var intHeader = isComposite ? (label||'Interest rate') : ATTRS[colType].label.replace(/\s*\(.*\)$/,'');
+function render(){
+  var colType=selCol.value;                 // INTEREST_RATE or a single attribute key
+  var isInterest = colType==='INTEREST_RATE';
+  fixedPanel.style.display = isInterest ? 'block' : 'none';
+  var sort=selSort.value;
+
+  // header for the interest column
+  var intHeader = isInterest ? IR.HEADER : ATTRS[colType].label;
 
   // sort rows
   var rows=LOANS.slice();
@@ -271,18 +263,19 @@ function render(){
   // header cells
   var th='<th class="pct-sticky">Loan</th>';
   if(visible) th+='<th>'+esc(intHeader)+'</th>';
-  th+='<th>SingSaver Reward</th><th>Monthly repayment</th><th>Total Cost of Loan</th><th></th>';
+  th+='<th>SingSaver Reward</th><th>Monthly Repayment</th><th>Total Cost of Loan</th><th></th>';
   document.getElementById('thead').innerHTML=th;
 
-  var secActive = isComposite && (sort===s && s!==p);
+  // active-line emphasis: only when the Interest rate column is shown and the sort is on EIR (line 2)
+  var secActive = isInterest && sort===IR.S;
 
   document.getElementById('tbody').innerHTML=rows.map(function(r){
     var interestCell='';
     if(visible){
-      if(isComposite){
+      if(isInterest){
         interestCell='<td><div class="cmp'+(secActive?' sec-active':'')+'">'
-          +'<div class="p1">'+esc(pre1)+fmt(p, raw(r,p))+'</div>'
-          +'<div class="p2">'+(lab2?esc(lab2)+' ':'')+fmt(s, raw(r,s))+'</div>'
+          +'<div class="p1">'+esc(IR.PRE1)+fmt(IR.P, raw(r,IR.P))+'</div>'
+          +'<div class="p2">'+esc(IR.LAB2)+' '+fmt(IR.S, raw(r,IR.S))+'</div>'
           +'</div></td>';
       } else {
         interestCell='<td><span class="money">'+fmt(colType, raw(r,colType))+'</span></td>';
@@ -299,21 +292,16 @@ function render(){
   }).join('');
 
   document.getElementById('tblnote').textContent = !visible
-    ? 'Interest-rate column hidden (visible = FALSE).'
-    : isComposite
-      ? 'Composite column "'+intHeader+'" = '+ATTRS[p].short+' (line 1) + '+ATTRS[s].short+' (line 2). Data stays two separate attributes.'
+    ? 'Interest rate column hidden (visible = FALSE).'
+    : isInterest
+      ? 'Interest rate column = Annual Interest Rate (top) + EIR (bottom), stacked in one cell. Fixed attributes; data stays two separate NUMBER attributes, both independently sortable.'
       : 'Single-attribute column: '+ATTRS[colType].label+'.';
 }
 
 function init(){
-  selCol=document.getElementById('selCol'); selP=document.getElementById('selP'); selS=document.getElementById('selS');
-  inpLabel=document.getElementById('inpLabel'); inpP1=document.getElementById('inpP1'); inpP2=document.getElementById('inpP2');
-  tglVis=document.getElementById('tglVis'); selSort=document.getElementById('selSort'); cmpPanel=document.getElementById('cmpPanel'); warnType=document.getElementById('warnType');
-  fillAttr(selP,'ANNUAL_RATE'); fillAttr(selS,'EIR');
+  selCol=document.getElementById('selCol');
+  tglVis=document.getElementById('tglVis'); selSort=document.getElementById('selSort'); fixedPanel=document.getElementById('fixedPanel');
   selCol.addEventListener('change', render);
-  selS.addEventListener('change', function(){ inpP2.value=ATTRS[selS.value].short; render(); });
-  selP.addEventListener('change', render);
-  [inpLabel,inpP1,inpP2].forEach(function(el){ el.addEventListener('input', render); });
   selSort.addEventListener('change', render);
   tglVis.querySelectorAll('button').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -331,10 +319,10 @@ function init(){
   function unlock(){ gate.style.display='none'; app.classList.remove('hidden'); init(); }
   document.getElementById('gateForm').addEventListener('submit',function(e){
     e.preventDefault();
-    if(document.getElementById('gatePw').value===PW){ sessionStorage.setItem('pl_gate','1'); unlock(); }
+    if(document.getElementById('gatePw').value===PW){ try{ sessionStorage.setItem('pl_gate','1'); }catch(err){} unlock(); }
     else { document.getElementById('gateErr').textContent='Incorrect password'; }
   });
-  if(sessionStorage.getItem('pl_gate')==='1'){ unlock(); }
+  try{ if(sessionStorage.getItem('pl_gate')==='1'){ unlock(); } }catch(err){}
 })();
 </script>
 </body>
