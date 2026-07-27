@@ -81,7 +81,7 @@
   .calc__fld { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
   .calc__lbl { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--text-secondary); }
   .calc__help { color:var(--text-muted); cursor:help; font-size:12px; border:1px solid var(--borders-default); border-radius:50%; width:15px; height:15px; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
-  .calc__fld input, .calc__fld select { border:1px solid var(--borders-form-default); border-radius: var(--r-button); padding:9px 10px; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); background:var(--fill-card); width:100%; box-sizing:border-box; }
+  .calc__fld input, .calc__fld select { border:1px solid var(--borders-form-default); border-radius: var(--r-button); padding:9px 10px; font:inherit; font-family:var(--font-sans); font-size:16px; font-weight:700; color:var(--text-primary); background:var(--fill-card); width:100%; box-sizing:border-box; }
   .calc__fld input:focus, .calc__fld select:focus { outline:2px solid var(--fill-primary); border-color:transparent; }
   .calc.stuck { box-shadow: 0 4px 10px rgba(15,23,42,.08); border-bottom:1px solid var(--borders-default); }
 
@@ -91,7 +91,7 @@
      entirely (hidden here) by the v20-pattern "Your details" grouped
      block below, which bundles Loan amount + Tenure + Citizenship +
      Monthly income into one collapsible card. */
-  body[data-proto-view="change2"] .calc , body[data-proto-view="change3"] .calc { display:none; }
+  body[data-proto-view="change2"] .calc , body[data-proto-view="change3"] .calc , body[data-proto-view="change4"] .calc { display:none; }
 
   /* ============================================================
      CHANGE 2 — "Your details" grouped block (matches prototype-v20.html's
@@ -103,7 +103,7 @@
      CSS further down + the IntersectionObserver in the script, also reused
      from v20). Shown only under Change 2 — see body[data-proto-view] rule. */
   .details { display:none; background: var(--fill-card); border:1px solid var(--borders-default); border-radius: var(--r-card-inner); margin-bottom: var(--space-3); }
-  body[data-proto-view="change2"] .details , body[data-proto-view="change3"] .details { display:block; }
+  body[data-proto-view="change2"] .details , body[data-proto-view="change3"] .details , body[data-proto-view="change4"] .details { display:block; }
   .details > summary { list-style:none; cursor:pointer; padding: 10px 14px; display:flex; align-items:center; justify-content:space-between; gap: 8px; }
   .details > summary::-webkit-details-marker { display:none; }
   .details__label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; display:block; }
@@ -114,7 +114,7 @@
   .details .imoney, .details .iunit { display:flex; align-items:center; border:1px solid var(--borders-form-default); border-radius: var(--r-button); overflow:hidden; }
   .details .imoney span, .details .iunit span { padding: 0 8px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
   .details .imoney input, .details .iunit input { border:0; outline:0; width:100%; padding:8px 8px 8px 0; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); }
-  .details .fld select { width:100%; padding: 8px; border:1px solid var(--borders-form-default); border-radius: var(--r-button); font:inherit; font-size:16px; background:var(--fill-card); color:var(--text-primary); }
+  .details .fld select { width:100%; padding: 8px; border:1px solid var(--borders-form-default); border-radius: var(--r-button); font:inherit; font-family:var(--font-sans); font-size:16px; background:var(--fill-card); color:var(--text-primary); }
   /* v20 groups 4 fields at 2 cols on mobile, growing to 3/5 cols on a narrower (640px) max-width
      page; this redesign's wrap is wider (1130px desktop) and only ever holds these same 4 fields,
      so it steps straight to a single 4-col row at tablet+ rather than v20's 3-then-5 split (which
@@ -387,6 +387,43 @@
   .rgift__opts li { margin-bottom:6px; line-height:1.45; }
   .rgift__tc { font-size:11.5px; color:var(--text-muted); line-height:1.5; margin:0; }
   .rgift__banner { background:var(--fill-primary-light); color:var(--fill-primary-dark); font-weight:800; font-size:14px; padding:12px 14px; border-radius:var(--r-card-inner); margin:0 0 6px; }
+  /* CHANGE 4 — readable reward-tier table (v13 pattern). Shared by the reward drawer (full table,
+     open) and reachable from the product card via the "See the full reward & offer details" link
+     (Link → drawer, matching live's cms_rewardModal behaviour — the card itself stays compact). */
+  .rwd-tbl { display:flex; flex-direction:column; gap:3px; margin-top:4px; }
+  .rwd-tbl__row { display:flex; justify-content:space-between; gap:12px; padding:9px 10px; border-radius:8px; font-size:13px; }
+  .rwd-tbl__band { color:var(--text-secondary); }
+  .rwd-tbl__gift { font-weight:700; white-space:nowrap; text-align:right; }
+  .rwd-tbl__row--head { font-weight:800; border-bottom:1px solid var(--borders-default); border-radius:0; }
+  .rwd-tbl__row--head .rwd-tbl__band, .rwd-tbl__row--head .rwd-tbl__gift { color:var(--text-primary); }
+  .rwd-tbl__row--you { background:var(--success-bg); border:1px solid var(--success-border); }
+  .rwd-tbl__row--you .rwd-tbl__gift { color:var(--success-dark); }
+  .rwd-tbl__you { font-size:10px; font-weight:800; text-transform:uppercase; color:var(--success-dark); letter-spacing:.03em; margin-left:6px; white-space:nowrap; }
+  .rwd__more { display:inline-block; margin-top:10px; font-size:13px; font-weight:700; color:var(--text-link); text-decoration:none; cursor:pointer; }
+  /* CHANGE 4 — "Provider gift on top" line (the lender's own gift, stacked ON TOP OF SingSaver's
+     reward — real live "Provider Gift – On Top of SingSaver's", e.g. Trust's FairPrice voucher). */
+  /* Provider Gift / Welcome Offer — rendered as its own offer section (card accordion + drawer
+     block), matching live. Reuses the existing .gifttile for the gift, so it maps to the Welcome
+     Offers CMS entry (Offer Title + List of Gifts + Period) rather than a bespoke callout. */
+  .prov-lead { font-size:13px; color:var(--text-secondary); margin:0 0 10px; line-height:1.5; }
+  .prov-gifts { display:flex; gap:10px; flex-wrap:wrap; }
+  .prov-gifts .gifttile { width:150px; }
+  .acc--provider > summary { color:var(--fill-primary-dark); }
+  /* Welcome Offer as its OWN boxed card in the drawer — faithful to fe-services
+     ProductDetailsSectionWrapper (white rounded card + #01000A14 border + shadow, title header)
+     + GrayInfoBlock (grey "Show T&Cs" collapsible). Each offer is a separate box, matching live. */
+  .wo-box { border:1px solid rgba(1,0,10,.08); border-radius:var(--r-card); background:var(--fill-card); box-shadow:var(--shadow-md); margin-top:16px; overflow:hidden; }
+  .wo-box__hd { background:var(--fill-alternative-1); padding:14px 16px; font-size:14px; font-weight:800; color:var(--text-primary); }
+  .wo-box__bd { padding:16px; }
+  .wo-box__bd .rgift__opts { margin:0; }
+  /* "Show T&Cs" = plain blue underlined link; expanded content = plain bullet list directly below
+     (no grey container) — matches the live reward modal. */
+  .wo-tnc { margin-top:14px; }
+  .wo-tnc__btn { display:inline-block; border:0; background:none; padding:0; font-size:13px; font-weight:700; color:var(--text-link); text-decoration:underline; cursor:pointer; }
+  .wo-tnc__body { margin:10px 0 0; padding-left:18px; font-size:12px; color:var(--text-secondary); }
+  .wo-tnc__body li { margin-bottom:5px; line-height:1.45; }
+  .wo-tnc__body a { color:var(--text-link); }
+  .wo-tnc:not(.open) .wo-tnc__body { display:none; }
   .rf__id { display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
   .rf__txt { display:flex; flex-direction:column; min-width:0; }
   .rf__name { font-weight:700; font-size:13px; white-space:normal; }
@@ -451,27 +488,57 @@
      reward drawer) → desktop persistent static left column. */
   .sf-panel { position:fixed; left:0; right:0; bottom:0; max-height:88%; background:var(--fill-card); border-radius:20px 20px 0 0; z-index:45; transform:translateY(100%); transition:transform .25s ease; display:flex; flex-direction:column; }
   .sf-panel.open { transform:translateY(0); }
-  .sf-panel__head { display:flex; align-items:center; gap:8px; padding:16px; border-bottom:1px solid var(--borders-soft); flex-shrink:0; }
-  .sf-panel__head b { flex:1; font-size:16px; }
+  .sf-panel__head { display:flex; align-items:center; gap:8px; padding:var(--space-4); border-bottom:1px solid var(--borders-soft); flex-shrink:0; }
+  .sf-panel__head b { flex:1; font-family:var(--font-sans); font-size:var(--font-size-subheading-2); line-height:var(--line-height-subheading-2); }
   .sf-panel__close { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:15px; flex-shrink:0; }
-  .sf-panel__body { overflow-y:auto; padding:4px 16px 16px; }
-  .sf-group { padding:14px 0; border-bottom:1px solid var(--borders-soft); }
+  .sf-panel__body { overflow-y:auto; padding:var(--space-1) var(--space-4) var(--space-4); }
+  /* Padding fix (Xiao En, 2026-07-27 — "the padding is terrible"): the panel's spacing values map to the
+     --space-* scale (the .sf-trigger mobile pill keeps off-scale px pending the icon-swap pass), and the vertical rhythm between groups is opened up
+     (14px → var(--space-4), 16px) so the panel reads as a set of distinct, breathable sections
+     rather than a cramped list. */
+  .sf-group { padding:var(--space-4) 0; border-bottom:1px solid var(--borders-soft); }
   .sf-group:last-child { border-bottom:0; }
-  /* FilterHeader real class: "mb-paragraph font-body font-bold" (font-body = 16px per fe-services'
-     tailwind.config.js `fonts()` plugin) — mapped to --font-size-body-1 (16px mobile / 18px tablet+),
-     the closest token match, replacing the ad-hoc 13px this group previously used (checker fix:
-     "Sort By font size" — the label + every other group header now follow the type scale). */
-  .sf-group__h { font-size:var(--font-size-body-1); font-weight:700; margin:0 0 10px; color:var(--text-primary); }
-  .sf-select { width:100%; border:1px solid var(--borders-form-default); border-radius:var(--r-button); padding:10px 12px; font:inherit; font-size:var(--font-size-form-input); font-weight:600; background:var(--fill-card); color:var(--text-primary); }
-  .sf-select:focus { outline:2px solid var(--fill-primary); border-color:transparent; }
-  .sf-pills { display:flex; flex-wrap:wrap; gap:8px; }
+  /* Font hierarchy fix (Xiao En, 2026-07-27 — "the font hierarchy is very off"; filter font must
+     match content side): group labels ("Sort By" / "Category" / "Loan Features" / "Bank") previously
+     rendered at --font-size-body-1 — the SAME size as the body copy/controls they labelled, so they
+     didn't read as a distinct tier. Now a proper small-caps "eyebrow" label using the caption type
+     token (12px mobile / 14px tablet+ — smaller than every control below it at every breakpoint),
+     bold + uppercase + letter-spaced, the same treatment already used elsewhere on this page for a
+     label sitting above a bigger control (.details__label, .calc__lbl, .stepslabel). Together with
+     the token changes below, the panel now has a clear 3-tier scale: group label (caption, uppercase)
+     > control/pill text (body-2/form-input, same tokens the comparison table + cards use) > helper
+     text (caption, plain case) — matching the content side instead of its own ad-hoc sizes. */
+  .sf-group__h { font-family:var(--font-sans); font-size:var(--font-size-caption); line-height:var(--line-height-caption); font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin:0 0 var(--space-2); color:var(--text-secondary); }
+  /* Sort By — custom accessible dropdown (button trigger + listbox popup), replacing the native
+     <select> (checker/designer fix: "the dropdown font looks wrong" — every browser engine renders
+     native <option> lists in the OS font regardless of CSS, so only a custom listbox can guarantee
+     Albert Sans end-to-end for both the trigger AND the option list). A visually-hidden native
+     <select id="sfSort"> (.sf-native-sort) stays in the DOM purely as the existing state store, so
+     every pre-existing reference elsewhere in this file — $('sfSort').value, the 'change' listener +
+     Clear All reset in initSortFilter(), .options[selectedIndex].text in updateSortCap() — keeps
+     working completely untouched; see initSfSortDropdown() further down the script. */
+  .sf-dropdown { position:relative; }
+  .sf-dropdown__trigger { width:100%; display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); border:1px solid var(--borders-form-default); border-radius:var(--r-button); padding:var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-form-input); line-height:var(--line-height-form-input); font-weight:var(--font-weight-form-input); background:var(--fill-card); color:var(--text-primary); cursor:pointer; text-align:left; }
+  .sf-dropdown__trigger:hover { background:var(--fill-alternative-1); }
+  .sf-dropdown__trigger:focus-visible { outline:2px solid var(--fill-primary); outline-offset:1px; border-color:transparent; }
+  .sf-dropdown__chev { flex-shrink:0; width:16px; height:16px; color:var(--text-muted); transition:transform .15s ease; }
+  .sf-dropdown__trigger[aria-expanded="true"] .sf-dropdown__chev { transform:rotate(180deg); }
+  .sf-dropdown__list { position:absolute; left:0; right:0; top:calc(100% + var(--space-1)); z-index:12; margin:0; padding:var(--space-1) 0; list-style:none; border:1px solid var(--borders-form-default); border-radius:var(--r-button); background:var(--fill-card); box-shadow:var(--shadow-md); max-height:240px; overflow-y:auto; }
+  .sf-dropdown__list[hidden] { display:none; }
+  .sf-dropdown__opt { padding:var(--space-2) var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-form-input); line-height:var(--line-height-form-input); color:var(--text-primary); cursor:pointer; }
+  .sf-dropdown__opt:hover, .sf-dropdown__opt.active { background:var(--fill-alternative-1); }
+  .sf-dropdown__opt.on { font-weight:700; color:var(--fill-primary-dark); background:var(--fill-primary-light); }
+  .sf-native-sort { display:none; }
+  .sf-pills { display:flex; flex-wrap:wrap; gap:var(--space-2); }
   /* CheckboxSingsaver real classes: "form-checkbox size-6 rounded border …", "mt-2 inline-flex items-center",
      label = "font-small font-bold" (font-small = 14px) — mapped to --font-size-body-2 (14px mobile /
      16px tablet+), same token used below for .sf-check; .sf-pill (Category) matched to the same
-     token for a consistent scale across the whole panel, replacing both controls' ad-hoc 13px. */
-  .sf-pill { border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:7px 13px; font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); cursor:pointer; }
+     token for a consistent scale across the whole panel — this is the control/pill tier, one step
+     below the caption-tier group labels above (see .sf-group__h comment for the full 3-tier scale).
+     Padding also moved to the --space-* scale for comfortable, even pill padding (was 7px/13px). */
+  .sf-pill { border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); cursor:pointer; }
   .sf-pill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
-  .sf-check { display:flex; align-items:center; gap:10px; padding:7px 0; cursor:pointer; font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); }
+  .sf-check { display:flex; align-items:center; gap:10px; padding:var(--space-2) 0; cursor:pointer; font-family:var(--font-sans); font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); }
   .sf-check input { width:20px; height:20px; accent-color:var(--fill-primary); flex-shrink:0; border-radius:4px; border:1px solid var(--borders-form-default); }
 
   /* Collapsible filter groups (Category / Loan Features / Bank) — compacts the panel by default
@@ -482,14 +549,14 @@
      less to scroll through there too — a net improvement, not a regression). */
   .sf-acc { border-bottom:1px solid var(--borders-soft); }
   .sf-acc:last-child { border-bottom:0; }
-  .sf-acc__sum { padding:14px 0; margin:0; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .sf-acc__sum { padding:var(--space-4) 0; margin:0; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); }
   .sf-acc__sum::-webkit-details-marker { display:none; }
   .sf-acc__chev { color:var(--text-muted); font-weight:400; font-size:var(--font-size-caption); flex-shrink:0; transition:transform .15s ease; }
   .sf-acc[open] > .sf-acc__sum .sf-acc__chev { transform:rotate(180deg); }
-  .sf-acc__body { padding:0 0 14px; }
-  .sf-panel__foot { display:flex; gap:10px; padding:14px 16px; border-top:1px solid var(--borders-soft); background:var(--fill-card); flex-shrink:0; }
+  .sf-acc__body { padding:0 0 var(--space-4); }
+  .sf-panel__foot { display:flex; gap:var(--space-3); padding:var(--space-4); border-top:1px solid var(--borders-soft); background:var(--fill-card); flex-shrink:0; }
   .sf-panel__foot .mhg-btn { flex:1; }
-  .sf-empty { font-size:13px; color:var(--text-secondary); padding:16px; text-align:center; border:1px dashed var(--borders-default); border-radius:var(--r-card-inner); background:var(--fill-alternative-1); display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .sf-empty { font-size:var(--font-size-body-2); color:var(--text-secondary); padding:var(--space-4); text-align:center; border:1px dashed var(--borders-default); border-radius:var(--r-card-inner); background:var(--fill-alternative-1); display:flex; flex-direction:column; gap:var(--space-3); align-items:center; }
   .sf-empty .mhg-btn { flex:0 0 auto; }
 
   @media (min-width:768px){
@@ -517,11 +584,12 @@
   /* CHANGE 2, desktop only: the full calculator is no longer sticky under Change 2 (see the
      body[data-proto-view="change2"] .calc override above) — the persistent top chrome is now the
      much-shorter sticky-summary bar (~40px) instead, body[data-proto-view="change3"] .calc override above) — the persistent top chrome is now the
+     much-shorter sticky-summary bar (~40px) instead, body[data-proto-view="change4"] .calc override above) — the persistent top chrome is now the
      much-shorter sticky-summary bar (~40px) instead, once scrolled that far. Tightens the panel's
      sticky offset to match (was 96px/112px sized for the taller sticky calculator), same "small gap"
      logic as the comment above. */
   @media (min-width:1024px){
-    body[data-proto-view="change2"] .sf-panel , body[data-proto-view="change3"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
+    body[data-proto-view="change2"] .sf-panel , body[data-proto-view="change3"] .sf-panel , body[data-proto-view="change4"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
   }
 
   /* ============================================================
@@ -553,7 +621,7 @@
   .pct-header .sf-trigger-row { margin:0; flex-shrink:0; }
   .pct-header .section-h { margin:0; min-width:0; }
   /* Change 2 swaps the "Compare Personal Loans" heading for the compact loan count (v20 layout). */
-  body[data-proto-view="change2"] #pctHeading , body[data-proto-view="change3"] #pctHeading { display:none; }
+  body[data-proto-view="change2"] #pctHeading , body[data-proto-view="change3"] #pctHeading , body[data-proto-view="change4"] #pctHeading { display:none; }
 
   /* Baseline ⇄ Change 1 ⇄ Change 2: which chrome shows (persona tabs vs Sort & Filter trigger/
      panel) and whether .pl-layout reserves a left column at all. Change 1's chrome (sf-trigger-row/
@@ -561,7 +629,7 @@
      else on the page (table, cards, promo blocks, FAQ, footer) renders identically in all views. */
   body[data-proto-view="baseline"] .tabs { display:flex; }
   body[data-proto-view="change1"] .tabs,
-  body[data-proto-view="change2"] .tabs , body[data-proto-view="change3"] .tabs { display:none; }
+  body[data-proto-view="change2"] .tabs , body[data-proto-view="change3"] .tabs , body[data-proto-view="change4"] .tabs { display:none; }
   body[data-proto-view="baseline"] .sf-trigger-row,
   body[data-proto-view="baseline"] .sf-panel,
   body[data-proto-view="baseline"] .sf-backdrop { display:none !important; }
@@ -574,15 +642,15 @@
      automatically in Baseline (where those panels are hidden anyway). */
   .ann { display:none; background:var(--fill-secondary); color:var(--fill-primary-dark); font-size:9px; font-weight:800; border-radius:4px; padding:2px 7px; white-space:nowrap; box-shadow:var(--shadow-md); }
   body.marks[data-proto-view="change1"] .ann,
-  body.marks[data-proto-view="change2"] .ann , body.marks[data-proto-view="change3"] .ann { display:inline-block; }
+  body.marks[data-proto-view="change2"] .ann , body.marks[data-proto-view="change3"] .ann , body.marks[data-proto-view="change4"] .ann { display:inline-block; }
   body.marks[data-proto-view="change1"] .x-new,
-  body.marks[data-proto-view="change2"] .x-new , body.marks[data-proto-view="change3"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
+  body.marks[data-proto-view="change2"] .x-new , body.marks[data-proto-view="change3"] .x-new , body.marks[data-proto-view="change4"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
   body.marks[data-proto-view="change1"] #sfPanel,
-  body.marks[data-proto-view="change2"] #sfPanel , body.marks[data-proto-view="change3"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
+  body.marks[data-proto-view="change2"] #sfPanel , body.marks[data-proto-view="change3"] #sfPanel , body.marks[data-proto-view="change4"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
   /* Change-1 (persists under Change 2): sort/state caption under the results heading */
   .sortcap { display:none; font-size:13px; color:var(--text-muted); margin:2px 0 12px; }
   body[data-proto-view="change1"] .sortcap,
-  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap { display:block; }
+  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap { display:block; }
   .sortcap b { color:var(--text-primary); font-weight:700; }
 
   /* ============================================================
@@ -593,8 +661,8 @@
      Change-1 sort caption sits on its own line below, tightened to v20's 12px in this view. */
   .qualifycap { display:none; flex:1; min-width:0; font-size:14px; font-weight:700; color:var(--text-primary); margin:0; line-height:1.3; }
   .qualifycap span { color:var(--text-muted); font-weight:400; font-size:12px; }
-  body[data-proto-view="change2"] .qualifycap , body[data-proto-view="change3"] .qualifycap { display:block; }
-  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap { font-size:12px; margin:2px 0 12px; }
+  body[data-proto-view="change2"] .qualifycap , body[data-proto-view="change3"] .qualifycap , body[data-proto-view="change4"] .qualifycap { display:block; }
+  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap { font-size:12px; margin:2px 0 12px; }
 
   /* Per-loan soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate).
      TABLE: a small "ⓘ Check eligibility" text link in the Apply cell (.tinfo--no, link colour).
@@ -604,7 +672,7 @@
      not the amber-accent tokens, to match the old prototype. Eligibility elements hidden outside
      Change 2 (badge--excl is merchandising, always shown). */
   .tinfo--ok, .tinfo--no { display:none; margin:6px 0 0; font-size:11px; line-height:1.2; font-weight:700; }
-  body[data-proto-view="change2"] .tinfo--no , body[data-proto-view="change3"] .tinfo--no { display:block; }
+  body[data-proto-view="change2"] .tinfo--no , body[data-proto-view="change3"] .tinfo--no , body[data-proto-view="change4"] .tinfo--no { display:block; }
   .tinfo--no { white-space:nowrap; color:var(--text-link); cursor:help; }
   .badge { display:inline-block; font-size:12px; font-weight:700; border-radius:var(--r-pill); padding:3px 10px; }
   .badge--excl { background:var(--color-olive-700,#5d8433); color:#fff; }
@@ -613,9 +681,9 @@
   .loan__elig--no { color:#8a5a00; }
   .loan__elig--ok { color:var(--success-dark,#33691e); }
   .badge--excl, .badge--warn, .loan__elig { display:none; }
-  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl,
-  body[data-proto-view="change2"] .badge--warn , body[data-proto-view="change3"] .badge--warn { display:inline-block; }
-  body[data-proto-view="change2"] .loan__elig , body[data-proto-view="change3"] .loan__elig { display:block; }
+  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl, body[data-proto-view="change4"] .badge--excl,
+  body[data-proto-view="change2"] .badge--warn , body[data-proto-view="change3"] .badge--warn , body[data-proto-view="change4"] .badge--warn { display:inline-block; }
+  body[data-proto-view="change2"] .loan__elig , body[data-proto-view="change3"] .loan__elig , body[data-proto-view="change4"] .loan__elig { display:block; }
   .loan__badges { display:flex; flex-wrap:wrap; gap:6px; }
   .loan__badges:empty { display:none; }
   .pct-table td.pct-applycell { white-space:normal; }
@@ -625,13 +693,13 @@
   /* Grey-out for ineligible products (old-prototype ".soft") — Change 2 only. Dims the row/card and
      desaturates the logo so eligible options stand out; "Apply" and the eligibility flag stay full
      colour and clickable (never a gate). Hidden in Baseline/Change 1 (rows/cards render normally). */
-  body[data-proto-view="change2"] .pct-table tbody tr.soft > td , body[data-proto-view="change3"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
-  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
-  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
-  body[data-proto-view="change2"] .loan.soft , body[data-proto-view="change3"] .loan.soft { background:#fafbfc; }
-  body[data-proto-view="change2"] .loan.soft .loan__logobox img , body[data-proto-view="change3"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
-  body[data-proto-view="change2"] .loan.soft .loan__name, body[data-proto-view="change3"] .loan.soft .loan__name,
-  body[data-proto-view="change2"] .loan.soft .g2 .v , body[data-proto-view="change3"] .loan.soft .g2 .v { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft > td , body[data-proto-view="change3"] .pct-table tbody tr.soft > td , body[data-proto-view="change4"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change4"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change4"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft , body[data-proto-view="change3"] .loan.soft , body[data-proto-view="change4"] .loan.soft { background:#fafbfc; }
+  body[data-proto-view="change2"] .loan.soft .loan__logobox img , body[data-proto-view="change3"] .loan.soft .loan__logobox img , body[data-proto-view="change4"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft .loan__name, body[data-proto-view="change3"] .loan.soft .loan__name, body[data-proto-view="change4"] .loan.soft .loan__name,
+  body[data-proto-view="change2"] .loan.soft .g2 .v , body[data-proto-view="change3"] .loan.soft .g2 .v , body[data-proto-view="change4"] .loan.soft .g2 .v { color:var(--text-muted); }
 
   /* ============================================================
      CHANGE 3 — Merchandising: consolidate the scattered promos into ONE carousel (cumulative on
@@ -646,9 +714,9 @@
   /* Fold in only the redundant STACKED banners — the top Limited-Time bar, Fastest Fulfilment card,
      and bottom Hot Pick. The "Don't miss out" campaign-details block STAYS (per epic Req 4: "one
      carousel that links to the campaign details") — the carousel's "See deal details" scrolls to it. */
-  body[data-proto-view="change3"] .annbar,
-  body[data-proto-view="change3"] .promo-card { display:none !important; }
-  body[data-proto-view="change3"] .hotpick { display:none !important; }
+  body[data-proto-view="change3"] .annbar, body[data-proto-view="change4"] .annbar,
+  body[data-proto-view="change3"] .promo-card , body[data-proto-view="change4"] .promo-card { display:none !important; }
+  body[data-proto-view="change3"] .hotpick , body[data-proto-view="change4"] .hotpick { display:none !important; }
   /* Ad-landing demo note (EN chrome) — shown only when ?cms_amount/?cms_tenure/?provider present */
   .ad-note { display:flex; align-items:center; gap:10px; background:#fff7e6; border-bottom:1px solid #f0d9a0; color:#6b4e00; font-size:12px; line-height:1.4; padding:8px 14px; }
   .ad-note b { color:#5a4300; }
@@ -657,8 +725,13 @@
   .promoblk--flash { animation:promoFlash 1.6s ease; }
   @keyframes promoFlash { 0%,100%{ box-shadow:0 0 0 0 rgba(246,183,60,0); } 25%{ box-shadow:0 0 0 3px var(--fill-secondary,#f6b73c); } }
   .mcarousel { display:none; }
-  body[data-proto-view="change3"] .mcarousel { display:block; margin:var(--space-4) 0 var(--space-5); }
+  body[data-proto-view="change3"] .mcarousel , body[data-proto-view="change4"] .mcarousel { display:block; margin:var(--space-4) 0 var(--space-5); }
   .mcarousel__ann { margin-bottom:8px; }
+  /* CHANGE 4 — reward-view toggle in the Sort & Filter panel (shown only in Change 4) */
+  .sf-reward-group { display:none; }
+  body[data-proto-view="change4"] .sf-reward-group { display:block; }
+  .sf-radio { display:flex; align-items:center; gap:var(--space-2); font-size:var(--font-size-body-2); color:var(--text-primary); padding:var(--space-1) 0; cursor:pointer; }
+  .sf-radio input { flex-shrink:0; }
   .mcarousel__h { font-size:15px; font-weight:700; margin:0 0 4px; }
   .mcarousel__sub { font-size:12px; color:var(--text-muted); margin:0 0 12px; }
   .mcarousel__vp { position:relative; overflow:hidden; border-radius:var(--r-card); }
@@ -716,7 +789,7 @@
      viewport; only relevant/shown under Change 2 (harmless no-op in Baseline/Change 1 since
      `display:none` wins regardless). */
   .sticky-summary { position:fixed; top:0; left:0; right:0; z-index:41; background:var(--fill-primary-dark); box-shadow:0 4px 12px rgba(15,23,42,.14); transform:translateY(-100%); transition:transform .25s ease; display:none; }
-  body[data-proto-view="change2"] .sticky-summary , body[data-proto-view="change3"] .sticky-summary { display:block; }
+  body[data-proto-view="change2"] .sticky-summary , body[data-proto-view="change3"] .sticky-summary , body[data-proto-view="change4"] .sticky-summary { display:block; }
   .sticky-summary.show { transform:translateY(0); }
   .sticky-summary__inner { max-width:1130px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; box-sizing:border-box; }
   .sticky-summary__text { flex:1; min-width:0; display:flex; flex-direction:column; }
@@ -749,7 +822,7 @@
   .gate__err { color:var(--danger); font-size:12px; margin:10px 0 0; }
 </style>
 </head>
-<body class="marks" data-proto-view="change3">
+<body class="marks" data-proto-view="change4">
 <!-- password gate (demo, client-side only) -->
 <div id="gate" class="gate">
   <div class="gate__box">
@@ -777,7 +850,7 @@
   })();
 </script>
 
-<div class="baseline-tag">REDESIGN (from baseline) — Step 1 of 4: Sort &amp; Filter added. Step 2 of 4: Calculator + eligibility added (cumulative on top of Step 1). Everything else on this page is unchanged from the production baseline. Use the Prototype view toggle below to compare against the live baseline.</div>
+<div class="baseline-tag">REDESIGN (from baseline) — Step 1: Sort &amp; Filter · Step 2: Calculator + eligibility · Step 3: Merchandising carousel · Step 4: Reward headline (each cumulative on the previous). Everything else on this page is unchanged from the production baseline. Use the Prototype view toggle below to compare against the live baseline.</div>
 
 <!-- Prototype view toggle (demo chrome, EN) — Baseline ⇄ Change 1 ⇄ Change 2 (cumulative), built
      to extend with Change 3/4 later (see PROTO_VIEWS in the script + the CSS rules keyed off
@@ -939,15 +1012,41 @@
       </div>
       <div class="sf-panel__body">
         <div class="sf-group">
-          <h4 class="sf-group__h">Sort By</h4>
-          <select class="sf-select" id="sfSort" aria-label="Sort By">
-            <option value="popular">Popular</option>
-            <option value="monthly">Monthly Repayment</option>
-            <option value="total">Total Cost of Loan</option>
-            <option value="rate">Lowest Annual Interest Rate</option>
-            <option value="eir">EIR</option>
-            <option value="reward">SingSaver Reward</option>
-          </select>
+          <h4 class="sf-group__h" id="sfSortLabel">Sort By</h4>
+          <!-- Custom dropdown (button trigger + listbox popup) — see .sf-dropdown CSS comment above
+               and initSfSortDropdown() in the script for why: native <select> option lists render in
+               the OS font on every engine, not Albert Sans. The native <select id="sfSort"> below is
+               kept, visually hidden, purely as the state store every existing script reference reads
+               from — it is never shown to the user. -->
+          <div class="sf-dropdown" id="sfSortDropdown">
+            <button type="button" class="sf-dropdown__trigger" id="sfSortTrigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sfSortLabel sfSortTriggerLabel">
+              <span id="sfSortTriggerLabel">Popular</span>
+              <svg class="sf-dropdown__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <ul class="sf-dropdown__list" id="sfSortListbox" role="listbox" aria-labelledby="sfSortLabel" tabindex="-1" hidden>
+              <li role="option" class="sf-dropdown__opt on" id="sfSortOpt-popular" data-value="popular" aria-selected="true">Popular</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-monthly" data-value="monthly" aria-selected="false">Monthly Repayment</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-total" data-value="total" aria-selected="false">Total Cost of Loan</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-rate" data-value="rate" aria-selected="false">Lowest Annual Interest Rate</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-eir" data-value="eir" aria-selected="false">EIR</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-reward" data-value="reward" aria-selected="false">SingSaver Reward</li>
+            </ul>
+            <select class="sf-native-sort" id="sfSort" aria-hidden="true" tabindex="-1">
+              <option value="popular">Popular</option>
+              <option value="monthly">Monthly Repayment</option>
+              <option value="total">Total Cost of Loan</option>
+              <option value="rate">Lowest Annual Interest Rate</option>
+              <option value="eir">EIR</option>
+              <option value="reward">SingSaver Reward</option>
+            </select>
+          </div>
+        </div>
+        <!-- CHANGE 4: reward-view toggle — flips the SingSaver Reward column between the headline
+             "up to" max and the actual gift for the entered loan amount. Shown only in Change 4. -->
+        <div class="sf-group sf-reward-group">
+          <h4 class="sf-group__h">Reward view <span class="ann">NEW · CHANGE 4</span></h4>
+          <label class="sf-radio"><input type="radio" name="rmode" value="max" checked> Show &ldquo;up to&rdquo; (max reward)</label>
+          <label class="sf-radio"><input type="radio" name="rmode" value="real"> Show the gift for my loan amount</label>
         </div>
         <!-- Category = genuine loan categories only — "Lowest Interest" removed (it's a sort,
              already covered by Sort By → "Lowest Annual Interest Rate" above, not a category).
@@ -1226,6 +1325,24 @@ const LOANS = [
     eligIncome:30000, eligForeignerOk:false },
   { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
     rate:0.0100, eir:0.0194, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
+    // Real live "Welcome Offer" — maps to the Strapi "Welcome Offers" collection entry
+    // (2026-07-01.PL.TRBX.10FAIRPRICE): Offer Title, Combine Gift=TRUE (→ stacks "on top of" the
+    // SingSaver reward), List of Gifts, Period. Rendered as its own offer section (card accordion +
+    // drawer block), matching the live page — NOT a bespoke inline callout.
+    welcomeOffer:{
+      cardTitle:"Provider Gift – On Top of SingSaver's",  // live card component label
+      offerTitle:"Stackable Welcome Offer",               // Strapi Offer Title (used in the drawer)
+      intro:"You'll also receive the following welcome gift(s) directly from the provider:",
+      gifts:[{ name:"FairPrice voucher", worth:10 }],      // List of Gifts (icon uses an emoji stand-in; live uses the FairPrice logo from the Gifts media)
+      daysLeft:7,                                          // derived from the Period end date
+      combine:true,                                        // Combine Gift = TRUE
+      // Strapi "Description" rich-text (verbatim from the Welcome Offers entry) — shown under "Show T&Cs"
+      tncs:[
+        "Stackable Welcome Offer promotion is valid until 2 August 2026.",
+        "Promotion is valid for new Trust customers only.",
+        "Apply for a Trust Instant Loan with referral code <strong>SINGSAVE</strong> to be eligible for reward.",
+        "Promotion is stackable with SingSaver Exclusive Offer (additional T&amp;Cs apply).",
+        "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply." ] },
     categories:["fast-cash","singsaver-exclusive"], instantApproval:true, feeWaiver:true,
     steps:["Open the Trust Bank app and select Instant Loan","Fill out an application in-app — no paperwork needed","Get your approval decision and disbursement in-app"],
     feats:["Fully in-app application for existing Trust customers.","No processing fee, flexible repayment tenures.","Instant approval for eligible applicants."],
@@ -1389,6 +1506,48 @@ function rewardQualifies(l, P, months){ return l.rewardMax>0 && P >= (l.minAmt||
 const nameCell = (l,cls,h) => `<img class="${cls}" style="height:${h}px" src="${l.logo}" alt="${l.name}">`;
 
 // ============================================================
+// CHANGE 4 — Reward headline (Req 3). Ported from the root prototype: headline the max "up to"
+// reward, with a reward-view toggle to switch the whole column to the ACTUAL gift for the entered
+// amount (so we never show the big number alone — protects the reward-dispute rate). Only affects
+// the Change-4 view; earlier views keep the current reward cell. rewardUpTo = the true campaign max
+// per lender; realReward = the gift for the entered amount; rewardTiers = the per-band schedule.
+const REWARD_UPTO = { 'Standard Chartered':5825, 'UOB':1800, 'Trust Bank':1750, 'DBS':6900 };
+const REWARD_GIFT = { 'Standard Chartered':{kind:'cashback',pct:1.61}, 'DBS':{kind:'cashback',pct:3}, 'UOB':{kind:'points'}, 'Trust Bank':{kind:'cash'} };
+const REWARD_BANDS = [[1000,4999,.25],[5000,9999,.45],[10000,19999,.7],[20000,49999,.85],[50000,119999,.95],[120000,Infinity,1]];
+function rewardUpTo(l){ return REWARD_UPTO[l.name] || 0; }
+function realReward(l,a){ const m=rewardUpTo(l); if(!m) return 0; const t=a>=30000?1:a>=15000?0.7:a>=5000?0.45:0.25; return Math.round(m*t/50)*50; }
+function rewardTiers(l){ const m=rewardUpTo(l); return REWARD_BANDS.map(([lo,hi,f])=>({lo,hi,amt:Math.round(m*f/10)*10})); }
+function giftLabel(l,amt){ const g=REWARD_GIFT[l.name]||{kind:'cash'}; if(g.kind==='cashback') return `${sgd(amt)} cash + ${g.pct}% cashback`; if(g.kind==='points') return `${sgd(amt)} cash, or points for a gift`; return `${sgd(amt)} cash via PayNow`; }
+function bandLabel(t){ return `${sgd(t.lo)}${t.hi===Infinity?'+':' – '+sgd(t.hi)}`; }
+let rewardMode = 'max';   // 'max' = headline "up to"; 'real' = the gift for the entered amount
+function isChange4(){ return document.body.getAttribute('data-proto-view') === 'change4'; }
+// CHANGE 4 — Provider Gift / Welcome Offer gift tiles (reuses the existing .gifttile). Driven by
+// l.welcomeOffer (Strapi "Welcome Offers": List of Gifts + Period → the "N days left" tag).
+function woGiftTilesHTML(wo){
+  return `<div class="prov-gifts">${wo.gifts.map(g=>`
+    <div class="gifttile">
+      ${wo.daysLeft ? `<div class="gifttile__tag">${wo.daysLeft} days left!</div>` : ''}
+      <div class="gifttile__body"><div style="text-align:center"><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${g.name}</div></div></div>
+      <div class="gifttile__worth">Worth ${sgd(g.worth)}</div>
+    </div>`).join('')}</div>`;
+}
+// CHANGE 4 — Welcome Offer as its own boxed card in the reward drawer (faithful to fe-services'
+// ProductDetailsSectionOffers: each offer = a ProductDetailsSectionWrapper box with an offer_title
+// header + a list_of_gifts bullet list + a GrayInfoBlock "Show T&Cs" holding the offer Description).
+function woBoxHTML(l){
+  const wo = l.welcomeOffer;
+  return `<div class="wo-box">
+    <div class="wo-box__hd">${wo.offerTitle}</div>
+    <div class="wo-box__bd">
+      <p class="offer-blurb" style="margin:0 0 8px">For a ${l.full} of ${sgd(curP)} over ${curMonths} months, you'll enjoy via SingSaver:</p>
+      <ul class="rgift__opts">${wo.gifts.map(g=>`<li>${sgd(g.worth)} ${g.name}</li>`).join('')}</ul>
+      ${wo.tncs ? `<div class="wo-tnc"><button type="button" class="wo-tnc__btn" data-wo-tnc>Show T&amp;Cs</button>
+        <ul class="wo-tnc__body">${wo.tncs.map(t=>`<li>${t}</li>`).join('')}</ul></div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ============================================================
 // CHANGE 2 — per-loan eligibility (this step's proposed change). Illustrative thresholds only
 // (real per-lender rules are a data dependency — see LOANS[].eligIncome/eligForeignerOk/
 // eligForeignerIncome above). Guidance, not a gate: an ineligible loan's "Apply" button is never
@@ -1437,7 +1596,7 @@ function compute(){
   const P = Math.max(1000, parseNum(amt.value) || 8000);
   const months = Math.max(1, parseNum(tenure.value) || 12);
   const years = months/12;
-  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti}; }), P, months };
+  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti, real:realReward(l,P)}; }), P, months };
 }
 
 function renderPct(rows){
@@ -1446,9 +1605,17 @@ function renderPct(rows){
     // qualifies, a plain "See rewards" label when it doesn't yet). Loans with NO reward at all open a
     // product-details/facts modal instead (real SectionGifts.tsx/openProductAside branch), matching live.
     const qualifies = rewardQualifies(r, curP, curMonths);
-    const rewardCell = r.rewardMax > 0
-      ? `<button class="pct-reward" data-pct-reward="${r.idx}">${qualifies ? sgd(r.rewardMax) : 'See rewards'}</button>`
-      : `<button class="pct-reward pct-na" data-pct-facts="${r.idx}">–</button>`;
+    // CHANGE 4: headline the max "up to" (or the actual gift for the entered amount when toggled);
+    // earlier views keep the existing base-figure cell.
+    let rewardCell;
+    if (isChange4() && rewardUpTo(r) > 0) {
+      const txt = rewardMode === 'max' ? `Up to ${sgd(rewardUpTo(r))}` : `${sgd(r.real)} for your loan`;
+      rewardCell = `<button class="pct-reward x-new" data-pct-reward="${r.idx}">${txt}</button>`;
+    } else if (r.rewardMax > 0) {
+      rewardCell = `<button class="pct-reward" data-pct-reward="${r.idx}">${qualifies ? sgd(r.rewardMax) : 'See rewards'}</button>`;
+    } else {
+      rewardCell = `<button class="pct-reward pct-na" data-pct-facts="${r.idx}">–</button>`;
+    }
     return `
     <tr class="${eligDimClass(r)}">
       <td class="pct-sticky"><div class="pct-loan">${nameCell(r,'',26)}<span>${r.full}</span></div></td>
@@ -1480,11 +1647,29 @@ function renderCards(rows){
       </div>
       ${r.rewardMax>0 ? (() => {
         const qualifies = rewardQualifies(r, curP, curMonths);
+        // CHANGE 4: headline "up to" (or the gift for the entered amount when toggled).
+        if (isChange4() && rewardUpTo(r) > 0) {
+          const sumTxt = rewardMode === 'max'
+            ? `SingSaver Reward — up to ${sgd(rewardUpTo(r))}`
+            : `SingSaver Reward — ${sgd(r.real)} for your loan amount`;
+          // Card stays compact: the personalised reward (the gift for the entered amount) + a link
+          // that opens the full readable tier table in the drawer — mirrors live's "See the full
+          // reward and offer details" → cms_rewardModal behaviour (the full table is NOT inlined here).
+          return `<details class="acc acc--reward" open><summary>${sumTxt}</summary><div class="acc__body">
+            <p class="offer-blurb">For your ${sgd(curP)} loan over ${curMonths} months, you'll get <strong>${giftLabel(r, r.real)}</strong> via SingSaver — up to ${sgd(rewardUpTo(r))} on larger loans.</p>
+            <a class="rwd__more" href="#" data-card-reward="${r.idx}">See the full reward &amp; offer details ›</a>
+          </div></details>`;
+        }
         return `<details class="acc acc--reward" open><summary>SingSaver Reward${qualifies?'':' — Update Loan Amount / Tenure to Qualify'}</summary><div class="acc__body">
           ${qualifies
             ? `<p class="offer-blurb">For a ${r.full} of ${sgd(curP)} over ${curMonths} months, you'll enjoy a SingSaver reward of <strong>${sgd(r.rewardMax)}</strong>, paid after your loan is approved.</p>`
             : `<p class="offer-blurb">Update your loan amount to at least ${sgd(r.minAmt)} and loan tenure to at least ${r.minTenure} month to unlock exclusive gifts worth up to ${sgd(r.rewardMax)}.</p>`}
         </div></details>` })() : ''}
+      ${(isChange4() && r.welcomeOffer) ? `<details class="acc acc--reward acc--provider" open><summary>🏛 ${r.welcomeOffer.cardTitle}</summary><div class="acc__body">
+        <p class="prov-lead">${r.welcomeOffer.intro}</p>
+        ${woGiftTilesHTML(r.welcomeOffer)}
+        <a class="rwd__more" href="#" data-card-reward="${r.idx}">See the full reward &amp; offer details ›</a>
+      </div></details>` : ''}
       <details class="acc"${r.rewardMax>0?'':' open'}><summary>Steps to Apply</summary><div class="acc__body">
         <ol class="steplist">${r.steps.map((s,i)=>`<li>${i+1}. ${s}</li>`).join('')}</ol>
       </div></details>
@@ -1507,6 +1692,30 @@ function renderCards(rows){
 function openReward(idx){
   const l = LOANS[idx];
   $('drawerTitle').textContent = 'Your Loan Rewards & Provider Gifts';
+  // CHANGE 4 — reward drawer shows the gift for the user's band first, their band highlighted, and
+  // the full tier schedule up to the max (ported from the root prototype). Consistent with the
+  // "up to" cell. Earlier views keep the existing drawer below.
+  if (isChange4() && rewardUpTo(l) > 0) {
+    const ts = rewardTiers(l);
+    const cur = ts.find(t => curP >= t.lo && curP <= t.hi) || ts[0];
+    rewardBody.innerHTML = `
+      <div class="rgift"><div class="rgift__bd">
+        <p class="offer-blurb" style="margin:0 0 10px">For a ${l.full} of ${sgd(curP)} over ${curMonths} months, you'll get via SingSaver:</p>
+        <div class="rgift__banner">🎁 ${giftLabel(l, cur.amt)}</div>
+        <p class="rgift__lbl" style="margin-top:6px">Your ${sgd(curP)} loan is in the ${bandLabel(cur)} band · up to ${sgd(rewardUpTo(l))} on larger loans.</p>
+        <div class="rgift__lbl" style="margin-top:14px">Rewards by loan amount</div>
+        <div class="rwd-tbl">
+          <div class="rwd-tbl__row rwd-tbl__row--head"><span class="rwd-tbl__band">Loan amount</span><span class="rwd-tbl__gift">Gift</span></div>
+          ${ts.map(t=>`<div class="rwd-tbl__row ${t===cur?'rwd-tbl__row--you':''}"><span class="rwd-tbl__band">${bandLabel(t)}${t===cur?'<span class="rwd-tbl__you">your band</span>':''}</span><span class="rwd-tbl__gift">${giftLabel(l, t.amt)}</span></div>`).join('')}
+        </div>
+        <div class="rgift__lbl" style="margin-top:14px">Terms and Conditions</div>
+        <p class="rgift__tc">Paid after approval and disbursement — no claim form. Gifts vary by lender (cash, cashback or points) and are illustrative for this prototype; actual gifts follow the live campaign T&amp;Cs.</p>
+      </div></div>
+      ${l.welcomeOffer ? woBoxHTML(l) : ''}`;
+    rewardFoot.innerHTML = `<div class="rf__id"><img src="${l.logo}" alt="${l.name}" style="height:20px"><div class="rf__txt"><span class="rf__name">${l.full}</span><span class="rf__amt">${sgd(curP)} over ${curMonths} mths</span></div></div><button class="mhg-btn mhg-btn--cta">Apply Now ↗</button>`;
+    openDrawer(rewardDrawer);
+    return;
+  }
   const bannerText = l.bandOffer || `Get up to ${sgd(l.rewardMax)} in cashback!`;
   const bandsBlock = l.tierBands
     ? `<p class="rgift__lbl" style="margin-top:14px">For other loan amounts and tenures you can choose from:</p>
@@ -1587,7 +1796,8 @@ function updateSortCap(){
   const sc=document.getElementById('sortCap'); if(!sc) return;
   const sel=document.getElementById('sfSort');
   const label = sel ? sel.options[sel.selectedIndex].text : 'Popular';
-  sc.innerHTML = 'Sorted by <b>'+label+'</b> · rewards shown as <b>the maximum ("up to")</b>';
+  const rewardTxt = (isChange4() && rewardMode === 'real') ? 'your loan amount' : 'the maximum ("up to")';
+  sc.innerHTML = 'Sorted by <b>'+label+'</b> · rewards shown as <b>'+rewardTxt+'</b>';
 }
 // CHANGE 2 — results count: "N loans · X you likely qualify for" (X = the shown loans whose entered
 // citizenship + income clear the illustrative eligibility threshold, after Step 1's sort/filter).
@@ -1663,6 +1873,17 @@ if ($('stickySummaryEdit')) $('stickySummaryEdit').addEventListener('click', ()=
 $('pctBody').addEventListener('click', e=>{
   const rb=e.target.closest('[data-pct-reward]'); if(rb){ openReward(+rb.dataset.pctReward); return; }
   const fb=e.target.closest('[data-pct-facts]'); if(fb) openFacts(+fb.dataset.pctFacts);
+});
+// CHANGE 4 — product-card "See the full reward & offer details" link → opens the reward drawer
+// (Link → drawer, matching live's cms_rewardModal behaviour).
+cardResults.addEventListener('click', e=>{
+  const rl=e.target.closest('[data-card-reward]'); if(rl){ e.preventDefault(); openReward(+rl.dataset.cardReward); }
+});
+// Welcome-offer "Show T&Cs" collapsible in the reward drawer (GrayInfoBlock behaviour).
+rewardBody.addEventListener('click', e=>{
+  const b=e.target.closest('[data-wo-tnc]'); if(!b) return;
+  const box=b.closest('.wo-tnc'); const open=box.classList.toggle('open');
+  b.innerHTML = open ? 'Hide T&amp;Cs' : 'Show T&amp;Cs';
 });
 document.addEventListener('click', e=>{ if(e.target.closest('[data-apply]')) e.preventDefault(); });
 $('rewardX').addEventListener('click', closeDrawers);
@@ -1849,7 +2070,7 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
 
   let idx = 0, timer = null;
   const REVOLVE = 5000;   // CH-437: auto-rotate every 5 seconds
-  const active = ()=> document.body.getAttribute('data-proto-view') === 'change3';
+  const active = ()=> { const v = document.body.getAttribute('data-proto-view'); return v === 'change3' || v === 'change4'; };
   function apply(){
     track.style.transform = `translateX(-${idx*100}%)`;
     [...track.children].forEach((sl,i)=> sl.setAttribute('aria-hidden', String(i!==idx)));
@@ -1926,6 +2147,13 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
   // Sort By
   const sortSel = $('sfSort');
   if (sortSel) sortSel.addEventListener('change', ()=>{ sfState.sort = sortSel.value; render(); });
+  // CHANGE 4 — reward-view toggle: flip the SingSaver Reward column between "up to" and the gift
+  // for the entered amount, then re-render (cell + caption + card summary + drawer all read rewardMode).
+  document.querySelectorAll('input[name=rmode]').forEach(rb=> rb.addEventListener('change', ()=>{
+    const sel = document.querySelector('input[name=rmode]:checked');
+    if (sel) rewardMode = sel.value;
+    render();
+  }));
 
   // Category pills (single-select)
   const catHost = $('sfCategory');
@@ -1961,6 +2189,7 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     sfState.features.instant = false; sfState.features.feeWaiver = false; sfState.features.zeroInterest = false;
     sfState.banks.clear();
     if (sortSel) sortSel.value = 'popular';
+    if (window.__sfSyncSortTrigger) window.__sfSyncSortTrigger(); // refresh the custom dropdown's visible label/highlight to match the reset native <select>
     if (catHost) [...catHost.children].forEach(p=>p.classList.toggle('on', p.dataset.cat==='all'));
     if (fInstant) fInstant.checked = false;
     if (fFee) fFee.checked = false;
@@ -1980,6 +2209,87 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
 })();
 
 // ============================================================
+// REDESIGN STEP 1 FIX — Sort By custom dropdown (button trigger + listbox popup), replacing the
+// native <select>'s rendered UI so both the trigger label and the option list render in Albert Sans
+// (native <option> lists are always OS-font on every engine, regardless of CSS — the reported bug).
+// The native <select id="sfSort"> stays in the DOM (visually hidden, .sf-native-sort) purely as the
+// existing state store: every pre-existing reference elsewhere in this file ($('sfSort').value, the
+// 'change' listener in initSortFilter() above, .options[selectedIndex].text in updateSortCap(), and
+// Clear All's sortSel.value='popular' reset) keeps working completely untouched — this control just
+// drives that hidden <select> by setting .value and dispatching a real 'change' event on selection,
+// and exposes a sync hook (window.__sfSyncSortTrigger) so Clear All can refresh the visible label.
+// Guarded throughout (matches the file's convention) so a missing element can never throw.
+// ============================================================
+(function initSfSortDropdown(){
+  const wrap = $('sfSortDropdown'), trigger = $('sfSortTrigger'), list = $('sfSortListbox');
+  const triggerLabel = $('sfSortTriggerLabel'), nativeSel = $('sfSort');
+  if (!wrap || !trigger || !list || !triggerLabel || !nativeSel) return;
+  const opts = [...list.querySelectorAll('.sf-dropdown__opt')];
+  let activeIdx = 0;
+
+  function syncFromNative(){
+    const val = nativeSel.value;
+    opts.forEach((o,i)=>{
+      const isSel = o.dataset.value === val;
+      o.setAttribute('aria-selected', isSel ? 'true' : 'false');
+      o.classList.toggle('on', isSel);
+      if (isSel) { activeIdx = i; triggerLabel.textContent = o.textContent; }
+    });
+  }
+  window.__sfSyncSortTrigger = syncFromNative;
+
+  function highlight(i){
+    opts.forEach(o=>o.classList.remove('active'));
+    if (opts[i]) {
+      opts[i].classList.add('active');
+      trigger.setAttribute('aria-activedescendant', opts[i].id);
+      opts[i].scrollIntoView({ block:'nearest' });
+    }
+  }
+  function isOpen(){ return !list.hidden; }
+  function openList(){
+    list.hidden = false;
+    trigger.setAttribute('aria-expanded','true');
+    const onIdx = opts.findIndex(o=>o.classList.contains('on'));
+    activeIdx = onIdx >= 0 ? onIdx : 0;
+    highlight(activeIdx);
+  }
+  function closeList(){
+    list.hidden = true;
+    trigger.setAttribute('aria-expanded','false');
+    trigger.removeAttribute('aria-activedescendant');
+  }
+  function commit(i){
+    const o = opts[i]; if (!o) return;
+    nativeSel.value = o.dataset.value;
+    syncFromNative();
+    nativeSel.dispatchEvent(new Event('change', { bubbles:true })); // existing listener in initSortFilter() sets sfState.sort + re-renders
+  }
+
+  trigger.addEventListener('click', ()=>{ isOpen() ? closeList() : openList(); });
+  trigger.addEventListener('keydown', e=>{
+    if (!isOpen()) {
+      if (e.key==='ArrowDown' || e.key==='ArrowUp' || e.key==='Enter' || e.key===' ') { e.preventDefault(); openList(); }
+      return;
+    }
+    if (e.key==='ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx+1, opts.length-1); highlight(activeIdx); }
+    else if (e.key==='ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); highlight(activeIdx); }
+    else if (e.key==='Home') { e.preventDefault(); activeIdx = 0; highlight(activeIdx); }
+    else if (e.key==='End') { e.preventDefault(); activeIdx = opts.length-1; highlight(activeIdx); }
+    else if (e.key==='Enter' || e.key===' ') { e.preventDefault(); commit(activeIdx); closeList(); }
+    else if (e.key==='Escape') { e.preventDefault(); closeList(); }
+    else if (e.key==='Tab') { closeList(); }
+  });
+  opts.forEach((o,i)=>{
+    o.addEventListener('click', ()=>{ commit(i); closeList(); trigger.focus(); });
+    o.addEventListener('mouseenter', ()=>{ activeIdx = i; highlight(activeIdx); });
+  });
+  document.addEventListener('click', e=>{ if (isOpen() && !wrap.contains(e.target)) closeList(); });
+
+  syncFromNative();
+})();
+
+// ============================================================
 // PROTOTYPE VIEW TOGGLE — Baseline ⇄ Change 1 ⇄ Change 2, CUMULATIVE (built to extend: push a new
 // { id, label } onto PROTO_VIEWS + add its body[data-proto-view="..."] CSS block(s) to add
 // "Change 3 / 4" later; the button list + switch logic below both already key off this array, so
@@ -1992,8 +2302,9 @@ const PROTO_VIEWS = [
   { id:'change1',  label:'Change 1 · Sort & Filter' },
   { id:'change2',  label:'Change 2 · Calculator + eligibility' },
   { id:'change3',  label:'Change 3 · Merchandising' },
+  { id:'change4',  label:'Change 4 · Reward headline' },
 ];
-let currentProtoView = document.body.getAttribute('data-proto-view') || 'change3';
+let currentProtoView = document.body.getAttribute('data-proto-view') || 'change4';
 
 function renderProtoViewToggle(){
   const host = $('protoViewToggle');
@@ -2010,8 +2321,9 @@ function setProtoView(id){
   // Only Baseline hides the Sort & Filter panel entirely (Change 1 and Change 2 both show it,
   // cumulative) — so only force-close a left-open mobile/tablet drawer when landing on Baseline.
   if (id === 'baseline' && typeof window.__sfClosePanel === 'function') window.__sfClosePanel();
-  // Change 3's promo carousel only auto-rotates while it's the active (visible) view.
-  if (id === 'change3') { if (window.__mcStart) window.__mcStart(); }
+  // The promo carousel auto-rotates while it's visible — Change 3 (where it was introduced) and
+  // Change 4 (cumulative on top of Change 3, so the carousel is still shown).
+  if (id === 'change3' || id === 'change4') { if (window.__mcStart) window.__mcStart(); }
   else if (window.__mcStop) window.__mcStop();
 }
 const protoViewHost = $('protoViewToggle');
