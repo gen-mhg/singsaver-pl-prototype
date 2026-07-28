@@ -494,10 +494,19 @@
   .sf-panel.open { transform:translateY(0); }
   .sf-panel__head { display:flex; align-items:center; gap:8px; padding:var(--space-4); border-bottom:1px solid var(--borders-soft); flex-shrink:0; }
   .sf-panel__head b { flex:1; font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:700; }
-  .sf-panel__close { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:15px; flex-shrink:0; }
+  .sf-panel__close { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; color:var(--text-secondary); flex-shrink:0; }
+  .sf-panel__close .sf-ic { width:16px; height:16px; }
+
+  /* MHG DS icons (sprite at the top of <body>) replacing the emoji this panel used to carry.
+     currentColor + 1.15em sizing means one rule covers every context: the icon inherits the
+     pill's text colour, so .sf-pill.on inverts to white with no extra selector, and it scales
+     with the pill/trigger font-size instead of being pinned to a px value. pointer-events:none
+     keeps the delegated [data-cat] click handler reading the button, never the <svg>/<path>. */
+  .ds-sprite { display:none; }
+  .sf-ic { width:1.15em; height:1.15em; flex:0 0 auto; fill:currentColor; pointer-events:none; }
   .sf-panel__body { overflow-y:auto; padding:var(--space-1) var(--space-4) var(--space-4); }
   /* Padding fix (Xiao En, 2026-07-27 — "the padding is terrible"): the panel's spacing values map to the
-     --space-* scale (the .sf-trigger mobile pill keeps off-scale px pending the icon-swap pass), and the vertical rhythm between groups is opened up
+     --space-* scale (the .sf-trigger mobile pill keeps off-scale px by design — it is demo chrome, not a DS component), and the vertical rhythm between groups is opened up
      (14px → var(--space-4), 16px) so the panel reads as a set of distinct, breathable sections
      rather than a cramped list. */
   .sf-group { padding:var(--space-4) 0; border-bottom:1px solid var(--borders-soft); }
@@ -540,7 +549,7 @@
      token for a consistent scale across the whole panel — this is the control/pill tier, one step
      below the caption-tier group labels above (see .sf-group__h comment for the full 3-tier scale).
      Padding also moved to the --space-* scale for comfortable, even pill padding (was 7px/13px). */
-  .sf-pill { border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); cursor:pointer; }
+  .sf-pill { display:inline-flex; align-items:center; gap:var(--space-2); border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); cursor:pointer; }
   .sf-pill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
   .sf-check { display:flex; align-items:center; gap:10px; padding:var(--space-2) 0; cursor:pointer; font-family:var(--font-sans); font-size:var(--font-size-body-2); font-weight:600; color:var(--text-primary); }
   .sf-check input { width:20px; height:20px; accent-color:var(--fill-primary); flex-shrink:0; border-radius:4px; border:1px solid var(--borders-form-default); }
@@ -874,6 +883,49 @@
 </style>
 </head>
 <body class="marks" data-proto-view="change5">
+
+<!-- MHG Alpha Design System icon sprite — 24px Material Symbols + MHG custom finance icons,
+     exported from the DS Figma file 82tOs1i8NmsLWxZkHTzB80, Foundations → Icons (node 1638:8155).
+     Used by the Sort & Filter panel in place of emoji (see .sf-ic / .sf-pill below). Paths are
+     verbatim from the DS; fill is currentColor so a pill inverts correctly in its .on state.
+     Node IDs kept alongside each symbol so they can be re-pulled/verified against Figma. -->
+<svg class="ds-sprite" aria-hidden="true" focusable="false"><defs>
+  <symbol id="ic-category" viewBox="0 0 24 24"><!-- 8735:53084 -->
+    <path d="M7.19225 10.615L12 2.73047L16.8077 10.615H7.19225ZM17.5 21.615C16.3525 21.615 15.3798 21.216 14.5818 20.418C13.7838 19.62 13.3848 18.6472 13.3848 17.4997C13.3848 16.3522 13.7838 15.3795 14.5818 14.5815C15.3798 13.7835 16.3525 13.3845 17.5 13.3845C18.6475 13.3845 19.6202 13.7835 20.4182 14.5815C21.2162 15.3795 21.6152 16.3522 21.6152 17.4997C21.6152 18.6472 21.2162 19.62 20.4182 20.418C19.6202 21.216 18.6475 21.615 17.5 21.615ZM3.38475 21.115V13.8845H10.6152V21.115H3.38475ZM17.4998 20.1152C18.2319 20.1152 18.8509 19.8624 19.3568 19.3567C19.8626 18.8511 20.1155 18.2321 20.1155 17.5C20.1155 16.7678 19.8627 16.1488 19.357 15.643C18.8513 15.1371 18.2324 14.8842 17.5003 14.8842C16.7681 14.8842 16.1491 15.1371 15.6432 15.6427C15.1374 16.1484 14.8845 16.7673 14.8845 17.4995C14.8845 18.2316 15.1373 18.8506 15.643 19.3565C16.1487 19.8623 16.7676 20.1152 17.4998 20.1152ZM4.8845 19.6152H9.1155V15.3842H4.8845V19.6152ZM9.8385 9.11522H14.1615L12 5.63822L9.8385 9.11522Z"/>
+  </symbol>
+  <symbol id="ic-groups" viewBox="0 0 24 24"><!-- 139:2128 groups_3 -->
+    <path d="M4.26926 13.7364L6.40001 11.6056L4.26926 9.47489L2.13851 11.6056L4.26926 13.7364ZM17.6154 13.3268L19.75 9.90372L21.8942 13.3268H17.6154ZM12.0034 12.4998C11.2832 12.4998 10.6699 12.2474 10.1635 11.7426C9.65709 11.2378 9.40389 10.6249 9.40389 9.90372C9.40389 9.16815 9.65629 8.55158 10.1611 8.05399C10.6659 7.55641 11.2789 7.30762 12 7.30762C12.7356 7.30762 13.3522 7.55608 13.8498 8.05302C14.3473 8.54995 14.5961 9.16572 14.5961 9.90034C14.5961 10.6205 14.3477 11.2338 13.8507 11.7402C13.3538 12.2466 12.738 12.4998 12.0034 12.4998ZM12 8.80757C11.6974 8.80757 11.4391 8.91262 11.225 9.12272C11.0109 9.33282 10.9039 9.59315 10.9039 9.90372C10.9039 10.2063 11.0109 10.4646 11.225 10.6787C11.4391 10.8928 11.699 10.9999 12.0048 10.9999C12.3106 10.9999 12.5689 10.8928 12.7798 10.6787C12.9907 10.4646 13.0962 10.2047 13.0962 9.89892C13.0962 9.59315 12.9911 9.33482 12.781 9.12392C12.5709 8.91302 12.3106 8.80757 12 8.80757ZM0.500061 17.7883V16.5691C0.500061 15.8934 0.848628 15.3444 1.54576 14.9219C2.24291 14.4995 3.14763 14.2883 4.25991 14.2883C4.46358 14.2883 4.659 14.2941 4.84619 14.3056C5.03337 14.3172 5.21221 14.3396 5.38271 14.3729C5.19426 14.6678 5.05132 14.9816 4.95389 15.3143C4.85645 15.6471 4.80774 16.0015 4.80774 16.3777V17.7883H0.500061ZM6.50004 17.7883V16.4133C6.50004 15.4582 7.00827 14.6921 8.02474 14.1152C9.04119 13.5383 10.3672 13.2498 12.0027 13.2498C13.6534 13.2498 14.9824 13.5383 15.9894 14.1152C16.9965 14.6921 17.5 15.4582 17.5 16.4133V17.7883H6.50004ZM19.75 14.2883C20.875 14.2883 21.7812 14.4995 22.4687 14.9219C23.1562 15.3444 23.5 15.8934 23.5 16.5691V17.7883H19.1923V16.3777C19.1923 16.0015 19.1477 15.6471 19.0586 15.3143C18.9695 14.9816 18.8359 14.6678 18.6577 14.3729C18.8282 14.3396 19.0051 14.3172 19.1883 14.3056C19.3716 14.2941 19.5588 14.2883 19.75 14.2883ZM11.9988 14.7498C10.9599 14.7498 10.067 14.8876 9.32019 15.1633C8.5734 15.4389 8.15899 15.7787 8.07694 16.1825V16.2883H15.9385V16.1825C15.8462 15.7787 15.4308 15.4389 14.6923 15.1633C13.9539 14.8876 13.056 14.7498 11.9988 14.7498Z"/>
+  </symbol>
+  <symbol id="ic-crown" viewBox="0 0 24 24"><!-- 12012:1608 -->
+    <path d="M5.9135 20V18.5H19.0865V20H5.9135ZM5.88475 16.8077L4.523 8.975C4.48967 8.98133 4.45217 8.98708 4.4105 8.99225C4.36883 8.99742 4.33133 9 4.298 9C3.93267 9 3.625 8.87383 3.375 8.6215C3.125 8.369 3 8.0625 3 7.702C3 7.336 3.125 7.02492 3.375 6.76875C3.625 6.51275 3.93292 6.38475 4.29875 6.38475C4.66442 6.38475 4.97525 6.51275 5.23125 6.76875C5.48742 7.02492 5.6155 7.336 5.6155 7.702C5.6155 7.795 5.60775 7.88142 5.59225 7.96125C5.57692 8.04092 5.55258 8.116 5.51925 8.1865L8.68275 9.52875L11.7308 5.36925C11.5668 5.25508 11.4344 5.10492 11.3338 4.91875C11.2331 4.73258 11.1827 4.53208 11.1827 4.31725C11.1827 3.95142 11.3108 3.64042 11.5668 3.38425C11.8228 3.12808 12.1337 3 12.4995 3C12.8652 3 13.1763 3.12792 13.4327 3.38375C13.6891 3.63942 13.8173 3.95 13.8173 4.3155C13.8173 4.53467 13.7669 4.73658 13.6663 4.92125C13.5656 5.10575 13.4332 5.25508 13.2692 5.36925L16.3173 9.52875L19.4807 8.1865C19.4551 8.11833 19.4327 8.04325 19.4135 7.96125C19.3942 7.87942 19.3845 7.793 19.3845 7.702C19.3845 7.336 19.5095 7.02492 19.7595 6.76875C20.0095 6.51275 20.3174 6.38475 20.6833 6.38475C21.0489 6.38475 21.3598 6.51275 21.616 6.76875C21.872 7.02492 22 7.336 22 7.702C22 8.0615 21.8717 8.36775 21.6152 8.62075C21.3587 8.87358 21.0472 9 20.6807 9C20.6514 9 20.6184 8.99583 20.5818 8.9875C20.5452 8.97917 20.5093 8.975 20.4738 8.975L19.1152 16.8077H5.88475ZM7.1615 15.3077H17.8385L18.777 10.1518L15.8057 11.3885L12.5 6.852L9.19425 11.3885L6.223 10.1518L7.1615 15.3077Z"/>
+  </symbol>
+  <symbol id="ic-balance-transfer" viewBox="0 0 24 24"><!-- 2016:4370 -->
+    <path d="M11.7038 20.5C9.54101 20.5 7.70031 19.7474 6.18173 18.2423C4.66314 16.7371 3.90385 14.9064 3.90385 12.75V11.9692L2.05383 13.8192L1 12.7654L4.65383 9.11155L8.30765 12.7654L7.25383 13.8192L5.4038 11.9692V12.75C5.4038 14.4872 6.01534 15.9631 7.23843 17.1779C8.46151 18.3926 9.94998 19 11.7038 19C12.1179 19 12.5317 18.9548 12.9452 18.8644C13.3586 18.774 13.7622 18.6385 14.1558 18.4577L15.2807 19.5827C14.7179 19.8852 14.1368 20.1137 13.5375 20.2682C12.9381 20.4227 12.3269 20.5 11.7038 20.5ZM19.6538 15.3884L16 11.7346L17.0538 10.6808L18.9039 12.5308V11.75C18.9039 10.0128 18.2923 8.53683 17.0692 7.32207C15.8461 6.10732 14.3577 5.49995 12.6038 5.49995C12.1897 5.49995 11.7759 5.54514 11.3625 5.63553C10.949 5.72591 10.5455 5.86148 10.1519 6.04225L9.02693 4.9173C9.58974 4.61473 10.1708 4.38621 10.7702 4.23173C11.3695 4.07724 11.9808 4 12.6038 4C14.7666 4 16.6073 4.75256 18.1259 6.25768C19.6445 7.76281 20.4038 9.59358 20.4038 11.75V12.5308L22.2538 10.6808L23.3077 11.7346L19.6538 15.3884Z"/>
+    <path d="M11.6538 16.75V16.0833H9.65381V15.0834H13.4487C13.5 15.0834 13.547 15.062 13.5897 15.0192C13.6325 14.9765 13.6538 14.9295 13.6538 14.8782V12.9551C13.6538 12.9038 13.6325 12.8568 13.5897 12.8141C13.547 12.7714 13.5 12.75 13.4487 12.75H10.8589C10.5222 12.75 10.2371 12.6333 10.0038 12.4C9.77047 12.1667 9.65381 11.8816 9.65381 11.5449V9.62179C9.65381 9.28503 9.77047 8.99999 10.0038 8.76667C10.2371 8.53334 10.5222 8.41667 10.8589 8.41667H11.6538V7.75H12.6538V8.41667H14.6538V9.41664H10.8589C10.8076 9.41664 10.7606 9.43801 10.7179 9.48076C10.6752 9.52349 10.6538 9.5705 10.6538 9.62179V11.5449C10.6538 11.5962 10.6752 11.6432 10.7179 11.6859C10.7606 11.7286 10.8076 11.75 10.8589 11.75H13.4487C13.7854 11.75 14.0705 11.8667 14.3038 12.1C14.5371 12.3333 14.6538 12.6184 14.6538 12.9551V14.8782C14.6538 15.215 14.5371 15.5 14.3038 15.7333C14.0705 15.9667 13.7854 16.0833 13.4487 16.0833H12.6538V16.75H11.6538Z"/>
+  </symbol>
+  <symbol id="ic-extension" viewBox="0 0 24 24"><!-- 5311:25210 -->
+    <path d="M8.877 20.4999H5C4.58467 20.4999 4.23083 20.3537 3.9385 20.0614C3.64617 19.769 3.5 19.4152 3.5 18.9999V15.1229C4.18467 15.0395 4.7725 14.755 5.2635 14.2691C5.7545 13.7831 6 13.1934 6 12.4999C6 11.8064 5.7545 11.2166 5.2635 10.7306C4.7725 10.2448 4.18467 9.9602 3.5 9.87687V5.99987C3.5 5.58453 3.64617 5.2307 3.9385 4.93837C4.23083 4.64603 4.58467 4.49987 5 4.49987H9C9.08983 3.86403 9.36833 3.3397 9.8355 2.92687C10.3028 2.51403 10.8577 2.30762 11.5 2.30762C12.1423 2.30762 12.6972 2.51403 13.1645 2.92687C13.6317 3.3397 13.9102 3.86403 14 4.49987H18C18.4153 4.49987 18.7692 4.64603 19.0615 4.93837C19.3538 5.2307 19.5 5.58453 19.5 5.99987V9.99987C20.1358 10.0897 20.6602 10.3682 21.073 10.8354C21.4858 11.3027 21.6923 11.8575 21.6923 12.4999C21.6923 13.1422 21.4858 13.697 21.073 14.1644C20.6602 14.6315 20.1358 14.91 19.5 14.9999V18.9999C19.5 19.4152 19.3538 19.769 19.0615 20.0614C18.7692 20.3537 18.4153 20.4999 18 20.4999H14.123C14.0333 19.7819 13.7404 19.1857 13.2443 18.7114C12.7481 18.237 12.1667 17.9999 11.5 17.9999C10.8333 17.9999 10.2519 18.237 9.75575 18.7114C9.25958 19.1857 8.96667 19.7819 8.877 20.4999ZM5 18.9999H7.7115C8.05383 18.1179 8.59458 17.4807 9.33375 17.0884C10.0728 16.696 10.7948 16.4999 11.5 16.4999C12.2052 16.4999 12.9273 16.696 13.6663 17.0884C14.4054 17.4807 14.9462 18.1179 15.2885 18.9999H18V13.5576H19.2308C19.5371 13.5191 19.7739 13.3954 19.9413 13.1864C20.1086 12.9774 20.1923 12.7485 20.1923 12.4999C20.1923 12.2512 20.1086 12.0224 19.9413 11.8134C19.7739 11.6044 19.5371 11.4806 19.2308 11.4421H18V5.99987H12.5578V4.76912C12.5193 4.46278 12.3955 4.22595 12.1865 4.05862C11.9775 3.89128 11.7487 3.80762 11.5 3.80762C11.2513 3.80762 11.0225 3.89128 10.8135 4.05862C10.6045 4.22595 10.4808 4.46278 10.4423 4.76912V5.99987H5V8.73837C5.759 9.05253 6.36542 9.55153 6.81925 10.2354C7.27308 10.9194 7.5 11.6742 7.5 12.4999C7.5 13.3152 7.27308 14.0649 6.81925 14.7489C6.36542 15.4329 5.759 15.937 5 16.2614V18.9999Z"/>
+  </symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24"><!-- 8016:1842 -->
+    <path d="M10.55 18.1997L15.725 11.9997H11.725L12.45 6.32472L7.82503 12.9997H11.3L10.55 18.1997ZM8.57703 21.442L9.57703 14.4997H4.95203L13.1923 2.60547H14.423L13.4328 10.4997H18.9325L9.80778 21.442H8.57703Z"/>
+  </symbol>
+  <symbol id="ic-credit-card" viewBox="0 0 24 24"><!-- 1757:4524 -->
+    <path d="M21.5 6.30775V17.6923C21.5 18.1974 21.325 18.625 20.975 18.975C20.625 19.325 20.1974 19.5 19.6923 19.5H4.30775C3.80258 19.5 3.375 19.325 3.025 18.975C2.675 18.625 2.5 18.1974 2.5 17.6923V6.30775C2.5 5.80258 2.675 5.375 3.025 5.025C3.375 4.675 3.80258 4.5 4.30775 4.5H19.6923C20.1974 4.5 20.625 4.675 20.975 5.025C21.325 5.375 21.5 5.80258 21.5 6.30775ZM4 8.404H20V6.30775C20 6.23075 19.9679 6.16025 19.9038 6.09625C19.8398 6.03208 19.7693 6 19.6923 6H4.30775C4.23075 6 4.16025 6.03208 4.09625 6.09625C4.03208 6.16025 4 6.23075 4 6.30775V8.404ZM4 11.596V17.6923C4 17.7692 4.03208 17.8398 4.09625 17.9038C4.16025 17.9679 4.23075 18 4.30775 18H19.6923C19.7693 18 19.8398 17.9679 19.9038 17.9038C19.9679 17.8398 20 17.7692 20 17.6923V11.596H4Z"/>
+  </symbol>
+  <symbol id="ic-person-check" viewBox="0 0 24 24"><!-- 4269:298 -->
+    <path d="M17.55 11.6444L14.3558 8.45013L15.425 7.40588L17.55 9.53088L21.8 5.28088L22.8538 6.35013L17.55 11.6444ZM9 11.6924C8.0375 11.6924 7.21358 11.3497 6.52825 10.6644C5.84275 9.97888 5.5 9.15488 5.5 8.19238C5.5 7.22988 5.84275 6.40597 6.52825 5.72063C7.21358 5.03513 8.0375 4.69238 9 4.69238C9.9625 4.69238 10.7864 5.03513 11.4718 5.72063C12.1573 6.40597 12.5 7.22988 12.5 8.19238C12.5 9.15488 12.1573 9.97888 11.4718 10.6644C10.7864 11.3497 9.9625 11.6924 9 11.6924ZM1.5 19.3079V17.0846C1.5 16.595 1.633 16.1415 1.899 15.7241C2.165 15.3068 2.5205 14.986 2.9655 14.7616C3.95383 14.2771 4.95092 13.9137 5.95675 13.6714C6.96258 13.429 7.977 13.3079 9 13.3079C10.023 13.3079 11.0374 13.429 12.0433 13.6714C13.0491 13.9137 14.0462 14.2771 15.0345 14.7616C15.4795 14.986 15.835 15.3068 16.101 15.7241C16.367 16.1415 16.5 16.595 16.5 17.0846V19.3079H1.5ZM3 17.8079H15V17.0846C15 16.8821 14.9413 16.6946 14.824 16.5221C14.7067 16.3498 14.5474 16.2091 14.3462 16.1001C13.4846 15.6758 12.6061 15.3543 11.7107 15.1356C10.8152 14.9171 9.91167 14.8079 9 14.8079C8.08833 14.8079 7.18475 14.9171 6.28925 15.1356C5.39392 15.3543 4.51542 15.6758 3.65375 16.1001C3.45258 16.2091 3.29333 16.3498 3.176 16.5221C3.05867 16.6946 3 16.8821 3 17.0846V17.8079ZM9 10.1924C9.55 10.1924 10.0208 9.99655 10.4125 9.60488C10.8042 9.21322 11 8.74238 11 8.19238C11 7.64238 10.8042 7.17155 10.4125 6.77988C10.0208 6.38822 9.55 6.19238 9 6.19238C8.45 6.19238 7.97917 6.38822 7.5875 6.77988C7.19583 7.17155 7 7.64238 7 8.19238C7 8.74238 7.19583 9.21322 7.5875 9.60488C7.97917 9.99655 8.45 10.1924 9 10.1924Z"/>
+  </symbol>
+  <symbol id="ic-language" viewBox="0 0 24 24"><!-- 234:8108 -->
+    <path d="M12 21.5C10.6974 21.5 9.46825 21.2503 8.3125 20.7509C7.15673 20.2516 6.14872 19.5718 5.28845 18.7115C4.4282 17.8512 3.7484 16.8432 3.24905 15.6875C2.74968 14.5317 2.5 13.3025 2.5 12C2.5 10.6872 2.74968 9.45543 3.24905 8.3048C3.7484 7.15417 4.4282 6.14872 5.28845 5.28845C6.14872 4.4282 7.15673 3.7484 8.3125 3.24905C9.46825 2.74968 10.6974 2.5 12 2.5C13.3128 2.5 14.5445 2.74968 15.6952 3.24905C16.8458 3.7484 17.8512 4.4282 18.7115 5.28845C19.5718 6.14872 20.2516 7.15417 20.7509 8.3048C21.2503 9.45543 21.5 10.6872 21.5 12C21.5 13.3025 21.2503 14.5317 20.7509 15.6875C20.2516 16.8432 19.5718 17.8512 18.7115 18.7115C17.8512 19.5718 16.8458 20.2516 15.6952 20.7509C14.5445 21.2503 13.3128 21.5 12 21.5ZM12 19.9788C12.5102 19.3019 12.9397 18.6192 13.2885 17.9307C13.6372 17.2423 13.9211 16.4897 14.1404 15.673H9.85958C10.0916 16.5153 10.3788 17.2807 10.7211 17.9692C11.0634 18.6577 11.4897 19.3275 12 19.9788ZM10.0635 19.7038C9.68014 19.1538 9.33591 18.5285 9.03078 17.8279C8.72564 17.1272 8.48846 16.4089 8.31922 15.673H4.92688C5.45509 16.7115 6.16343 17.584 7.0519 18.2904C7.94038 18.9968 8.94424 19.4679 10.0635 19.7038ZM13.9365 19.7038C15.0557 19.4679 16.0596 18.9968 16.9481 18.2904C17.8365 17.584 18.5449 16.7115 19.0731 15.673H15.6807C15.4794 16.4153 15.2262 17.1368 14.9211 17.8375C14.616 18.5381 14.2878 19.1602 13.9365 19.7038ZM4.29805 14.1731H8.01538C7.95256 13.8013 7.90705 13.4369 7.87885 13.0798C7.85065 12.7227 7.83655 12.3628 7.83655 12C7.83655 11.6372 7.85065 11.2772 7.87885 10.9202C7.90705 10.5631 7.95256 10.1987 8.01538 9.82688H4.29805C4.2019 10.1666 4.12818 10.5198 4.0769 10.8865C4.02562 11.2532 3.99998 11.6243 3.99998 12C3.99998 12.3756 4.02562 12.7468 4.0769 13.1135C4.12818 13.4801 4.2019 13.8333 4.29805 14.1731ZM9.51535 14.1731H14.4846C14.5474 13.8013 14.5929 13.4401 14.6212 13.0894C14.6494 12.7388 14.6635 12.3756 14.6635 12C14.6635 11.6243 14.6494 11.2612 14.6212 10.9106C14.5929 10.5599 14.5474 10.1987 14.4846 9.82688H9.51535C9.45253 10.1987 9.40702 10.5599 9.3788 10.9106C9.3506 11.2612 9.3365 11.6243 9.3365 12C9.3365 12.3756 9.3506 12.7388 9.3788 13.0894C9.40702 13.4401 9.45253 13.8013 9.51535 14.1731ZM15.9846 14.1731H19.7019C19.7981 13.8333 19.8718 13.4801 19.9231 13.1135C19.9743 12.7468 20 12.3756 20 12C20 11.6243 19.9743 11.2532 19.9231 10.8865C19.8718 10.5198 19.7981 10.1666 19.7019 9.82688H15.9846C16.0474 10.1987 16.0929 10.5631 16.1211 10.9202C16.1493 11.2772 16.1634 11.6372 16.1634 12C16.1634 12.3628 16.1493 12.7227 16.1211 13.0798C16.0929 13.4369 16.0474 13.8013 15.9846 14.1731ZM15.6807 8.32693H19.0731C18.5384 7.27563 17.8349 6.40318 16.9625 5.70958C16.09 5.01599 15.0814 4.54163 13.9365 4.2865C14.3198 4.86855 14.6608 5.50509 14.9596 6.19613C15.2583 6.88716 15.4987 7.59743 15.6807 8.32693ZM9.85958 8.32693H14.1404C13.9083 7.49103 13.6163 6.72083 13.2644 6.01633C12.9125 5.31184 12.491 4.64678 12 4.02113C11.5089 4.64678 11.0875 5.31184 10.7356 6.01633C10.3836 6.72083 10.0916 7.49103 9.85958 8.32693ZM4.92688 8.32693H8.31922C8.50128 7.59743 8.74167 6.88716 9.0404 6.19613C9.33912 5.50509 9.68014 4.86855 10.0635 4.2865C8.91219 4.54163 7.90193 5.0176 7.03268 5.7144C6.16344 6.4112 5.46151 7.28204 4.92688 8.32693Z"/>
+  </symbol>
+  <symbol id="ic-tune" viewBox="0 0 24 24"><!-- 7815:31762 -->
+    <path d="M11.25 20.75V15.25H12.75V17.25H20.75V18.75H12.75V20.75H11.25ZM3.25 18.75V17.25H8.75V18.75H3.25ZM7.25 14.75V12.75H3.25V11.25H7.25V9.25H8.75V14.75H7.25ZM11.25 12.75V11.25H20.75V12.75H11.25ZM15.25 8.75V3.25H16.75V5.25H20.75V6.75H16.75V8.75H15.25ZM3.25 6.75V5.25H12.75V6.75H3.25Z"/>
+  </symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><!-- 139:2077 -->
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+  </symbol>
+</defs></svg>
+
 <!-- password gate (demo, client-side only) -->
 <div id="gate" class="gate">
   <div class="gate__box">
@@ -1059,7 +1111,7 @@
       <div class="sf-panel__head">
         <b>Sort &amp; Filter</b>
         <span class="ann">NEW · CHANGE 1</span>
-        <button type="button" class="sf-panel__close" id="sfClose" aria-label="Close sort and filter">✕</button>
+        <button type="button" class="sf-panel__close" id="sfClose" aria-label="Close sort and filter"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-close"/></svg></button>
       </div>
       <div class="sf-panel__body">
         <div class="sf-group">
@@ -1102,20 +1154,23 @@
         <!-- Category = genuine loan categories only — "Lowest Interest" removed (it's a sort,
              already covered by Sort By → "Lowest Annual Interest Rate" above, not a category).
              Collapsed by default (checker fix: shorten the first fold); expand to see the 9
-             options — same labels/emoji as the Baseline view's persona tabs, minus that one. -->
+             options — same labels as the Baseline view's persona tabs, minus that one. The tabs'
+             emoji are replaced here by MHG Alpha DS icons (sprite at the top of <body>); the
+             Baseline tab strip above deliberately keeps its emoji so the A/B toggle still shows
+             production verbatim. -->
         <details class="sf-acc" id="sfAccCategory" open>
           <summary class="sf-group__h sf-acc__sum">Category<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body">
             <div class="sf-pills" id="sfCategory" role="group" aria-label="Filter by category">
-              <button type="button" class="sf-pill on" data-cat="all">🏦 All Loans</button>
-              <button type="button" class="sf-pill" data-cat="alternate-lenders">🤝 Alternate Lenders</button>
-              <button type="button" class="sf-pill" data-cat="singsaver-exclusive">🔥 SingSaver Exclusive</button>
-              <button type="button" class="sf-pill" data-cat="balance-transfer">🔄 Balance Transfer</button>
-              <button type="button" class="sf-pill" data-cat="debt-consolidation">🧩 Debt Consolidation</button>
-              <button type="button" class="sf-pill" data-cat="fast-cash">⚡ Fast Cash</button>
-              <button type="button" class="sf-pill" data-cat="credit-line">💳 Credit Line</button>
-              <button type="button" class="sf-pill" data-cat="bad-credit">🌱 Bad Credit</button>
-              <button type="button" class="sf-pill" data-cat="foreigners">🌏 Foreigners</button>
+              <button type="button" class="sf-pill on" data-cat="all"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-category"/></svg>All Loans</button>
+              <button type="button" class="sf-pill" data-cat="alternate-lenders"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-groups"/></svg>Alternate Lenders</button>
+              <button type="button" class="sf-pill" data-cat="singsaver-exclusive"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-crown"/></svg>SingSaver Exclusive</button>
+              <button type="button" class="sf-pill" data-cat="balance-transfer"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg>Balance Transfer</button>
+              <button type="button" class="sf-pill" data-cat="debt-consolidation"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg>Debt Consolidation</button>
+              <button type="button" class="sf-pill" data-cat="fast-cash"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg>Fast Cash</button>
+              <button type="button" class="sf-pill" data-cat="credit-line"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg>Credit Line</button>
+              <button type="button" class="sf-pill" data-cat="bad-credit"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-person-check"/></svg>Bad Credit</button>
+              <button type="button" class="sf-pill" data-cat="foreigners"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-language"/></svg>Foreigners</button>
             </div>
           </div>
         </details>
@@ -1152,7 +1207,7 @@
       <!-- Change 1, mobile/tablet (<1024px): open the Sort & Filter panel from here (beside the heading, above the table); ≥1024px the persistent left panel is used instead (this button hidden by CSS there). -->
       <div class="sf-trigger-row">
         <span class="sf-trigger-wrap x-new" style="display:inline-block">
-          <button type="button" class="sf-trigger" id="sfOpen" aria-haspopup="true" aria-expanded="false" aria-controls="sfPanel">⇅ Sort &amp; Filter</button>
+          <button type="button" class="sf-trigger" id="sfOpen" aria-haspopup="true" aria-expanded="false" aria-controls="sfPanel"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-tune"/></svg>Sort &amp; Filter</button>
           <span class="ann">NEW · CHANGE 1</span>
         </span>
       </div>
