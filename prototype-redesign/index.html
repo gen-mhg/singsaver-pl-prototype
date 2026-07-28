@@ -136,6 +136,12 @@
      never adds a vertical border between tbody cells; this replica drops the header's border-l too so nothing reads as a grid). */
   .pct-table td { font-size:13px; font-weight:500; }
   .pct-table thead th { background:var(--fill-alternative-1); font-size:14px; font-weight:700; color:var(--text-primary); white-space:normal; line-height:1.3; }
+  /* #3 fix: "Total Cost of Loan" was collapsing to a 4-word-column, wrapping onto 4 lines on
+     narrower viewports. Give this header enough min-width to settle on 1-2 lines (em-based, so it
+     scales with the thead font-size bump at 768px below); text-wrap:balance keeps the 2-line case
+     even instead of a lonely trailing word (progressive enhancement, no-op where unsupported). Only
+     this table header is targeted — the Sort By dropdown's identical option text is untouched. */
+  .pct-table thead th.pct-th--cost { min-width:7.5em; text-wrap:balance; }
   .pct-table tbody td { border-top:1px solid var(--borders-default); }
   .pct-table tbody tr:hover td { background:var(--fill-base); }
   @media (min-width:768px){
@@ -173,7 +179,7 @@
   /* SingSaver Tips */
   .tips { border-radius: var(--r-card); overflow:hidden; border:1px solid var(--borders-default); margin: var(--space-4) 0; }
   .tips__h { background: var(--fill-primary); color:var(--text-on-dark); font-weight:700; padding:10px 14px; font-size:14px; }
-  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; color:var(--text-secondary); }
+  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; line-height:1.5; color:var(--text-secondary); }
 
   /* Why Trust SingSaver */
   .wts { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); margin: var(--space-3) 0; }
@@ -218,6 +224,7 @@
   .gifttile { border:1px solid var(--borders-default); border-radius:12px; overflow:hidden; background:var(--fill-card); display:flex; flex-direction:column; }
   .gifttile__tag { background:var(--highlight-red-light); color:var(--highlight-red-dark); font-size:10px; font-weight:700; text-align:center; padding:3px 4px; }
   .gifttile__body { flex:1; display:flex; align-items:center; justify-content:center; padding:12px 8px; min-height:64px; }
+  .gifttile__band { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); text-align:center; margin-bottom:4px; }
   .gifttile__ic { font-size:22px; line-height:1; margin-bottom:4px; }
   .gifttile__amt { font-size:11px; font-weight:700; color:var(--text-primary); text-align:center; line-height:1.3; }
   .gifttile__worth { background:var(--fill-alternative-1); color:var(--text-secondary); font-size:10.5px; font-weight:600; text-align:center; padding:5px 4px; }
@@ -489,7 +496,7 @@
   .sf-panel { position:fixed; left:0; right:0; bottom:0; max-height:88%; background:var(--fill-card); border-radius:20px 20px 0 0; z-index:45; transform:translateY(100%); transition:transform .25s ease; display:flex; flex-direction:column; }
   .sf-panel.open { transform:translateY(0); }
   .sf-panel__head { display:flex; align-items:center; gap:8px; padding:var(--space-4); border-bottom:1px solid var(--borders-soft); flex-shrink:0; }
-  .sf-panel__head b { flex:1; font-family:var(--font-sans); font-size:var(--font-size-subheading-2); line-height:var(--line-height-subheading-2); }
+  .sf-panel__head b { flex:1; font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:700; }
   .sf-panel__close { border:1px solid var(--borders-default); background:var(--fill-card); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:15px; flex-shrink:0; }
   .sf-panel__body { overflow-y:auto; padding:var(--space-1) var(--space-4) var(--space-4); }
   /* Padding fix (Xiao En, 2026-07-27 — "the padding is terrible"): the panel's spacing values map to the
@@ -518,14 +525,14 @@
      Clear All reset in initSortFilter(), .options[selectedIndex].text in updateSortCap() — keeps
      working completely untouched; see initSfSortDropdown() further down the script. */
   .sf-dropdown { position:relative; }
-  .sf-dropdown__trigger { width:100%; display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); border:1px solid var(--borders-form-default); border-radius:var(--r-button); padding:var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-form-input); line-height:var(--line-height-form-input); font-weight:var(--font-weight-form-input); background:var(--fill-card); color:var(--text-primary); cursor:pointer; text-align:left; }
+  .sf-dropdown__trigger { width:100%; display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); border:1px solid var(--borders-form-default); border-radius:var(--r-button); padding:var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:600; background:var(--fill-card); color:var(--text-primary); cursor:pointer; text-align:left; }
   .sf-dropdown__trigger:hover { background:var(--fill-alternative-1); }
   .sf-dropdown__trigger:focus-visible { outline:2px solid var(--fill-primary); outline-offset:1px; border-color:transparent; }
   .sf-dropdown__chev { flex-shrink:0; width:16px; height:16px; color:var(--text-muted); transition:transform .15s ease; }
   .sf-dropdown__trigger[aria-expanded="true"] .sf-dropdown__chev { transform:rotate(180deg); }
   .sf-dropdown__list { position:absolute; left:0; right:0; top:calc(100% + var(--space-1)); z-index:12; margin:0; padding:var(--space-1) 0; list-style:none; border:1px solid var(--borders-form-default); border-radius:var(--r-button); background:var(--fill-card); box-shadow:var(--shadow-md); max-height:240px; overflow-y:auto; }
   .sf-dropdown__list[hidden] { display:none; }
-  .sf-dropdown__opt { padding:var(--space-2) var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-form-input); line-height:var(--line-height-form-input); color:var(--text-primary); cursor:pointer; }
+  .sf-dropdown__opt { padding:var(--space-2) var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); color:var(--text-primary); cursor:pointer; }
   .sf-dropdown__opt:hover, .sf-dropdown__opt.active { background:var(--fill-alternative-1); }
   .sf-dropdown__opt.on { font-weight:700; color:var(--fill-primary-dark); background:var(--fill-primary-light); }
   .sf-native-sort { display:none; }
@@ -1116,7 +1123,7 @@
               <th>Annual Interest Rate</th>
               <th>SingSaver Reward</th>
               <th>Monthly Repayment</th>
-              <th>Total Cost of Loan</th>
+              <th class="pct-th--cost">Total Cost of Loan</th>
               <th>EIR</th>
               <th>Apply</th>
             </tr>
@@ -1401,12 +1408,12 @@ const DEALS = [
       "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
     ],
     tiers:[
-      {amt:"S$900 Cash + 3% Cashback", worth:6900},
-      {amt:"S$900 Cash + 3% Cashback", worth:2400},
-      {amt:"S$500 Cash + 3% Cashback", worth:1400},
-      {amt:"S$400 Cash + 3% Cashback", worth:1000},
-      {amt:"S$300 Cash + 3% Cashback", worth:750},
-      {amt:"S$200 Cash + 3% Cashback", worth:500},
+      {band:"S$200,000 and above", amt:"3% Unlimited Cashback (worth S$6,000 w/ S$200,000 loan amount), plus S$900 Bonus Cash", worth:6900},
+      {band:"S$50,000 – S$199,999", amt:"3% Unlimited Cashback (worth S$1,500 w/ S$50,000 loan amount), plus S$900 Bonus Cash", worth:2400},
+      {band:"S$30,000 – S$49,999", amt:"3% Unlimited Cashback (worth S$900 w/ S$30,000 loan amount), plus S$500 Bonus Cash", worth:1400},
+      {band:"S$20,000 – S$29,999", amt:"3% Unlimited Cashback (worth S$600 w/ S$20,000 loan amount), plus S$400 Bonus Cash", worth:1000},
+      {band:"S$15,000 – S$19,999", amt:"3% Unlimited Cashback (worth S$450 w/ S$15,000 loan amount), plus S$300 Bonus Cash", worth:750},
+      {band:"S$10,000 – S$14,999", amt:"3% Unlimited Cashback (worth S$300 w/ S$10,000 loan amount), plus S$200 Bonus Cash", worth:500},
     ] },
   { name:"SCB CashOne Personal Loan", head:"Up to S$5,825 Cashback", logo:"assets/logos/standard-chartered.webp",
     color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
@@ -1424,14 +1431,16 @@ const DEALS = [
       "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
     ],
     tiers:[
-      {amt:"S$1,800 Cash + 1.61% Cashback", worth:4025},
-      {amt:"S$1,800 Cash + 1.61% Cashback", worth:1932},
-      {amt:"S$1,400 Cash + 1.61% Cashback", worth:1288},
-      {amt:"S$1,000 Cash + 1.61% Cashback", worth:805},
-      {amt:"S$800 Cash + 0.61% Cashback", worth:183},
-      {amt:"S$600 Cash + 0.61% Cashback", worth:122},
-      {amt:"S$410 Cash + 0.61% Cashback", worth:109},
-      {amt:"S$410 Cash via PayNow", worth:410},
+      {band:"S$250,000 and above", amt:"S$1,800 Cash + 1.61% Cashback (worth S$4,025 w/ S$250,000 loan amount)", worth:5825},
+      {band:"S$120,000 – S$249,999", amt:"S$1,800 Cash + 1.61% Cashback (worth S$1,932 w/ S$120,000 loan amount)", worth:3732},
+      {band:"S$80,000 – S$119,999", amt:"S$1,400 Cash + 1.61% Cashback (worth S$1,288 w/ S$80,000 loan amount)", worth:2688},
+      {band:"S$50,000 – S$79,999", amt:"S$1,000 Cash + 1.61% Cashback (worth S$805 w/ S$50,000 loan amount)", worth:1805},
+      {band:"S$30,000 – S$49,999", amt:"S$800 Cash + 0.61% Cashback (worth S$183 w/ S$30,000 loan amount)", worth:983},
+      {band:"S$20,000 – S$29,999", amt:"S$600 Cash + 0.61% Cashback (worth S$122 w/ S$20,000 loan amount)", worth:722},
+      {band:"S$18,000 – S$19,999", amt:"S$410 Cash + 0.61% Cashback (worth S$109 w/ S$18,000 loan amount)", worth:519},
+      {band:"S$15,000 – S$17,999", amt:"S$410 Cash via PayNow", worth:410},
+      {band:"S$10,000 – S$14,999", amt:"S$230 Cash via PayNow", worth:230},
+      {band:"S$8,000 – S$9,999", amt:"S$120 Cash via PayNow", worth:120},
     ] },
   { name:"UOB Personal Loan", head:"Up to S$1,800 cashback", logo:"assets/logos/uob.png",
     color:"pink", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
@@ -1447,14 +1456,14 @@ const DEALS = [
       "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
     ],
     tiers:[
-      {amt:"Cash via PayNow", worth:1800},
-      {amt:"Cash via PayNow", worth:1400},
-      {amt:"Cash via PayNow", worth:1000},
-      {amt:"Cash via PayNow", worth:800},
-      {amt:"Cash via PayNow", worth:600},
-      {amt:"Cash via PayNow", worth:430},
-      {amt:"Cash via PayNow", worth:230},
-      {amt:"Cash via PayNow", worth:120},
+      {band:"S$120,000 and above", amt:"S$1,800 Cash via PayNow", worth:1800},
+      {band:"S$80,000 – S$119,999", amt:"S$1,400 Cash via PayNow", worth:1400},
+      {band:"S$50,000 – S$79,999", amt:"S$1,000 Cash via PayNow", worth:1000},
+      {band:"S$30,000 – S$49,999", amt:"S$800 Cash via PayNow", worth:800},
+      {band:"S$20,000 – S$29,999", amt:"S$600 Cash via PayNow", worth:600},
+      {band:"S$15,000 – S$19,999", amt:"S$430 Cash via PayNow", worth:430},
+      {band:"S$10,000 – S$14,999", amt:"S$230 Cash via PayNow", worth:230},
+      {band:"S$8,000 – S$9,999", amt:"S$120 Cash via PayNow", worth:120},
     ] },
   { name:"Trust Bank Instant Loan", head:"Up to S$1,750 Cash", logo:"assets/logos/trust.png",
     color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
@@ -1480,14 +1489,14 @@ const DEALS = [
       ["S$120,000 and above","S$1,750 Cash","S$1,730 Cash"],
     ] },
     tiers:[
-      {amt:"Cash via PayNow", worth:1750},
-      {amt:"Cash via PayNow", worth:1400},
-      {amt:"Cash via PayNow", worth:1000},
-      {amt:"Cash via PayNow", worth:800},
-      {amt:"Cash via PayNow", worth:600},
-      {amt:"Cash via PayNow", worth:410},
-      {amt:"Cash via PayNow", worth:230},
-      {amt:"Cash via PayNow", worth:100},
+      {band:"S$120,000 and above", amt:"S$1,750 Cash via PayNow", worth:1750},
+      {band:"S$80,000 – S$119,999", amt:"S$1,400 Cash via PayNow", worth:1400},
+      {band:"S$50,000 and above", amt:"S$1,000 Cash via PayNow", worth:1000},
+      {band:"S$30,000 – S$49,999", amt:"S$800 Cash via PayNow", worth:800},
+      {band:"S$20,000 – S$29,999", amt:"S$600 Cash via PayNow", worth:600},
+      {band:"S$15,000 – S$19,999", amt:"S$410 Cash via PayNow", worth:410},
+      {band:"S$10,000 – S$14,999", amt:"S$280 Upsized Cash via PayNow", worth:280},
+      {band:"S$8,000 – S$9,999", amt:"S$100 Cash via PayNow", worth:100},
     ] },
 ];
 
@@ -1929,7 +1938,7 @@ const campTabs=$('campTabs'), campBody=$('campBody');
 campTabs.innerHTML = DEALS.map((d,i)=>`<button class="promoblk__tab ${i===0?'on':''}" data-deal="${i}"><b>${d.name}</b><span>${d.head}</span></button>`).join('');
 
 function giftTileHTML(t){
-  return `<div class="gifttile"><div class="gifttile__tag" title="Limited time only">Limited time only</div><div class="gifttile__body"><div><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${t.amt}</div></div></div><div class="gifttile__worth">Worth ${sgd(t.worth)}</div></div>`;
+  return `<div class="gifttile"><div class="gifttile__tag" title="Limited time only">Limited time only</div><div class="gifttile__body"><div><div class="gifttile__band">${t.band}</div><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${t.amt}</div></div></div><div class="gifttile__worth">Worth ${sgd(t.worth)}</div></div>`;
 }
 function giftBlockHTML(d){
   return `<p class="promoblk__applyby">Apply by ${d.applyBy} to claim your reward.</p><div class="promoblk__grid">${d.tiers.map(giftTileHTML).join('')}</div>`;
