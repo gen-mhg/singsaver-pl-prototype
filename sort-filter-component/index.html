@@ -1,0 +1,840 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG PL — "Sort &amp; Filter" Strapi component → front end (CMS-1871 / CMS-1903)</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/tokens.css">
+
+<style>
+/* ============================================================
+   SG PL — new Strapi component: "Sort & Filter"
+
+   Pane 1 = the component as an editor would see it in Strapi.
+            Toggles only. The fixed lists are NOT fields — they are
+            reference notes below the component.
+   Pane 2 = the front end it drives. Structure, class names and column
+            order are lifted from prototype-redesign.html (.pl-layout /
+            .sf-panel / .pct-table) so the non-focus components look the
+            same as the prototype already shared with stakeholders.
+
+   Category is NAVIGATION (links to existing category pages), not a
+   filter — see CMS-1903 requirement 3.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font-sans, "Albert Sans", system-ui, sans-serif);
+  font-size: var(--font-size-body-2);
+  color: var(--text-primary);
+  background: var(--fill-alternative-1);
+}
+
+/* ---------- password gate ---------- */
+#gate {
+  position: fixed; inset: 0; z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--fill-alternative-1); padding: var(--space-4);
+}
+.gate__card {
+  background: var(--fill-card); border: 1px solid var(--borders-default);
+  border-radius: var(--r-card, 12px); box-shadow: var(--shadow-md);
+  padding: var(--space-6); width: 100%; max-width: 380px; text-align: center;
+}
+.gate__card h1 { margin: 0 0 var(--space-2); font-size: var(--font-size-subheading-1); }
+.gate__card p { margin: 0 0 var(--space-4); color: var(--text-muted); font-size: var(--font-size-body-2); }
+.gate__row { display: flex; flex-direction: column; gap: var(--space-2); }
+#gateErr { display: none; margin-top: var(--space-2); color: var(--danger); font-size: var(--font-size-body-2); }
+#app[hidden] { display: none; }
+
+/* ---------- shared primitives ---------- */
+.inp {
+  width: 100%; padding: var(--space-3);
+  font-family: inherit; font-size: var(--font-size-form-input);
+  border: 1px solid var(--borders-form-default); border-radius: var(--r-button, 8px);
+  background: var(--fill-card); color: var(--text-primary);
+}
+.inp:focus-visible { outline: 2px solid var(--fill-primary); outline-offset: 1px; border-color: transparent; }
+.mhg-btn {
+  font-family: inherit; font-weight: 700; cursor: pointer;
+  border-radius: var(--r-button, 8px); border: 1px solid transparent;
+  padding: var(--space-2) var(--space-4); font-size: var(--font-size-body-2);
+}
+.mhg-btn--primary { background: var(--fill-primary); color: var(--text-on-dark); }
+.mhg-btn--outline { background: var(--fill-card); color: var(--fill-primary); border-color: var(--borders-default); }
+.mhg-btn--small { padding: 6px var(--space-3); font-size: var(--font-size-caption); }
+.mhg-btn--cta { background: var(--brand-cta-orange, #f2740d); color: #fff; }
+
+/* ---------- page chrome ---------- */
+.wrap { max-width: 1400px; margin: 0 auto; padding: var(--space-4); }
+.pagehead { padding: var(--space-5) 0 var(--space-3); }
+.pagehead h1 { margin: 0 0 var(--space-2); font-size: var(--font-size-title-2); line-height: 1.2; }
+.pagehead p { margin: 0; max-width: 78ch; color: var(--text-muted); }
+.tickets { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.tickets span {
+  font-size: var(--font-size-caption); font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; padding: var(--space-1) var(--space-2);
+  border-radius: 999px; background: var(--fill-primary-light); color: var(--fill-primary-dark);
+}
+
+.panes { display: grid; gap: var(--space-5); }
+@media (min-width: 1200px) { .panes { grid-template-columns: 380px 1fr; align-items: start; } }
+
+.pane { background: var(--fill-card); border: 1px solid var(--borders-default); border-radius: var(--r-card, 12px); overflow: hidden; min-width: 0; }
+.pane__hd { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--borders-divider); background: var(--fill-alternative-1); }
+.pane__hd h2 { margin: 0; font-size: var(--font-size-body-1); }
+.pane__hd .sub { margin: var(--space-1) 0 0; font-size: var(--font-size-caption); color: var(--text-muted); }
+.pane__bd { padding: var(--space-4); }
+
+/* ---------- PANE 1 — Strapi admin look ---------- */
+.st-comp { border: 1px solid var(--borders-default); border-radius: 8px; overflow: hidden; }
+.st-comp__hd {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3); background: var(--fill-alternative-1);
+  border-bottom: 1px solid var(--borders-divider);
+  font-weight: 700; font-size: var(--font-size-body-2);
+}
+.st-comp__hd .grip { color: var(--text-muted); }
+.st-comp__bd { padding: var(--space-4); display: grid; gap: var(--space-4); }
+.st-label {
+  display: block; margin-bottom: var(--space-2);
+  font-size: var(--font-size-caption); font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary, var(--text-muted));
+}
+.st-hint { margin: var(--space-2) 0 0; font-size: var(--font-size-caption); color: var(--text-muted); }
+.st-group { border-top: 1px solid var(--borders-divider); padding-top: var(--space-4); }
+.st-group:first-child { border-top: 0; padding-top: 0; }
+
+.st-toggle { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.st-toggle + .st-toggle { margin-top: var(--space-3); }
+.st-toggle__txt strong { display: block; font-size: var(--font-size-body-2); }
+.st-toggle__txt small { color: var(--text-muted); font-size: var(--font-size-caption); }
+.sw { position: relative; flex-shrink: 0; width: 44px; height: 24px; }
+.sw input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.sw__track { position: absolute; inset: 0; border-radius: 999px; background: var(--fill-disabled, #d0d5dd); transition: background .15s ease; pointer-events: none; }
+.sw__track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s ease; }
+.sw input:checked + .sw__track { background: var(--fill-primary); }
+.sw input:checked + .sw__track::after { transform: translateX(20px); }
+.sw input:focus-visible + .sw__track { outline: 2px solid var(--fill-primary); outline-offset: 2px; }
+
+.st-save { display: flex; gap: var(--space-2); justify-content: flex-end; padding: var(--space-3) var(--space-4); border-top: 1px solid var(--borders-divider); background: var(--fill-alternative-1); }
+
+/* per-group block: visibility toggle + its sub-option */
+.st-grp { padding: var(--space-3) 0; border-bottom: 1px dashed var(--borders-divider); }
+.st-grp:last-child { border-bottom: 0; padding-bottom: 0; }
+.st-grp:first-child { padding-top: 0; }
+.st-sub { display: flex; align-items: center; gap: 8px; margin: var(--space-2) 0 0 0; font-size: var(--font-size-caption); color: var(--text-secondary, var(--text-muted)); cursor: pointer; }
+.st-sub input { width: 16px; height: 16px; accent-color: var(--fill-primary); flex-shrink: 0; }
+.st-sub.is-off { opacity: .45; cursor: not-allowed; }
+
+/* Reference notes — deliberately NOT component fields */
+.notes { margin-top: var(--space-4); }
+.notes > h3 {
+  margin: 0 0 var(--space-2); font-size: var(--font-size-caption); font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary, var(--text-muted));
+}
+.note {
+  border-left: 3px solid var(--borders-default); padding: 0 0 0 var(--space-3);
+  margin-bottom: var(--space-4); font-size: var(--font-size-caption); color: var(--text-muted);
+}
+.note b { display: block; color: var(--text-primary); font-size: var(--font-size-body-2); margin-bottom: 4px; }
+.note ol, .note ul { margin: 0; padding-left: var(--space-5); }
+.note li { padding: 1px 0; }
+.note li em { font-style: normal; color: var(--text-primary); font-weight: 600; }
+.note .dest { word-break: break-all; }
+
+/* ---------- PANE 2 — front end, structure lifted from prototype-redesign.html ---------- */
+.fe-calc { display: grid; gap: var(--space-3); grid-template-columns: 1fr 1fr; margin-bottom: var(--space-4); }
+.fe-calc label { display: block; font-size: var(--font-size-caption); font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+
+.pl-layout { display: block; min-width: 0; }
+.pl-results { min-width: 0; }
+@media (min-width: 1024px) {
+  .pl-layout { display: flex; align-items: flex-start; gap: var(--space-6); }
+  .pl-results { flex: 1; min-width: 0; }
+}
+
+.sf-panel {
+  background: var(--fill-card); border: 1px solid var(--borders-default);
+  border-radius: var(--r-card, 12px); display: flex; flex-direction: column;
+  margin-bottom: var(--space-4); overflow: hidden;
+}
+.sf-panel[hidden] { display: none; }
+@media (min-width: 1024px) {
+  .sf-panel { width: 280px; flex-shrink: 0; align-self: flex-start; margin-bottom: 0; }
+}
+.sf-panel__head { display: flex; align-items: center; gap: 8px; padding: var(--space-4); border-bottom: 1px solid var(--borders-soft, var(--borders-divider)); flex-shrink: 0; }
+.sf-panel__head b { flex: 1; font-size: var(--font-size-body-2); font-weight: 700; }
+.sf-panel__body { padding: var(--space-1) var(--space-4) var(--space-4); }
+.sf-panel__foot { display: flex; gap: var(--space-3); padding: var(--space-4); border-top: 1px solid var(--borders-soft, var(--borders-divider)); flex-shrink: 0; }
+.sf-panel__foot .mhg-btn { flex: 1; }
+
+.sf-group { padding: var(--space-4) 0; border-bottom: 1px solid var(--borders-soft, var(--borders-divider)); }
+.sf-group:last-child { border-bottom: 0; }
+.sf-group[hidden] { display: none; }
+.sf-group__h {
+  font-size: var(--font-size-caption); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; margin: 0 0 var(--space-2); color: var(--text-secondary, var(--text-muted));
+}
+.sf-acc { border-bottom: 1px solid var(--borders-soft, var(--borders-divider)); }
+.sf-acc:last-child { border-bottom: 0; }
+.sf-acc[hidden] { display: none; }
+.sf-acc__sum {
+  padding: var(--space-4) 0; margin: 0; cursor: pointer; list-style: none;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  font-size: var(--font-size-caption); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--text-secondary, var(--text-muted));
+}
+.sf-acc__sum::-webkit-details-marker { display: none; }
+.sf-acc__chev { transition: transform .15s ease; color: var(--text-muted); }
+.sf-acc[open] > .sf-acc__sum .sf-acc__chev { transform: rotate(180deg); }
+.sf-acc__bd { padding-bottom: var(--space-4); }
+
+/* Category = navigation → pill-shaped links, stacked, matching the prototype's pill treatment */
+.sf-pills { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+.sf-pill {
+  display: inline-block; border: 1px solid var(--borders-form-default);
+  background: var(--fill-card); border-radius: var(--r-pill, 999px);
+  padding: var(--space-2) var(--space-4); font-size: var(--font-size-body-2);
+  font-weight: 600; color: var(--text-primary); cursor: pointer; text-decoration: none;
+}
+.sf-pill:hover { background: var(--fill-alternative-1); }
+.sf-pill.on { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--text-on-dark); }
+
+.sf-check { display: flex; align-items: center; gap: 10px; padding: var(--space-2) 0; cursor: pointer; font-size: var(--font-size-body-2); font-weight: 600; }
+.sf-check input { width: 20px; height: 20px; accent-color: var(--fill-primary); flex-shrink: 0; }
+
+.navnote {
+  margin-top: var(--space-3); padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--fill-primary); background: var(--fill-primary-light);
+  font-size: var(--font-size-caption); color: var(--fill-primary-dark);
+}
+.navnote[hidden] { display: none; }
+
+/* results — .pct-* structure from the prototype */
+.pct-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 4px; }
+.pct-header .section-h { margin: 0; font-size: var(--font-size-body-1); font-weight: 700; }
+.sortcap { font-size: var(--font-size-caption); color: var(--text-muted); margin: 2px 0 12px; }
+.sortcap b { color: var(--text-primary); font-weight: 700; }
+.pct-wrap { min-width: 0; border: 1px solid var(--borders-default); border-radius: var(--r-table, 12px); background: var(--fill-card); overflow: hidden; position: relative; }
+.pct-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; box-shadow: inset -10px 0 8px -8px rgba(15,23,42,.14); }
+.pct-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 860px; background: var(--fill-card); }
+.pct-table th, .pct-table td { padding: 12px 14px; text-align: left; white-space: nowrap; vertical-align: middle; }
+.pct-table thead th { background: var(--fill-alternative-1); font-size: 15px; font-weight: 700; color: var(--text-primary); white-space: normal; line-height: 1.3; }
+.pct-table td { font-size: 14px; font-weight: 500; }
+.pct-table tbody td { border-top: 1px solid var(--borders-default); }
+.pct-table tbody tr:hover td { background: var(--fill-base, var(--fill-alternative-1)); }
+.pct-sticky { position: sticky; left: 0; z-index: 2; background: var(--fill-card); }
+.pct-table thead th.pct-sticky { background: var(--fill-alternative-1); z-index: 3; }
+.pct-table tbody tr:hover td.pct-sticky { background: var(--fill-base, var(--fill-alternative-1)); }
+.pct-loan { display: flex; align-items: center; gap: var(--space-3); min-width: 220px; white-space: normal; }
+.pct-loan img { height: 26px; width: auto; flex-shrink: 0; }
+.pct-loan span { font-weight: 700; font-size: 14px; }
+.pct-num { font-variant-numeric: tabular-nums; }
+.rwd-chip { display: inline-block; padding: 4px 10px; border-radius: 6px; background: var(--fill-primary-light); color: var(--fill-primary-dark); font-weight: 700; font-size: 13px; }
+.rwd-none { color: var(--text-muted); }
+.pct-note { margin: var(--space-2) 0 0; font-size: var(--font-size-caption); color: var(--text-muted); }
+
+/* product cards — .loan / .loan__grid2 structure from prototype-redesign.html */
+.section-h { font-size: 15px; font-weight: 700; margin: var(--space-5) 0 var(--space-1); }
+.cards { display: grid; gap: var(--space-3); margin-top: var(--space-2); }
+.loan {
+  border: 1px solid var(--borders-default); border-radius: var(--r-card, 12px);
+  background: var(--fill-card); padding: var(--space-4);
+  box-shadow: var(--shadow-card, var(--shadow-md));
+}
+.loan__tag {
+  display: inline-block; background: var(--fill-primary-light); color: var(--text-link, var(--fill-primary-dark));
+  font-size: 11px; font-weight: 700; border-radius: var(--r-pill, 999px);
+  padding: 3px 10px; margin-bottom: var(--space-3);
+}
+.loan__head { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: var(--space-3); }
+.loan__id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.loan__logobox {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 52px; height: 52px; padding: 6px; border: 1px solid var(--borders-default);
+  border-radius: var(--r-card-inner, 8px); background: var(--fill-card);
+}
+.loan__logobox img { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+.loan__name { font-weight: 800; font-size: 14px; line-height: 1.3; color: var(--text-primary); }
+.loan__ctawrap { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.loan__ctawrap .mhg-btn { width: 100%; }
+.loan__grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: var(--space-3) 0 0; }
+.g2 .l { font-size: 11px; color: var(--text-muted); }
+.g2 .v { font-size: 15px; font-weight: 700; }
+.g2 .v small { font-weight: 400; font-size: 11px; color: var(--text-muted); }
+.rwd-line { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--borders-soft, var(--borders-divider)); font-size: 13px; font-weight: 700; color: var(--fill-primary-dark); }
+@media (min-width: 720px) {
+  .loan__head { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .loan__ctawrap { align-items: flex-end; }
+  .loan__ctawrap .mhg-btn { width: auto; }
+  .loan__grid2 { grid-template-columns: repeat(3, 1fr); }
+}
+
+.sf-empty {
+  font-size: var(--font-size-body-2); color: var(--text-secondary, var(--text-muted));
+  padding: var(--space-6) var(--space-4); text-align: center;
+  display: flex; flex-direction: column; gap: var(--space-3); align-items: center;
+}
+
+.footnote { margin: var(--space-5) 0 var(--space-6); font-size: var(--font-size-caption); color: var(--text-muted); }
+.footnote ul { padding-left: var(--space-5); }
+</style>
+
+<!-- ===================== PASSWORD GATE ===================== -->
+<div id="gate">
+  <div class="gate__card">
+    <h1>SG PL — Sort &amp; Filter component</h1>
+    <p>Internal prototype. Please enter the password to continue.</p>
+    <div class="gate__row">
+      <input id="gatePw" class="inp" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+      <button id="gateGo" class="mhg-btn mhg-btn--primary" type="button">Unlock</button>
+    </div>
+    <div id="gateErr" role="alert">Incorrect password — please try again.</div>
+  </div>
+</div>
+
+<div id="app" hidden>
+<div class="wrap">
+
+  <div class="pagehead">
+    <h1>New Strapi component: “Sort &amp; Filter”</h1>
+    <p>How one new CMS component could carry the sort control and the filter groups for a comparison page. The left pane is what an editor configures; the right pane is the front end it drives, using the same panel and table structure as the PL redesign prototype. Change anything on the left and the right updates.</p>
+    <div class="tickets"><span>CMS-1871 · Sort</span><span>CMS-1903 · Filter</span><span>SG PL page</span></div>
+  </div>
+
+  <div class="panes">
+
+    <!-- ============ PANE 1 — STRAPI ============ -->
+    <section class="pane">
+      <div class="pane__hd">
+        <h2>Strapi — page configuration</h2>
+        <p class="sub">One component, added to the SG PL comparison page</p>
+      </div>
+      <div class="pane__bd">
+
+        <div class="st-comp">
+          <div class="st-comp__hd"><span class="grip">⠿</span> Sort &amp; Filter</div>
+          <div class="st-comp__bd">
+
+            <div class="st-group">
+              <div class="st-toggle">
+                <div class="st-toggle__txt">
+                  <strong>Enable on this page</strong>
+                  <small>Turn the whole panel on or off</small>
+                </div>
+                <label class="sw"><input type="checkbox" id="cfgEnable" checked aria-label="Enable Sort and Filter on this page"><span class="sw__track"></span></label>
+              </div>
+            </div>
+
+            <div class="st-group">
+              <label class="st-label" for="cfgDefault">Default sort on page load</label>
+              <select class="inp" id="cfgDefault"></select>
+              <p class="st-hint">The option the page opens on when no sort is passed in the URL.</p>
+            </div>
+
+            <div class="st-group">
+              <span class="st-label">Panel groups</span>
+
+              <div class="st-grp">
+                <div class="st-toggle">
+                  <div class="st-toggle__txt">
+                    <strong>Category</strong>
+                    <small>Navigation to existing category pages</small>
+                  </div>
+                  <label class="sw"><input type="checkbox" id="cfgCategory" checked aria-label="Show Category navigation"><span class="sw__track"></span></label>
+                </div>
+                <label class="st-sub" id="subCategory"><input type="checkbox" id="openCategory" checked> Expanded by default</label>
+              </div>
+
+              <div class="st-grp">
+                <div class="st-toggle">
+                  <div class="st-toggle__txt">
+                    <strong>Loan Features</strong>
+                    <small>Filters the results in place</small>
+                  </div>
+                  <label class="sw"><input type="checkbox" id="cfgFeatures" checked aria-label="Show Loan Features filter"><span class="sw__track"></span></label>
+                </div>
+                <label class="st-sub" id="subFeatures"><input type="checkbox" id="openFeatures"> Expanded by default</label>
+              </div>
+
+              <div class="st-grp">
+                <div class="st-toggle">
+                  <div class="st-toggle__txt">
+                    <strong>Provider</strong>
+                    <small>Filters in place · options read from ProductMetaConfig</small>
+                  </div>
+                  <label class="sw"><input type="checkbox" id="cfgProvider" checked aria-label="Show Provider filter"><span class="sw__track"></span></label>
+                </div>
+                <label class="st-sub" id="subProvider"><input type="checkbox" id="openProvider"> Expanded by default</label>
+              </div>
+
+              <p class="st-hint">“Expanded by default” only sets how the group renders on page load. Once a user opens or closes it themselves, their choice wins for the rest of the visit.</p>
+            </div>
+
+          </div>
+          <div class="st-save">
+            <button class="mhg-btn mhg-btn--outline" type="button" id="cfgReset">Reset</button>
+            <button class="mhg-btn mhg-btn--primary" type="button" id="cfgSave">Save</button>
+          </div>
+        </div>
+
+        <!-- Reference only — not component fields -->
+        <div class="notes">
+          <h3>Notes</h3>
+
+          <div class="note">
+            <b>Sort options are fixed in code</b>
+            There is no editor picker. Every option is pre-directioned, so the user gets no ascending / descending control.
+            <ol id="noteSort"></ol>
+          </div>
+
+          <div class="note">
+            <b>Loan Features are fixed in code</b>
+            Three features. The data source for each is still an open question on CMS-1903.
+            <ul id="noteFeats"></ul>
+          </div>
+
+          <div class="note">
+            <b>Category is navigation, not a filter</b>
+            The existing category tab strip moves into this panel unchanged. Each option loads a page that already exists, so it does not combine with the filters.
+            <ol id="noteCats"></ol>
+          </div>
+
+          <div class="note">
+            <b>Provider options are derived</b>
+            Read from the product list in <em>ProductMetaConfig</em>. Adding a product adds its provider automatically — nothing to maintain here.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ PANE 2 — FRONT END ============ -->
+    <section class="pane">
+      <div class="pane__hd">
+        <h2>Front end — SG PL comparison page</h2>
+        <p class="sub">Rendered from the configuration on the left</p>
+      </div>
+      <div class="pane__bd">
+
+        <div class="fe-calc">
+          <div>
+            <label for="feAmt">Loan Amount (S$)</label>
+            <input class="inp" id="feAmt" type="text" inputmode="numeric" value="10,000">
+          </div>
+          <div>
+            <label for="feTen">Tenure (months)</label>
+            <input class="inp" id="feTen" type="text" inputmode="numeric" value="36">
+          </div>
+        </div>
+
+        <div class="pl-layout">
+
+          <aside class="sf-panel" id="sfPanel" aria-label="Sort and filter personal loans">
+            <div class="sf-panel__head"><b>Sort &amp; Filter</b></div>
+            <div class="sf-panel__body">
+
+              <div class="sf-group">
+                <p class="sf-group__h">Sort by</p>
+                <select class="inp" id="feSort"></select>
+              </div>
+
+              <details class="sf-acc" id="accCategory" open>
+                <summary class="sf-acc__sum">Category <span class="sf-acc__chev">⌄</span></summary>
+                <div class="sf-acc__bd">
+                  <div class="sf-pills" id="feCats"></div>
+                  <div class="navnote" id="navNote" hidden></div>
+                </div>
+              </details>
+
+              <details class="sf-acc" id="accFeatures">
+                <summary class="sf-acc__sum">Loan features <span class="sf-acc__chev">⌄</span></summary>
+                <div class="sf-acc__bd" id="feFeats"></div>
+              </details>
+
+              <details class="sf-acc" id="accProvider">
+                <summary class="sf-acc__sum">Provider <span class="sf-acc__chev">⌄</span></summary>
+                <div class="sf-acc__bd" id="feProviders"></div>
+              </details>
+
+            </div>
+            <div class="sf-panel__foot">
+              <button type="button" class="mhg-btn mhg-btn--outline mhg-btn--small" id="feClear">Clear All</button>
+            </div>
+          </aside>
+
+          <div class="pl-results">
+            <div class="pct-header">
+              <div class="section-h" id="feCount">Compare Personal Loans</div>
+            </div>
+            <p class="sortcap" id="feCap"></p>
+
+            <div class="pct-wrap">
+              <div class="pct-scroll">
+                <table class="pct-table">
+                  <thead>
+                    <tr>
+                      <th class="pct-sticky">Loan</th>
+                      <th>Annual Interest Rate</th>
+                      <th>SingSaver Reward</th>
+                      <th>Monthly Repayment</th>
+                      <th>Total Cost of Borrowing</th>
+                      <th>EIR</th>
+                      <th>Apply</th>
+                    </tr>
+                  </thead>
+                  <tbody id="feTbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <p class="pct-note">Column order follows the live production comparison table. “Total Cost of Loan” is shown under its new name, <b>Total Cost of Borrowing</b> (CMS-1871 requirement 13) — the figure behind it is unchanged.</p>
+
+            <div class="section-h">Compare in detail</div>
+            <div id="feCards"></div>
+            <p class="pct-note">The cards show the same set in the same order as the table — CMS-1903 requirement 7. Sorting and filtering act on the product set, so both components always agree.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footnote">
+    <strong>Notes for reviewers (EN)</strong>
+    <ul>
+      <li>Config depth is deliberately <b>toggles only</b>: enable the panel, pick the default sort, show or hide each group. The fixed lists are reference notes, not editable fields.</li>
+      <li><b>Category is navigation.</b> Its options are links to existing category pages, so they do not combine with the filters. Here the links are intercepted so you stay in the demo — the destination is named instead.</li>
+      <li>Provider is <b>OR</b> within its group; Loan Features is <b>AND</b> within its group; the two filter groups <b>AND</b> with each other.</li>
+      <li>Panel and table structure, class names and column order are taken from <code>prototype-redesign.html</code> so the non-focus components match the prototype already shared. Simplified in one way: the mobile drawer / backdrop is not rebuilt — below 1024px the panel simply stacks above the results.</li>
+      <li>The <b>“Compare in detail” product cards</b> below the table render the same filtered, sorted set in the same order — that is CMS-1903 requirement 7, and the reason sorting and filtering act on the product set rather than on either component.</li>
+      <li>Card tags (“Instant approval · No processing fee”) are derived from each product's own feature flags rather than written by hand, so no marketing copy is invented here.</li>
+      <li>Figures are illustrative and exist only to demonstrate ordering and filtering. They do not reconcile with the live page.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- password gate (sessionStorage can throw on opaque origins) ---------- */
+  var PW = "chc-moneyhero", KEY = "sf-strapi-demo-unlocked";
+  function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+  function unlock() { $("gate").style.display = "none"; $("app").hidden = false; boot(); }
+  function tryPw() {
+    if ($("gatePw").value === PW) { ssSet(KEY, "1"); unlock(); }
+    else { $("gateErr").style.display = "block"; }
+  }
+  $("gateGo").addEventListener("click", tryPw);
+  $("gatePw").addEventListener("keydown", function (e) { if (e.key === "Enter") tryPw(); });
+  if (ssGet(KEY) === "1") { unlock(); }
+
+  /* ---------- fixed lists ---------- */
+  var SORTS = [
+    { id: "popular", label: "Popular" },
+    { id: "eir",     label: "Lowest EIR" },
+    { id: "rate",    label: "Lowest Annual Interest Rate" },
+    { id: "fee",     label: "Lowest Processing Fee" },
+    { id: "total",   label: "Lowest Total Cost of Borrowing" },
+    { id: "monthly", label: "Lowest Monthly Repayment" }
+  ];
+
+  var CATS = [
+    { label: "🏦 All Loans",           url: "/personal-loan/all" },
+    { label: "🤝 Alternate Lenders",   url: "/personal-loan/comparison/best-alternate-lenders" },
+    { label: "🔥 SingSaver Exclusive", url: "/personal-loan/compare/singsaver-exclusive-loan-rates" },
+    { label: "🔄 Balance Transfer",    url: "/personal-loan/balance-transfer" },
+    { label: "🧩 Debt Consolidation",  url: "/personal-loan/comparison/best-debt-consolidation-plans" },
+    { label: "⚡ Fast Cash",           url: "/personal-loan/comparison/best-fast-cash-loan" },
+    { label: "💳 Credit Line",         url: "/personal-loan/credit-line" },
+    { label: "🌱 Bad Credit",          url: "/personal-loan/comparison/best-loans-for-bad-credit" },
+    { label: "🌏 Foreigners",          url: "/personal-loan/comparison/best-personal-loans-for-foreigners-in-singapore" }
+  ];
+
+  var FEATS = [
+    { id: "instant",  label: "Instant Approval" },
+    { id: "feeWaive", label: "Processing Fee Waiver" },
+    { id: "zero",     label: "0% Interest Rate" }
+  ];
+
+  /* ---------- illustrative product set (stands in for ProductMetaConfig) ---------- */
+  var LOANS = [
+    { name: "Standard Chartered", product: "Standard Chartered CashOne Personal Loan", logo: "assets/logos/standard-chartered.webp", rate: 0.0090, eir: 0.0175, fee: 0,   reward: null, instant: true,  feeWaive: true  },
+    { name: "UOB",                product: "UOB Personal Loan",                        logo: "assets/logos/uob.png",                 rate: 0.0100, eir: 0.0193, fee: 250, reward: 120,  instant: true,  feeWaive: false },
+    { name: "Trust Bank",         product: "Trust Instant Loan",                       logo: "assets/logos/trust.png",               rate: 0.0000, eir: 0.0000, fee: 0,   reward: 100,  instant: true,  feeWaive: true  },
+    { name: "CIMB",               product: "CIMB Personal Loan",                       logo: "assets/logos/cimb.png",                rate: 0.0100, eir: 0.0194, fee: 150, reward: null, instant: false, feeWaive: false },
+    { name: "GXS",                product: "GXS FlexiLoan",                            logo: "assets/logos/gxs.png",                 rate: 0.0108, eir: 0.0210, fee: 100, reward: null, instant: true,  feeWaive: false },
+    { name: "HSBC",               product: "HSBC Personal Loan",                       logo: "assets/logos/hsbc.webp",               rate: 0.0130, eir: 0.0250, fee: 0,   reward: null, instant: false, feeWaive: true  },
+    { name: "DBS",                product: "DBS Personal Loan",                        logo: "assets/logos/dbs.webp",                rate: 0.0148, eir: 0.0322, fee: 0,   reward: null, instant: true,  feeWaive: true  }
+  ];
+
+  /* ---------- state ---------- */
+  var cfg   = {
+    enable: true, def: "popular",
+    provider: true, category: true, features: true,
+    /* initial expanded state per group — NOT re-applied on every render, so a
+       user's own open/close is never fought. See applyOpenDefaults(). */
+    open: { category: true, features: false, provider: false }
+  };
+  var state = { sort: "popular", providers: [], feats: [] };
+  var P = 10000, M = 36;
+
+  function money(n) { return "S$" + Math.round(n).toLocaleString("en-SG"); }
+  function pct(n) { return "From " + (n * 100).toFixed(2) + " % p.a."; }
+  function parseNum(v) { var n = parseFloat(String(v).replace(/[^0-9.]/g, "")); return isNaN(n) ? 0 : n; }
+
+  /* total = total interest — the existing "Total Cost of Loan" figure under its new name.
+     The calculation is unchanged; only the label differs (CMS-1871 req 13). */
+  function derive() {
+    var years = M / 12;
+    return LOANS.map(function (l, i) {
+      var interest = l.rate * P * years;
+      return {
+        name: l.name, product: l.product, logo: l.logo, idx: i, reward: l.reward,
+        rate: l.rate, eir: l.eir, fee: l.fee,
+        instant: l.instant, feeWaive: l.feeWaive, zero: l.rate === 0,
+        total: interest, monthly: (P + interest) / M
+      };
+    });
+  }
+
+  var SORTERS = {
+    popular: function (a, b) { return a.idx - b.idx; },
+    eir:     function (a, b) { return a.eir - b.eir; },
+    rate:    function (a, b) { return a.rate - b.rate; },
+    fee:     function (a, b) { return a.fee - b.fee; },
+    total:   function (a, b) { return a.total - b.total; },
+    monthly: function (a, b) { return a.monthly - b.monthly; }
+  };
+
+  function apply(rows) {
+    var out = rows.filter(function (r) {
+      if (cfg.provider && state.providers.length && state.providers.indexOf(r.name) === -1) return false;
+      if (cfg.features) {
+        for (var i = 0; i < state.feats.length; i++) {
+          var f = state.feats[i];
+          if (f === "instant"  && !r.instant)  return false;
+          if (f === "feeWaive" && !r.feeWaive) return false;
+          if (f === "zero"     && !r.zero)     return false;
+        }
+      }
+      return true;
+    });
+    return out.slice().sort(SORTERS[state.sort] || SORTERS.popular);
+  }
+
+  /* ---------- static build ---------- */
+  function buildStatic() {
+    var opts = SORTS.map(function (s) { return '<option value="' + s.id + '">' + s.label + "</option>"; }).join("");
+    $("cfgDefault").innerHTML = opts;
+    $("feSort").innerHTML = opts;
+
+    $("noteSort").innerHTML  = SORTS.map(function (s) { return "<li><em>" + s.label + "</em></li>"; }).join("");
+    $("noteFeats").innerHTML = FEATS.map(function (f) { return "<li><em>" + f.label + "</em></li>"; }).join("");
+    $("noteCats").innerHTML  = CATS.map(function (c) {
+      return "<li><em>" + c.label + "</em> → <span class='dest'>" + c.url + "</span></li>";
+    }).join("");
+
+    $("feCats").innerHTML = CATS.map(function (c, i) {
+      return '<a class="sf-pill' + (i === 0 ? " on" : "") + '" href="' + c.url + '" data-cat="' + c.label + '">' + c.label + "</a>";
+    }).join("");
+
+    var names = LOANS.map(function (l) { return l.name; });   // derived, never hardcoded
+    $("feProviders").innerHTML = names.map(function (n) {
+      return '<label class="sf-check"><input type="checkbox" data-prov="' + n + '"><span>' + n + "</span></label>";
+    }).join("");
+
+    $("feFeats").innerHTML = FEATS.map(function (f) {
+      return '<label class="sf-check"><input type="checkbox" data-feat="' + f.id + '"><span>' + f.label + "</span></label>";
+    }).join("");
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    $("sfPanel").hidden       = !cfg.enable;
+    $("accProvider").hidden   = !cfg.provider;
+    $("accCategory").hidden   = !cfg.category;
+    $("accFeatures").hidden   = !cfg.features;
+    $("feSort").value = state.sort;
+
+    var rows = apply(derive());
+    var label = (SORTS.filter(function (s) { return s.id === state.sort; })[0] || SORTS[0]).label;
+    $("feCount").textContent = rows.length + (rows.length === 1 ? " loan" : " loans");
+    $("feCap").innerHTML = "Sorted by <b>" + label + "</b> · S$" + P.toLocaleString("en-SG") + " over " + M + " months";
+
+    if (!rows.length) {
+      var emptyHTML = '<div class="sf-empty">No loans match your filters — try clearing one.' +
+        '<button type="button" class="mhg-btn mhg-btn--outline mhg-btn--small" data-clear>Clear All</button></div>';
+      $("feTbody").innerHTML = '<tr><td colspan="7">' + emptyHTML + "</td></tr>";
+      $("feCards").innerHTML = emptyHTML;
+      return;
+    }
+
+    $("feTbody").innerHTML = rows.map(function (r) {
+      return "<tr>" +
+        '<td class="pct-sticky"><div class="pct-loan"><img src="' + r.logo + '" alt="' + r.name + '" loading="lazy"><span>' + r.product + "</span></div></td>" +
+        '<td class="pct-num">' + pct(r.rate) + "</td>" +
+        "<td>" + (r.reward ? '<span class="rwd-chip">S$' + r.reward + "</span>" : '<span class="rwd-none">—</span>') + "</td>" +
+        '<td class="pct-num">' + money(r.monthly) + "/mo</td>" +
+        '<td class="pct-num">' + money(r.total) + "</td>" +
+        '<td class="pct-num">' + pct(r.eir) + "</td>" +
+        '<td><button type="button" class="mhg-btn mhg-btn--cta mhg-btn--small">Apply Now</button></td>' +
+      "</tr>";
+    }).join("");
+
+    /* Product cards — same set, same order as the table (CMS-1903 req 7) */
+    $("feCards").innerHTML = '<div class="cards">' + rows.map(function (r) {
+      var tag = tagFor(r);
+      return '<div class="loan">' +
+        (tag ? '<span class="loan__tag">' + tag + "</span>" : "") +
+        '<div class="loan__head">' +
+          '<div class="loan__id">' +
+            '<span class="loan__logobox"><img src="' + r.logo + '" alt="' + r.name + '" loading="lazy"></span>' +
+            '<span class="loan__name">' + r.product + "</span>" +
+          "</div>" +
+          '<div class="loan__ctawrap"><button type="button" class="mhg-btn mhg-btn--cta mhg-btn--small">Apply Now ↗</button></div>' +
+        "</div>" +
+        '<div class="loan__grid2 g2">' +
+          '<div><div class="l">Monthly Repayment</div><div class="v">' + money(r.monthly) + "<small>/mo</small></div></div>" +
+          '<div><div class="l">Annual Interest Rate</div><div class="v">' + pct(r.rate) + "</div></div>" +
+          '<div><div class="l">EIR</div><div class="v">' + pct(r.eir) + "</div></div>" +
+          '<div><div class="l">Processing Fee</div><div class="v">' + money(r.fee) + "</div></div>" +
+          '<div><div class="l">Total Cost of Borrowing</div><div class="v">' + money(r.total) + "</div></div>" +
+        "</div>" +
+        (r.reward ? '<div class="rwd-line">SingSaver Reward — up to S$' + r.reward + "</div>" : "") +
+      "</div>";
+    }).join("") + "</div>";
+  }
+
+  /* Card tag derived from the product's own feature flags — no invented copy. */
+  function tagFor(r) {
+    var t = [];
+    if (r.zero)     { t.push("0% interest"); }
+    if (r.instant)  { t.push("Instant approval"); }
+    if (r.feeWaive) { t.push("No processing fee"); }
+    return t.join(" · ");
+  }
+
+  /* Apply the configured expanded state. Called on load and whenever the editor
+     changes the config — deliberately NOT from render(), otherwise every filter
+     click would snap the accordions back and fight the user. */
+  var ACCS = { category: "accCategory", features: "accFeatures", provider: "accProvider" };
+  function applyOpenDefaults() {
+    Object.keys(ACCS).forEach(function (k) { $(ACCS[k]).open = !!cfg.open[k]; });
+  }
+  /* "Expanded by default" is meaningless while the group is hidden — grey it out. */
+  function syncSubStates() {
+    [["subCategory", "openCategory", cfg.category],
+     ["subFeatures", "openFeatures", cfg.features],
+     ["subProvider", "openProvider", cfg.provider]].forEach(function (t) {
+      $(t[0]).classList.toggle("is-off", !t[2]);
+      $(t[1]).disabled = !t[2];
+    });
+  }
+
+  function clearAll() {
+    state.providers = []; state.feats = []; state.sort = cfg.def;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-prov],[data-feat]"), function (i) { i.checked = false; });
+    $("navNote").hidden = true;
+    render();
+  }
+
+  /* ---------- wiring ---------- */
+  function boot() {
+    if (boot.done) { return; }
+    boot.done = true;
+    buildStatic();
+
+    $("cfgEnable").addEventListener("change", function () { cfg.enable = this.checked; render(); });
+    $("cfgProvider").addEventListener("change", function () {
+      cfg.provider = this.checked;
+      if (!this.checked) { state.providers = []; Array.prototype.forEach.call(document.querySelectorAll("[data-prov]"), function (i) { i.checked = false; }); }
+      syncSubStates(); applyOpenDefaults(); render();
+    });
+    $("cfgCategory").addEventListener("change", function () {
+      cfg.category = this.checked;
+      syncSubStates(); applyOpenDefaults(); render();
+    });
+    $("cfgFeatures").addEventListener("change", function () {
+      cfg.features = this.checked;
+      if (!this.checked) { state.feats = []; Array.prototype.forEach.call(document.querySelectorAll("[data-feat]"), function (i) { i.checked = false; }); }
+      syncSubStates(); applyOpenDefaults(); render();
+    });
+
+    /* "Expanded by default" per group */
+    Object.keys(ACCS).forEach(function (k) {
+      var id = "open" + k.charAt(0).toUpperCase() + k.slice(1);
+      $(id).addEventListener("change", function () {
+        cfg.open[k] = this.checked;
+        applyOpenDefaults();
+      });
+    });
+    $("cfgDefault").addEventListener("change", function () {
+      cfg.def = this.value; state.sort = this.value; render();
+    });
+    /* Save = what a shopper sees on a fresh page load with this config. */
+    $("cfgSave").addEventListener("click", function () { applyOpenDefaults(); clearAll(); });
+    $("cfgReset").addEventListener("click", function () {
+      cfg = {
+        enable: true, def: "popular", provider: true, category: true, features: true,
+        open: { category: true, features: false, provider: false }
+      };
+      $("cfgEnable").checked = true; $("cfgProvider").checked = true;
+      $("cfgCategory").checked = true; $("cfgFeatures").checked = true;
+      $("cfgDefault").value = "popular";
+      $("openCategory").checked = true; $("openFeatures").checked = false; $("openProvider").checked = false;
+      syncSubStates(); applyOpenDefaults(); clearAll();
+    });
+
+    $("feSort").addEventListener("change", function () { state.sort = this.value; render(); });
+
+    $("feProviders").addEventListener("change", function (e) {
+      var t = e.target; if (!t.dataset.prov) { return; }
+      var n = t.dataset.prov, i = state.providers.indexOf(n);
+      if (t.checked && i === -1) { state.providers.push(n); }
+      if (!t.checked && i > -1) { state.providers.splice(i, 1); }
+      render();
+    });
+
+    $("feFeats").addEventListener("change", function (e) {
+      var t = e.target; if (!t.dataset.feat) { return; }
+      var f = t.dataset.feat, i = state.feats.indexOf(f);
+      if (t.checked && i === -1) { state.feats.push(f); }
+      if (!t.checked && i > -1) { state.feats.splice(i, 1); }
+      render();
+    });
+
+    /* Category = navigation. Intercepted so the reviewer stays in the demo. */
+    $("feCats").addEventListener("click", function (e) {
+      var a = e.target.closest("a[data-cat]"); if (!a) { return; }
+      e.preventDefault();
+      Array.prototype.forEach.call($("feCats").querySelectorAll(".sf-pill"), function (p) { p.classList.remove("on"); });
+      a.classList.add("on");
+      var note = $("navNote");
+      note.textContent = "Navigation — “" + a.dataset.cat.replace(/^\S+\s/, "") +
+        "” loads " + a.getAttribute("href") + ". It does not filter this page, so the results are unchanged.";
+      note.hidden = false;
+    });
+
+    $("feClear").addEventListener("click", clearAll);
+    document.addEventListener("click", function (e) { if (e.target.closest("[data-clear]")) { clearAll(); } });
+
+    function recalc() {
+      P = parseNum($("feAmt").value) || 10000;
+      M = parseNum($("feTen").value) || 36;
+      render();
+    }
+    $("feAmt").addEventListener("change", recalc);
+    $("feTen").addEventListener("change", recalc);
+    $("feAmt").addEventListener("blur", function () { this.value = (parseNum(this.value) || 10000).toLocaleString("en-SG"); });
+
+    syncSubStates();
+    applyOpenDefaults();
+    render();
+  }
+})();
+</script>
