@@ -1468,14 +1468,14 @@
 // Sample data — 7 lenders, structure/labels match production; rates & reward figures are illustrative.
 const LOANS = [
   { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
-    rate:0.0148, eir:0.0322, fee:0, rewardMax:100, minAmt:8000, minTenure:36,
+    rate:0.0148, eir:0.0290, fee:0, rewardMax:130, minAmt:8000, minTenure:36,
     categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
     steps:["Go to DBS's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents (or apply instantly via digibank if you're an existing DBS/POSB customer)","Wait for approval of your DBS Personal Loan"],
     feats:["Instant approval for existing DBS/POSB customers via digibank.","Cash disbursement as fast as the same day for existing customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
     minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:20000, eligForeignerOk:false },
   { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
-    rate:0.0102, eir:0.0198, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
+    rate:0.0102, eir:0.0230, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
     // Real live "Welcome Offer" — maps to the Strapi "Welcome Offers" collection entry
     // (2026-07-01.PL.TRBX.10FAIRPRICE): Offer Title, Combine Gift=TRUE (→ stacks "on top of" the
     // SingSaver reward), List of Gifts, Period. Rendered as its own offer section (card accordion +
@@ -1528,28 +1528,28 @@ const LOANS = [
       {range:"S$8,000 – S$9,999", cash:"S$120 Cash via PayNow"},
     ] },
   { name:"UOB", full:"UOB Personal Loan", tag:"Instant approval and disbursement", logo:"assets/logos/uob.png",
-    rate:0.0100, eir:0.0193, fee:0, rewardMax:120, minAmt:8000, minTenure:12,
-    categories:["fast-cash","singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:true,
+    rate:0.0100, eir:0.0330, fee:150, rewardMax:150, minAmt:8000, minTenure:12,
+    categories:["fast-cash","singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
     steps:["Go to UOB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your UOB Personal Loan"],
     feats:["Instant approval and disbursement for existing UOB customers.","Low processing fee, no early-repayment penalty on selected plans.","Suitable for Singaporeans/PRs and eligible foreigners."],
     minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:30000, eligForeignerOk:false },
   { name:"HSBC", full:"HSBC Personal Loan", tag:"Long tenures up to 84 months", logo:"assets/logos/hsbc.webp",
-    rate:0.0130, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    rate:0.0250, eir:0.0300, fee:0, rewardMax:0, minAmt:0, minTenure:0,
     categories:["foreigners"], instantApproval:false, feeWaiver:false,
     steps:["Go to HSBC's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your HSBC Personal Loan"],
     feats:["Long tenures of up to 84 months for lower monthly repayments.","Preferential rates for HSBC Premier/Advance customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
     minAge:21, minIncome:45000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:45000, eligForeignerOk:true, eligForeignerIncome:60000 },
   { name:"GXS", full:"GXS FlexiLoan", tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png",
-    rate:0.0108, eir:0.0210, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    rate:0.0180, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0,
     categories:["credit-line"], instantApproval:false, feeWaiver:true,
     steps:["Open the GXS Bank app and select FlexiLoan","Set your credit limit and draw down what you need","Repay flexibly — interest is charged only on what you draw"],
     feats:["Draw down only what you need, interest charged on the drawn amount only.","No early-repayment fee.","Fully digital application via the GXS app."],
     minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the GXS app for Singaporeans / PRs."],
     eligIncome:30000, eligForeignerOk:false },
   { name:"CIMB", full:"CIMB Personal Loan", tag:"Low income requirement", logo:"assets/logos/cimb.png",
-    rate:0.0105, eir:0.0204, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    rate:0.0130, eir:0.0400, fee:250, rewardMax:0, minAmt:0, minTenure:0,
     categories:["debt-consolidation","foreigners"], instantApproval:false, feeWaiver:false,
     steps:["Go to CIMB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your CIMB Personal Loan"],
     feats:["Low minimum annual income requirement of S$24,000.","Open to Singaporeans, PRs and eligible foreigners.","Fixed monthly instalments for the full loan tenure."],
@@ -1778,7 +1778,7 @@ function compute(){
   const P = Math.max(1000, parseNum(amt.value) || 8000);
   const months = Math.max(1, parseNum(tenure.value) || 12);
   const years = months/12;
-  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti, real:realReward(l,P)}; }), P, months };
+  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti+(l.fee||0), real:realReward(l,P)}; }), P, months };
 }
 
 function renderPct(rows){
