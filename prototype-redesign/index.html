@@ -558,7 +558,7 @@
   .sf-acc:last-child { border-bottom:0; }
   .sf-acc__sum { padding:var(--space-4) 0; margin:0; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); }
   .sf-acc__sum::-webkit-details-marker { display:none; }
-  .sf-acc__chev { color:var(--text-muted); font-weight:400; font-size:var(--font-size-caption); flex-shrink:0; transition:transform .15s ease; }
+  .sf-acc__chev { flex-shrink:0; width:16px; height:16px; color:var(--text-muted); transition:transform .15s ease; }
   .sf-acc[open] > .sf-acc__sum .sf-acc__chev { transform:rotate(180deg); }
   .sf-acc__body { padding:0 0 var(--space-4); }
   .sf-panel__foot { display:flex; gap:var(--space-3); padding:var(--space-4); border-top:1px solid var(--borders-soft); background:var(--fill-card); flex-shrink:0; }
@@ -1060,7 +1060,7 @@
              Collapsed by default (checker fix: shorten the first fold); expand to see the 9
              options — same labels/emoji as the Baseline view's persona tabs, minus that one. -->
         <details class="sf-acc" id="sfAccCategory" open>
-          <summary class="sf-group__h sf-acc__sum">Category<span class="sf-acc__chev">▾</span></summary>
+          <summary class="sf-group__h sf-acc__sum">Category<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body">
             <div class="sf-pills" id="sfCategory" role="group" aria-label="Filter by category">
               <button type="button" class="sf-pill on" data-cat="all">🏦 All Loans</button>
@@ -1076,7 +1076,7 @@
           </div>
         </details>
         <details class="sf-acc" id="sfAccFeatures" open>
-          <summary class="sf-group__h sf-acc__sum">Loan Features<span class="sf-acc__chev">▾</span></summary>
+          <summary class="sf-group__h sf-acc__sum">Loan Features<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body">
             <label class="sf-check"><input type="checkbox" id="fInstant"><span>Instant Approval</span></label>
             <label class="sf-check"><input type="checkbox" id="fFee"><span>Processing Fee Waiver</span></label>
@@ -1084,7 +1084,7 @@
           </div>
         </details>
         <details class="sf-acc" id="sfAccBank" open>
-          <summary class="sf-group__h sf-acc__sum">Bank<span class="sf-acc__chev">▾</span></summary>
+          <summary class="sf-group__h sf-acc__sum">Bank<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body" id="sfBank"><!-- populated from LOANS at init so the list can never drift out of sync --></div>
         </details>
       </div>
