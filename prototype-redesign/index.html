@@ -127,7 +127,12 @@
 
   /* Comparison table — real ComparisonTableBuilder/PLColumnSource structure */
   .pct-section { margin: var(--space-3) 0 var(--space-4); }
-  .pct-wrap { border:1px solid var(--borders-default); border-radius: var(--r-table); background: var(--fill-card); overflow:hidden; position:relative; }
+  /* .pct-wrap's overflow:hidden purely clips .pct-scroll's rounded corners; overflow:clip gives the
+     identical visual clip WITHOUT making .pct-wrap a position:sticky-blocking scroll container (unlike
+     hidden/auto, 'clip' doesn't establish one) — kept as a fallback-safe pair (invalid `clip` is simply
+     ignored by any engine that doesn't parse it, leaving `hidden` — same look either way) since the new
+     sticky header shadow below (FIX 3) lives inside this box and needs to reach past it to the page. */
+  .pct-wrap { border:1px solid var(--borders-default); border-radius: var(--r-table); background: var(--fill-card); overflow:hidden; overflow:clip; position:relative; }
   .pct-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; box-shadow: inset -10px 0 8px -8px rgba(15,23,42,.14); }
   .pct-scroll::-webkit-scrollbar { display:none; }
   .pct-table { border-collapse:separate; border-spacing:0; width:100%; min-width:760px; background:var(--fill-card); }
@@ -146,6 +151,43 @@
   .pct-sticky { position:sticky; left:0; z-index:2; background:var(--fill-card); }
   .pct-table thead th.pct-sticky { background:var(--fill-alternative-1); z-index:3; }
   .pct-table tbody tr:hover td.pct-sticky { background:var(--fill-base); }
+
+  /* ============================================================
+     STAKEHOLDER-REVIEW FIX 3 — sticky HEADER ROW during vertical scroll (previously only the first
+     COLUMN, .pct-sticky, was sticky; the header row scrolled away with the body). Real caveat this
+     had to solve: the table's own `<thead>` lives inside .pct-scroll, and .pct-scroll MUST keep real
+     overflow-x:auto for horizontal drag on narrow screens — but per the CSS Overflow spec, an element
+     can't have a real scrolling x-axis while its y-axis stays invisible to position:sticky's ancestor
+     search: pairing overflow-x:auto with any non-'visible' overflow-y (auto, hidden, OR clip — verified
+     empirically: 'clip' paired with a scrolling sibling axis is itself demoted to 'hidden' by the UA,
+     since the two axes must agree to actually clip-without-scrolling) always turns .pct-scroll into a
+     bona fide scroll container, which traps `position:sticky;top` on anything inside it — it can only
+     ever stick to the inside of .pct-scroll's own (here, non-scrolling, content-height) box, never to
+     the real page. There is no single-element CSS `overflow` combination that lets one axis genuinely
+     scroll while the other stays transparent to an ancestor sticky search.
+
+     Fix: don't make the REAL <thead> (inside .pct-scroll) sticky at all — instead add a lightweight
+     "shadow" duplicate header (#pctHeadShadow, markup right before .pct-scroll in .pct-wrap) that is
+     NOT inside .pct-scroll, so `position:sticky;top:0` on it correctly escapes past .pct-wrap
+     (overflow:clip, confirmed non-blocking above) to the real page/viewport. Its own wrapper is
+     height:0/overflow:visible so it reserves zero space in flow — before any scroll it sits exactly on
+     top of (and pixel-for-pixel matches) the real header underneath, so there's no visible seam or
+     duplicate row; once the page scrolls past it, it's the one that visibly stays pinned while the real
+     header (still in normal flow inside .pct-scroll) scrolls away beneath it. Column widths are copied
+     from the real, already-correctly-laid-out header cells via JS (syncHeadShadow(), called after every
+     render()/resize — see script) rather than left to independent auto-layout, so the shadow can never
+     drift out of alignment with the real columns below it. Its own inner clip strip is a genuine
+     overflow-x:auto container (scrollLeft kept in lockstep with the real .pct-scroll on every 'scroll'
+     event — see initHeadShadowSync() in the script) purely so its own first cell can reuse the exact
+     same `.pct-sticky` class/mechanism as the real table for the left-pinned "Loan" corner — meaning the
+     corner cell is provably pinned on BOTH axes by the same, already-proven CSS this page already uses
+     for the real table's first column, just running inside the new shadow instead. aria-hidden since
+     it's a purely-visual duplicate of the real (still-present, still-accessible) <thead>. */
+  .pct-head-shadow { position:sticky; top:0; height:0; overflow:visible; z-index:6; pointer-events:none; }
+  .pct-head-shadow__clip { overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+  .pct-head-shadow__clip::-webkit-scrollbar { display:none; }
+  .pct-head-shadow .pct-table { table-layout:fixed; }
+  @media (min-width:1280px){ .pct-head-shadow .pct-table { min-width:100%; } }
   .pct-loan { display:flex; align-items:center; gap:10px; min-width:172px; }
   .pct-loan img { height:26px; width:auto; max-width:64px; object-fit:contain; flex-shrink:0; }
   .pct-loan span { font-weight:700; font-size:13px; color:var(--text-primary); white-space:normal; line-height:1.25; }
@@ -556,8 +598,16 @@
      token for a consistent scale across the whole panel — this is the control/pill tier, one step
      below the caption-tier group labels above (see .sf-group__h comment for the full 3-tier scale).
      Padding also moved to the --space-* scale for comfortable, even pill padding (was 7px/13px). */
-  .sf-pill { display:inline-flex; align-items:center; gap:var(--space-2); border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); cursor:pointer; }
+  /* FIX 4: Category pills are real <a href> elements now (navigation, not filter buttons) — same visual
+     component, so text-decoration:none is the only addition an anchor needs on top of the existing
+     button-era rule. .on stays purely a static "default selected" look on "All Loans" (no JS toggles it
+     anymore, see initSortFilter()). */
+  .sf-pill { display:inline-flex; align-items:center; gap:var(--space-2); border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); cursor:pointer; text-decoration:none; }
   .sf-pill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
+  /* FIX 4 — inline destination note: idle copy explains Category is navigation-only; updated in JS to
+     name the exact live URL a pill would open, whenever one is clicked (never a filter/results change). */
+  .sf-cat-note { font-family:var(--font-sans); font-size:var(--font-size-caption); line-height:var(--line-height-caption); color:var(--text-muted); margin:0 0 var(--space-3); }
+  .sf-cat-note strong { color:var(--text-primary); font-weight:var(--font-weight-bold); word-break:break-all; }
   .sf-check { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) 0; cursor:pointer; font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); }
   .sf-check input { width:20px; height:20px; accent-color:var(--fill-primary); flex-shrink:0; border-radius:var(--r-button); border:1px solid var(--borders-form-default); }
 
@@ -585,31 +635,19 @@
   }
   @media (min-width:1024px){
     .sf-backdrop { display:none !important; }
-    /* Checker fix: desktop panel was clipped — position:static let it just grow inside the flex
-       row, so once any group was expanded (Category/Features/Bank all open, or a long Bank list)
-       its lower groups + the Clear All/Apply footer could scroll past both the viewport AND the
-       (much shorter) results column beside it, with no way back to them short of scrolling back
-       up the whole page. Fix: make the panel sticky (pinned just under the sticky loan-amount/
-       tenure calculator — ~86px tall — with a small gap) and give it its OWN bounded height +
-       internal overflow-y:auto, so a tall panel scrolls within itself and the header/footer never
-       leave view. Combined with the collapsed-by-default accordions above, the panel is short by
-       default and never clips at any expanded height. */
-    .sf-panel { position:sticky; top:96px; transform:none !important; transition:none; z-index:10; width:280px; flex-shrink:0; align-self:flex-start; max-height:calc(100vh - 112px); height:auto; border-radius:var(--r-card); border:1px solid var(--borders-default); box-shadow:none; overflow:hidden; }
+    /* Stakeholder-review fix: the panel was position:sticky (pinned under the sticky calculator as
+       the page scrolled). Per review, Sort & Filter should NOT follow the viewport — it now sits in
+       normal document flow as a plain in-flow left column and scrolls away with the rest of the page,
+       same as it would in a static two-column layout. transform:none !important stays (still needed
+       to counteract the mobile/tablet slide-in transform this same element carries at <1024px) but
+       there's no sticky offset, no bounded max-height, and no internal overflow-y scroll — the panel
+       simply grows to fit its content like any other block in the flex row. */
+    .sf-panel { position:static; transform:none !important; transition:none; z-index:10; width:280px; flex-shrink:0; align-self:flex-start; height:auto; border-radius:var(--r-card); border:1px solid var(--borders-default); box-shadow:none; overflow:hidden; }
     .sf-panel__head { flex-shrink:0; }
-    .sf-panel__body { flex:1 1 auto; min-height:0; overflow-y:auto; }
+    .sf-panel__body { flex:1 1 auto; min-height:0; }
     .sf-panel__foot { flex-shrink:0; }
     .sf-panel__close { display:none; }
     #sfApply { display:none; } /* Apply only makes sense to dismiss the mobile/tablet drawer */
-  }
-  /* CHANGE 2, desktop only: the full calculator is no longer sticky under Change 2 (see the
-     body[data-proto-view="change2"] .calc override above) — the persistent top chrome is now the
-     much-shorter sticky-summary bar (~40px) instead, body[data-proto-view="change3"] .calc override above) — the persistent top chrome is now the
-     much-shorter sticky-summary bar (~40px) instead, body[data-proto-view="change4"] .calc override above) — the persistent top chrome is now the
-     much-shorter sticky-summary bar (~40px) instead, once scrolled that far. Tightens the panel's
-     sticky offset to match (was 96px/112px sized for the taller sticky calculator), same "small gap"
-     logic as the comment above. */
-  @media (min-width:1024px){
-    body[data-proto-view="change2"] .sf-panel , body[data-proto-view="change3"] .sf-panel , body[data-proto-view="change4"] .sf-panel , body[data-proto-view="change5"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
   }
 
   /* ============================================================
@@ -1168,16 +1206,23 @@
         <details class="sf-acc" id="sfAccCategory" open>
           <summary class="sf-group__h sf-acc__sum">Category<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body">
-            <div class="sf-pills" id="sfCategory" role="group" aria-label="Filter by category">
-              <button type="button" class="sf-pill on" data-cat="all"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-category"/></svg>All Loans</button>
-              <button type="button" class="sf-pill" data-cat="alternate-lenders"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-groups"/></svg>Alternate Lenders</button>
-              <button type="button" class="sf-pill" data-cat="singsaver-exclusive"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-crown"/></svg>SingSaver Exclusive</button>
-              <button type="button" class="sf-pill" data-cat="balance-transfer"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg>Balance Transfer</button>
-              <button type="button" class="sf-pill" data-cat="debt-consolidation"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg>Debt Consolidation</button>
-              <button type="button" class="sf-pill" data-cat="fast-cash"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg>Fast Cash</button>
-              <button type="button" class="sf-pill" data-cat="credit-line"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg>Credit Line</button>
-              <button type="button" class="sf-pill" data-cat="bad-credit"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-person-check"/></svg>Bad Credit</button>
-              <button type="button" class="sf-pill" data-cat="foreigners"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-language"/></svg>Foreigners</button>
+            <!-- FIX 4 (product decision): Category is NAVIGATION to existing SingSaver category pages —
+                 it does NOT filter these results and does NOT combine with Provider/Loan Features below.
+                 Real <a href> to each live destination; the click is intercepted purely so a reviewer
+                 stays inside this demo (see initSortFilter()) — nothing here touches sfState or the
+                 table/cards. "All Loans" keeps its .sf-pill.on look as a static default, not a live
+                 selection state. -->
+            <p class="sf-cat-note" id="sfCatNote">Category links to SingSaver's other loan-comparison pages — it doesn't filter the results below. Tap one to preview where it would take you.</p>
+            <div class="sf-pills" id="sfCategory" role="group" aria-label="Browse loans by category (opens a different SingSaver page)">
+              <a class="sf-pill on" href="https://www.singsaver.com.sg/personal-loan/all" data-cat="all"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-category"/></svg>All Loans</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-alternate-lenders" data-cat="alternate-lenders"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-groups"/></svg>Alternate Lenders</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/compare/singsaver-exclusive-loan-rates" data-cat="singsaver-exclusive"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-crown"/></svg>SingSaver Exclusive</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/balance-transfer" data-cat="balance-transfer"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg>Balance Transfer</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-debt-consolidation-plans" data-cat="debt-consolidation"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg>Debt Consolidation</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-fast-cash-loan" data-cat="fast-cash"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg>Fast Cash</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/credit-line" data-cat="credit-line"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg>Credit Line</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-loans-for-bad-credit" data-cat="bad-credit"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-person-check"/></svg>Bad Credit</a>
+              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-personal-loans-for-foreigners-in-singapore" data-cat="foreigners"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-language"/></svg>Foreigners</a>
             </div>
           </div>
         </details>
@@ -1221,8 +1266,29 @@
     </div>
     <p class="sortcap" id="sortCap"></p>
     <div class="pct-wrap">
+      <!-- FIX 3 — sticky header shadow (see the .pct-head-shadow CSS comment above for why this can't
+           just be `position:sticky` on the real <thead> below). Visual-only duplicate of the real header
+           row; kept perfectly aligned with it via syncHeadShadow()/initHeadShadowSync() in the script.
+           aria-hidden — the real, always-present <thead> below stays the accessible one. -->
+      <div class="pct-head-shadow" id="pctHeadShadow" aria-hidden="true">
+        <div class="pct-head-shadow__clip" id="pctHeadShadowClip">
+          <table class="pct-table" id="pctHeadShadowTable">
+            <thead>
+              <tr>
+                <th class="pct-sticky">Loan</th>
+                <th class="th-air"><span class="lbl-air">Annual Interest Rate</span><span class="lbl-ir">Interest rate</span><span class="ann ann-ir">NEW · CHANGE 5</span></th>
+                <th>SingSaver Reward</th>
+                <th>Monthly Repayment</th>
+                <th>Total Cost of Loan</th>
+                <th class="th-eir">EIR</th>
+                <th>Apply</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
       <div class="pct-scroll">
-        <table class="pct-table">
+        <table class="pct-table" id="pctTable">
           <thead>
             <tr>
               <th class="pct-sticky">Loan</th>
@@ -1401,6 +1467,38 @@
 <script>
 // Sample data — 7 lenders, structure/labels match production; rates & reward figures are illustrative.
 const LOANS = [
+  { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
+    rate:0.0148, eir:0.0322, fee:0, rewardMax:100, minAmt:8000, minTenure:36,
+    categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
+    steps:["Go to DBS's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents (or apply instantly via digibank if you're an existing DBS/POSB customer)","Wait for approval of your DBS Personal Loan"],
+    feats:["Instant approval for existing DBS/POSB customers via digibank.","Cash disbursement as fast as the same day for existing customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
+    minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
+    eligIncome:20000, eligForeignerOk:false },
+  { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
+    rate:0.0102, eir:0.0198, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
+    // Real live "Welcome Offer" — maps to the Strapi "Welcome Offers" collection entry
+    // (2026-07-01.PL.TRBX.10FAIRPRICE): Offer Title, Combine Gift=TRUE (→ stacks "on top of" the
+    // SingSaver reward), List of Gifts, Period. Rendered as its own offer section (card accordion +
+    // drawer block), matching the live page — NOT a bespoke inline callout.
+    welcomeOffer:{
+      cardTitle:"Provider Gift – On Top of SingSaver's",  // live card component label
+      offerTitle:"Stackable Welcome Offer",               // Strapi Offer Title (used in the drawer)
+      intro:"You'll also receive the following welcome gift(s) directly from the provider:",
+      gifts:[{ name:"FairPrice voucher", worth:10 }],      // List of Gifts (icon uses an emoji stand-in; live uses the FairPrice logo from the Gifts media)
+      daysLeft:7,                                          // derived from the Period end date
+      combine:true,                                        // Combine Gift = TRUE
+      // Strapi "Description" rich-text (verbatim from the Welcome Offers entry) — shown under "Show T&Cs"
+      tncs:[
+        "Stackable Welcome Offer promotion is valid until 2 August 2026.",
+        "Promotion is valid for new Trust customers only.",
+        "Apply for a Trust Instant Loan with referral code <strong>SINGSAVE</strong> to be eligible for reward.",
+        "Promotion is stackable with SingSaver Exclusive Offer (additional T&amp;Cs apply).",
+        "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply." ] },
+    categories:["fast-cash","singsaver-exclusive"], instantApproval:true, feeWaiver:true,
+    steps:["Open the Trust Bank app and select Instant Loan","Fill out an application in-app — no paperwork needed","Get your approval decision and disbursement in-app"],
+    feats:["Fully in-app application for existing Trust customers.","No processing fee, flexible repayment tenures.","Instant approval for eligible applicants."],
+    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the Trust app for Singaporeans / PRs."],
+    eligIncome:40000, eligForeignerOk:false },
   { name:"Standard Chartered", full:"Standard Chartered CashOne Personal Loan", tag:"Flexible repayment and instant approvals", logo:"assets/logos/standard-chartered.webp",
     rate:0.0090, eir:0.0175, fee:0, rewardMax:120, minAmt:8000, minTenure:36,
     // Sort & Filter metadata (redesign step 1 only — drives the new panel's Category/Feature filters;
@@ -1436,45 +1534,6 @@ const LOANS = [
     feats:["Instant approval and disbursement for existing UOB customers.","Low processing fee, no early-repayment penalty on selected plans.","Suitable for Singaporeans/PRs and eligible foreigners."],
     minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:30000, eligForeignerOk:false },
-  { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
-    rate:0.0100, eir:0.0194, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
-    // Real live "Welcome Offer" — maps to the Strapi "Welcome Offers" collection entry
-    // (2026-07-01.PL.TRBX.10FAIRPRICE): Offer Title, Combine Gift=TRUE (→ stacks "on top of" the
-    // SingSaver reward), List of Gifts, Period. Rendered as its own offer section (card accordion +
-    // drawer block), matching the live page — NOT a bespoke inline callout.
-    welcomeOffer:{
-      cardTitle:"Provider Gift – On Top of SingSaver's",  // live card component label
-      offerTitle:"Stackable Welcome Offer",               // Strapi Offer Title (used in the drawer)
-      intro:"You'll also receive the following welcome gift(s) directly from the provider:",
-      gifts:[{ name:"FairPrice voucher", worth:10 }],      // List of Gifts (icon uses an emoji stand-in; live uses the FairPrice logo from the Gifts media)
-      daysLeft:7,                                          // derived from the Period end date
-      combine:true,                                        // Combine Gift = TRUE
-      // Strapi "Description" rich-text (verbatim from the Welcome Offers entry) — shown under "Show T&Cs"
-      tncs:[
-        "Stackable Welcome Offer promotion is valid until 2 August 2026.",
-        "Promotion is valid for new Trust customers only.",
-        "Apply for a Trust Instant Loan with referral code <strong>SINGSAVE</strong> to be eligible for reward.",
-        "Promotion is stackable with SingSaver Exclusive Offer (additional T&amp;Cs apply).",
-        "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply." ] },
-    categories:["fast-cash","singsaver-exclusive"], instantApproval:true, feeWaiver:true,
-    steps:["Open the Trust Bank app and select Instant Loan","Fill out an application in-app — no paperwork needed","Get your approval decision and disbursement in-app"],
-    feats:["Fully in-app application for existing Trust customers.","No processing fee, flexible repayment tenures.","Instant approval for eligible applicants."],
-    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the Trust app for Singaporeans / PRs."],
-    eligIncome:40000, eligForeignerOk:false },
-  { name:"CIMB", full:"CIMB Personal Loan", tag:"Low income requirement", logo:"assets/logos/cimb.png",
-    rate:0.0100, eir:0.0194, fee:0, rewardMax:0, minAmt:0, minTenure:0,
-    categories:["debt-consolidation","foreigners"], instantApproval:false, feeWaiver:false,
-    steps:["Go to CIMB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your CIMB Personal Loan"],
-    feats:["Low minimum annual income requirement of S$24,000.","Open to Singaporeans, PRs and eligible foreigners.","Fixed monthly instalments for the full loan tenure."],
-    minAge:21, minIncome:24000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
-    eligIncome:24000, eligForeignerOk:true, eligForeignerIncome:60000 },
-  { name:"GXS", full:"GXS FlexiLoan", tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png",
-    rate:0.0108, eir:0.0210, fee:0, rewardMax:0, minAmt:0, minTenure:0,
-    categories:["credit-line"], instantApproval:false, feeWaiver:true,
-    steps:["Open the GXS Bank app and select FlexiLoan","Set your credit limit and draw down what you need","Repay flexibly — interest is charged only on what you draw"],
-    feats:["Draw down only what you need, interest charged on the drawn amount only.","No early-repayment fee.","Fully digital application via the GXS app."],
-    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the GXS app for Singaporeans / PRs."],
-    eligIncome:30000, eligForeignerOk:false },
   { name:"HSBC", full:"HSBC Personal Loan", tag:"Long tenures up to 84 months", logo:"assets/logos/hsbc.webp",
     rate:0.0130, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0,
     categories:["foreigners"], instantApproval:false, feeWaiver:false,
@@ -1482,13 +1541,20 @@ const LOANS = [
     feats:["Long tenures of up to 84 months for lower monthly repayments.","Preferential rates for HSBC Premier/Advance customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
     minAge:21, minIncome:45000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:45000, eligForeignerOk:true, eligForeignerIncome:60000 },
-  { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
-    rate:0.0148, eir:0.0322, fee:0, rewardMax:100, minAmt:8000, minTenure:36,
-    categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
-    steps:["Go to DBS's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents (or apply instantly via digibank if you're an existing DBS/POSB customer)","Wait for approval of your DBS Personal Loan"],
-    feats:["Instant approval for existing DBS/POSB customers via digibank.","Cash disbursement as fast as the same day for existing customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
-    minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
-    eligIncome:20000, eligForeignerOk:false },
+  { name:"GXS", full:"GXS FlexiLoan", tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png",
+    rate:0.0108, eir:0.0210, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    categories:["credit-line"], instantApproval:false, feeWaiver:true,
+    steps:["Open the GXS Bank app and select FlexiLoan","Set your credit limit and draw down what you need","Repay flexibly — interest is charged only on what you draw"],
+    feats:["Draw down only what you need, interest charged on the drawn amount only.","No early-repayment fee.","Fully digital application via the GXS app."],
+    minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the GXS app for Singaporeans / PRs."],
+    eligIncome:30000, eligForeignerOk:false },
+  { name:"CIMB", full:"CIMB Personal Loan", tag:"Low income requirement", logo:"assets/logos/cimb.png",
+    rate:0.0105, eir:0.0204, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    categories:["debt-consolidation","foreigners"], instantApproval:false, feeWaiver:false,
+    steps:["Go to CIMB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your CIMB Personal Loan"],
+    feats:["Low minimum annual income requirement of S$24,000.","Open to Singaporeans, PRs and eligible foreigners.","Fixed monthly instalments for the full loan tenure."],
+    minAge:21, minIncome:24000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
+    eligIncome:24000, eligForeignerOk:true, eligForeignerIncome:60000 },
 ];
 
 // Real "Don't miss out on these great deals" — fe-services CreditCardPromotion.tsx (Promotional Campaigns PL block).
@@ -1878,11 +1944,14 @@ function closeDrawers(){ backdrop.classList.remove('open'); rewardDrawer.classLi
 // ============================================================
 // REDESIGN STEP 1 — Sort & Filter state + logic (the only proposed
 // change in this file). Sort keys mirror the comparison-table columns;
-// category keys mirror the removed persona tabs; features/bank are
-// simple client-side filters over the LOANS sample. Guarded throughout
-// so a missing element/empty result set can never throw.
+// features/bank are simple client-side filters over the LOANS sample.
+// FIX 4: Category is NOT part of this state — it's real navigation to
+// other SingSaver pages (see the #sfCategory markup + click handler
+// further down), so it never narrows these results and there's nothing
+// for Clear All to reset. Guarded throughout so a missing element/empty
+// result set can never throw.
 // ============================================================
-const sfState = { sort:'popular', category:'all', features:{ instant:false, feeWaiver:false, zeroInterest:false }, banks:new Set() };
+const sfState = { sort:'popular', features:{ instant:false, feeWaiver:false, zeroInterest:false }, banks:new Set() };
 
 const SORTERS = {
   popular: (a,b)=> a.idx - b.idx,
@@ -1895,8 +1964,10 @@ const SORTERS = {
 
 function applySortFilter(rows){
   const f = sfState.features;
+  // FIX 4: no category clause here — Category is navigation to another page, not a filter on these
+  // results (the live filters are Provider/Bank + Loan Features only). r.categories stays on each LOANS
+  // entry unused, so nothing else needs to change to keep this a small diff.
   const filtered = rows.filter(r=>{
-    if (sfState.category !== 'all' && !(r.categories||[]).includes(sfState.category)) return false;
     if (f.instant && !r.instantApproval) return false;
     if (f.feeWaiver && !r.feeWaiver) return false;
     if (f.zeroInterest && r.rate !== 0) return false;
@@ -1953,7 +2024,53 @@ function render(){
   updateSortCap();
   updateQualifyCap(shown);
   updateDetailsSummary();
+  syncHeadShadow(); // FIX 3 — tbody content just changed, which can change auto-layout column widths
 }
+
+// ============================================================
+// STAKEHOLDER-REVIEW FIX 3 — sticky header shadow upkeep (see the .pct-head-shadow CSS comment for
+// why a visual duplicate header is needed at all). Two jobs, kept deliberately separate:
+//   1. syncHeadShadow() — copies each real <th>'s current rendered pixel width onto the matching
+//      shadow <th> (table-layout:fixed on the shadow makes it respect these exactly rather than
+//      re-computing its own auto-layout, which would drift since the shadow never has tbody rows to
+//      size against). Only needs to run when column widths can have changed: after every render()
+//      (sort/filter swaps content, e.g. eligibility badges/soft state) and on window resize.
+//   2. The scroll listener below — keeps the shadow's own horizontal scroll position identical to the
+//      real .pct-scroll's, every scroll tick, so the two rows never visibly drift apart mid-drag.
+// Both guarded so a missing element (only relevant for a "Compare Personal Loans" table — always
+// present on this page) can never throw.
+// ============================================================
+function syncHeadShadow(){
+  const realThs = document.querySelectorAll('#pctTable thead th');
+  const shadowThs = document.querySelectorAll('#pctHeadShadowTable thead th');
+  if (!realThs.length || !shadowThs.length) return;
+  // box-sizing:border-box on the shadow cell is essential here: getBoundingClientRect().width returns
+  // the real cell's full BORDER-BOX width (incl. its 12px/14px padding), but the plain CSS `width`
+  // property sets a CONTENT-box width by default — applying a border-box measurement as a content-box
+  // width would make every shadow column ~28px (the cell's own left+right padding) too wide, drifting
+  // the whole row out of alignment with the real columns below it. border-box makes the two match.
+  realThs.forEach((th, i)=>{
+    if (!shadowThs[i]) return;
+    shadowThs[i].style.boxSizing = 'border-box';
+    shadowThs[i].style.width = th.getBoundingClientRect().width + 'px';
+  });
+  const shadowTable = $('pctHeadShadowTable'), realTable = $('pctTable');
+  if (shadowTable && realTable) shadowTable.style.width = realTable.getBoundingClientRect().width + 'px';
+}
+(function initHeadShadowSync(){
+  const scroll = document.querySelector('.pct-scroll'), clip = $('pctHeadShadowClip');
+  if (!scroll || !clip) return;
+  scroll.addEventListener('scroll', ()=>{ clip.scrollLeft = scroll.scrollLeft; }, { passive:true });
+  window.addEventListener('resize', syncHeadShadow);
+  // Re-sync after the provider logos decode and reflow the auto-layout columns: the <img>s carry no
+  // intrinsic width/height, so at <1280px the Loan column widens once each logo's aspect ratio
+  // resolves — after the first syncHeadShadow() already ran and baked in the pre-load (narrower)
+  // width. A ResizeObserver on the real table catches that reflow (and any later one); window.load
+  // is a belt-and-suspenders re-sync once every logo is fully loaded.
+  const realTable = $('pctTable');
+  if (realTable && window.ResizeObserver) new ResizeObserver(()=>syncHeadShadow()).observe(realTable);
+  window.addEventListener('load', syncHeadShadow);
+})();
 
 // Loan Amount + Tenure: the plain calculator's fields (amt/tenure — Baseline/Change 1) and the
 // Change-2 "Your details" block's own fields (dAmt/dTenure) are two-way synced here so only one set
@@ -2275,15 +2392,17 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     render();
   }));
 
-  // Category pills (single-select)
-  const catHost = $('sfCategory');
+  // FIX 4 — Category pills are real navigation links (<a href> to another live SingSaver page), per
+  // product decision: Category does not filter in place and does not combine with Provider/Loan
+  // Features. Intercepted here ONLY so a reviewer stays inside this demo instead of leaving it — the
+  // click never touches sfState and never calls render(), so the table/cards below are guaranteed
+  // unchanged; it just names the real destination in the inline note next to the pills.
+  const catHost = $('sfCategory'), catNote = $('sfCatNote');
   if (catHost) {
     catHost.addEventListener('click', e=>{
       const b = e.target.closest('[data-cat]'); if (!b) return;
-      [...catHost.children].forEach(p=>p.classList.remove('on'));
-      b.classList.add('on');
-      sfState.category = b.dataset.cat;
-      render();
+      e.preventDefault();
+      if (catNote) catNote.innerHTML = `→ This would open <strong>${b.getAttribute('href')}</strong>. Category is navigation — the results below are unchanged.`;
     });
   }
 
@@ -2302,15 +2421,16 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     });
   }
 
-  // Clear All — resets state + every control, re-renders immediately
+  // Clear All — resets state + every control, re-renders immediately. FIX 4: no category reset here —
+  // Category isn't a filter anymore, so there's nothing on it for Clear All to clear (the "All Loans"
+  // pill's .on look is a permanent default style, not live selection state).
   const clearBtn = $('sfClear');
   function clearAll(){
-    sfState.sort = 'popular'; sfState.category = 'all';
+    sfState.sort = 'popular';
     sfState.features.instant = false; sfState.features.feeWaiver = false; sfState.features.zeroInterest = false;
     sfState.banks.clear();
     if (sortSel) sortSel.value = 'popular';
     if (window.__sfSyncSortTrigger) window.__sfSyncSortTrigger(); // refresh the custom dropdown's visible label/highlight to match the reset native <select>
-    if (catHost) [...catHost.children].forEach(p=>p.classList.toggle('on', p.dataset.cat==='all'));
     if (fInstant) fInstant.checked = false;
     if (fFee) fFee.checked = false;
     if (fZero) fZero.checked = false;
