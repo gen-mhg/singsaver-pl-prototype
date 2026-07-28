@@ -75,8 +75,15 @@
   .promo-card p.clamped { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .promo-card__more { border:0; background:none; color:var(--text-link); font-weight:700; font-size:12px; cursor:pointer; padding:4px 0 0; text-decoration:underline; }
 
-  /* Loan Amount + Tenure calculator (real PersonalLoanFilter — 2 fields, sticky) */
-  .calc { position:sticky; top:0; z-index:20; background:var(--fill-base); padding: var(--space-2) 0; margin-bottom:2px; }
+  /* Loan Amount + Tenure calculator (real PersonalLoanFilter — 2 fields). FIX (Change 1 checker
+     round): this bar used to be position:sticky;top:0;z-index:20 — a prototype-only extra that isn't
+     part of Change 1 and doesn't exist on the live site's calc. Because it shared top:0 with the new
+     sticky comparison-table header (.pct-head-shadow, z-index:6) but sat at a HIGHER z-index, it
+     visually covered the header the instant the header tried to pin, making Change 1's sticky header
+     look like it never stuck. Restored to normal (static) flow so nothing competes with the header for
+     the top of the viewport; .calc.stuck below is now dead weight but harmless (see the guarded
+     IntersectionObserver further down the script — left in place, never throws with a static .calc). */
+  .calc { background:var(--fill-base); padding: var(--space-2) 0; margin-bottom:2px; }
   .calc__row { display:flex; gap:10px; }
   .calc__fld { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
   .calc__lbl { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--text-secondary); }
@@ -550,7 +557,8 @@
      currentColor + 1.15em sizing means one rule covers every context: the icon inherits the
      pill's text colour, so .sf-pill.on inverts to white with no extra selector, and it scales
      with the pill/trigger font-size instead of being pinned to a px value. pointer-events:none
-     keeps the delegated [data-cat] click handler reading the button, never the <svg>/<path>. */
+     keeps the delegated [data-loantype] click handler (Loan Types filter, see initSortFilter())
+     reading the button, never the <svg>/<path>. */
   .ds-sprite { display:none; }
   .sf-ic { width:1.15em; height:1.15em; flex:0 0 auto; fill:currentColor; pointer-events:none; }
   .sf-panel__body { overflow-y:auto; padding:var(--space-1) var(--space-4) var(--space-4); }
@@ -561,7 +569,7 @@
   .sf-group { padding:var(--space-4) 0; border-bottom:1px solid var(--borders-soft); }
   .sf-group:last-child { border-bottom:0; }
   /* Font hierarchy fix (Xiao En, 2026-07-27 — "the font hierarchy is very off"; filter font must
-     match content side): group labels ("Sort By" / "Category" / "Loan Features" / "Bank") previously
+     match content side): group labels ("Sort By" / "Loan Types" / "Loan Features" / "Bank") previously
      rendered at --font-size-body-1 — the SAME size as the body copy/controls they labelled, so they
      didn't read as a distinct tier. Now a proper small-caps "eyebrow" label using the caption type
      token (12px mobile / 14px tablet+ — smaller than every control below it at every breakpoint),
@@ -594,24 +602,20 @@
   .sf-pills { display:flex; flex-wrap:wrap; gap:var(--space-2); }
   /* CheckboxSingsaver real classes: "form-checkbox size-6 rounded border …", "mt-2 inline-flex items-center",
      label = "font-small font-bold" (font-small = 14px) — mapped to --font-size-body-2 (14px mobile /
-     16px tablet+), same token used below for .sf-check; .sf-pill (Category) matched to the same
+     16px tablet+), same token used below for .sf-check; .sf-pill (Loan Types) matched to the same
      token for a consistent scale across the whole panel — this is the control/pill tier, one step
      below the caption-tier group labels above (see .sf-group__h comment for the full 3-tier scale).
      Padding also moved to the --space-* scale for comfortable, even pill padding (was 7px/13px). */
-  /* FIX 4: Category pills are real <a href> elements now (navigation, not filter buttons) — same visual
-     component, so text-decoration:none is the only addition an anchor needs on top of the existing
-     button-era rule. .on stays purely a static "default selected" look on "All Loans" (no JS toggles it
-     anymore, see initSortFilter()). */
+  /* CHANGE 1 checker round: .sf-pill is now used only by the "Loan Types" group — real <button>
+     elements (genuine in-page filters, multi-select), not the old Category <a href> navigation links
+     (Category removed from this panel entirely; it lives back at the top .tabs strip, see nav comment
+     above). .on = actively-selected filter state, toggled in JS (initSortFilter()) on click. */
   .sf-pill { display:inline-flex; align-items:center; gap:var(--space-2); border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); cursor:pointer; text-decoration:none; }
   .sf-pill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
-  /* FIX 4 — inline destination note: idle copy explains Category is navigation-only; updated in JS to
-     name the exact live URL a pill would open, whenever one is clicked (never a filter/results change). */
-  .sf-cat-note { font-family:var(--font-sans); font-size:var(--font-size-caption); line-height:var(--line-height-caption); color:var(--text-muted); margin:0 0 var(--space-3); }
-  .sf-cat-note strong { color:var(--text-primary); font-weight:var(--font-weight-bold); word-break:break-all; }
   .sf-check { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) 0; cursor:pointer; font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); }
   .sf-check input { width:20px; height:20px; accent-color:var(--fill-primary); flex-shrink:0; border-radius:var(--r-button); border:1px solid var(--borders-form-default); }
 
-  /* Collapsible filter groups (Category / Loan Features / Bank) — compacts the panel by default
+  /* Collapsible filter groups (Loan Types / Loan Features / Bank) — compacts the panel by default
      (checker fix: shorten the first fold) using native <details>, the same pattern already used
      everywhere else on this page (.acc/.qsum/.showall/.wts). Sort By stays a single always-visible
      group — one <select> is already compact, no need to hide it behind a summary. Collapsed by
@@ -685,8 +689,14 @@
      panel) and whether .pl-layout reserves a left column at all. Change 1's chrome (sf-trigger-row/
      sf-panel/sf-backdrop, hidden persona tabs) also shows under Change 2 — cumulative. Everything
      else on the page (table, cards, promo blocks, FAQ, footer) renders identically in all views. */
-  body[data-proto-view="baseline"] .tabs { display:flex; }
-  body[data-proto-view="change1"] .tabs,
+  /* CHANGE 1 fix: category browsing moves back to this top strip (matches live) instead of living
+     inside the Sort & Filter panel — so the strip now shows at Baseline AND Change 1. It's trimmed to
+     the 6 persona/browse pills (the 4 loan-type pills — Balance Transfer/Debt Consolidation/Fast
+     Cash/Credit Line — are removed from here and reappear as the new in-page "Loan Types" filter group
+     inside the panel, see #sfAccLoanTypes below). Change 2+ still replace this strip with the panel
+     trigger/"Your details" chrome, so it stays hidden from change2 on. */
+  body[data-proto-view="baseline"] .tabs,
+  body[data-proto-view="change1"] .tabs { display:flex; }
   body[data-proto-view="change2"] .tabs , body[data-proto-view="change3"] .tabs , body[data-proto-view="change4"] .tabs , body[data-proto-view="change5"] .tabs { display:none; }
   body[data-proto-view="baseline"] .sf-trigger-row,
   body[data-proto-view="baseline"] .sf-panel,
@@ -1042,21 +1052,20 @@
     </div>
   </header>
 
-  <!-- REDESIGN STEP 1: in the Baseline view (see Prototype view toggle above) the live persona-tab
-       strip renders here exactly as production — same labels/order/emoji, verbatim from
-       prototype-baseline.html. In the Change 1 view it's hidden and folded into the new Sort &
-       Filter panel's Category filter below instead (9 genuine categories — "Lowest Interest" is
-       a sort, not a category, see Sort By → "Lowest Annual Interest Rate"). Both live in the DOM
-       at all times; body[data-proto-view] (CSS above) shows only one at a time. -->
+  <!-- REDESIGN STEP 1 (Change 1 checker round): category browsing lives HERE, at the top, in both the
+       Baseline and Change 1 views (matches live — the persona-tab strip is production furniture, not a
+       Step 1 proposal). Trimmed to the 6 persona/browse pills — All Loans, Lowest Interest, Alternate
+       Lenders, SingSaver Exclusive, Bad Credit, Foreigners. The 4 loan-TYPE pills that used to sit here
+       (Balance Transfer, Debt Consolidation, Fast Cash, Credit Line) are removed from this strip and
+       now live as the new in-page "Loan Types" filter group inside the Sort & Filter panel (see
+       #sfAccLoanTypes below) — that group actually filters the table/cards, unlike this navigation
+       strip. body[data-proto-view] (CSS above) hides this strip entirely from Change 2 onward, where
+       the panel/"Your details" chrome takes over. -->
   <nav class="tabs" aria-label="Browse personal loans by category">
     <a class="tabpill on" href="#">🏦 All Loans</a>
     <a class="tabpill" href="#">📉 Lowest Interest</a>
     <a class="tabpill" href="#">🤝 Alternate Lenders</a>
     <a class="tabpill" href="#">🔥 SingSaver Exclusive</a>
-    <a class="tabpill" href="#">🔄 Balance Transfer</a>
-    <a class="tabpill" href="#">🧩 Debt Consolidation</a>
-    <a class="tabpill" href="#">⚡ Fast Cash</a>
-    <a class="tabpill" href="#">💳 Credit Line</a>
     <a class="tabpill" href="#">🌱 Bad Credit</a>
     <a class="tabpill" href="#">🌏 Foreigners</a>
   </nav>
@@ -1196,33 +1205,21 @@
           <label class="sf-radio"><input type="radio" name="rmode" value="max" checked> Show &ldquo;up to&rdquo; (max reward)</label>
           <label class="sf-radio"><input type="radio" name="rmode" value="real"> Show the gift for my loan amount</label>
         </div>
-        <!-- Category = genuine loan categories only — "Lowest Interest" removed (it's a sort,
-             already covered by Sort By → "Lowest Annual Interest Rate" above, not a category).
-             Collapsed by default (checker fix: shorten the first fold); expand to see the 9
-             options — same labels as the Baseline view's persona tabs, minus that one. The tabs'
-             emoji are replaced here by MHG Alpha DS icons (sprite at the top of <body>); the
-             Baseline tab strip above deliberately keeps its emoji so the A/B toggle still shows
-             production verbatim. -->
-        <details class="sf-acc" id="sfAccCategory" open>
-          <summary class="sf-group__h sf-acc__sum">Category<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <!-- CHANGE 1 checker round: Category (navigation-only, never filtered these results — see the
+             old FIX 4 note this replaces) is REMOVED from the panel; category browsing now lives back
+             at the top .tabs strip (matches live — see the nav comment above). In its place: a new
+             "Loan Types" filter group — unlike Category, these 4 pills are genuine in-page filters
+             (multi-select, OR within the group / AND with Loan Features + Bank below), reusing the same
+             LOANS[].categories tags Category used to just link out to. Collapsed-by-default pattern kept
+             consistent with Loan Features/Bank below. -->
+        <details class="sf-acc" id="sfAccLoanTypes" open>
+          <summary class="sf-group__h sf-acc__sum">Loan Types<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body">
-            <!-- FIX 4 (product decision): Category is NAVIGATION to existing SingSaver category pages —
-                 it does NOT filter these results and does NOT combine with Provider/Loan Features below.
-                 Real <a href> to each live destination; the click is intercepted purely so a reviewer
-                 stays inside this demo (see initSortFilter()) — nothing here touches sfState or the
-                 table/cards. "All Loans" keeps its .sf-pill.on look as a static default, not a live
-                 selection state. -->
-            <p class="sf-cat-note" id="sfCatNote">Category links to SingSaver's other loan-comparison pages — it doesn't filter the results below. Tap one to preview where it would take you.</p>
-            <div class="sf-pills" id="sfCategory" role="group" aria-label="Browse loans by category (opens a different SingSaver page)">
-              <a class="sf-pill on" href="https://www.singsaver.com.sg/personal-loan/all" data-cat="all"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-category"/></svg>All Loans</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-alternate-lenders" data-cat="alternate-lenders"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-groups"/></svg>Alternate Lenders</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/compare/singsaver-exclusive-loan-rates" data-cat="singsaver-exclusive"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-crown"/></svg>SingSaver Exclusive</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/balance-transfer" data-cat="balance-transfer"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg>Balance Transfer</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-debt-consolidation-plans" data-cat="debt-consolidation"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg>Debt Consolidation</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-fast-cash-loan" data-cat="fast-cash"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg>Fast Cash</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/credit-line" data-cat="credit-line"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg>Credit Line</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-loans-for-bad-credit" data-cat="bad-credit"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-person-check"/></svg>Bad Credit</a>
-              <a class="sf-pill" href="https://www.singsaver.com.sg/personal-loan/comparison/best-personal-loans-for-foreigners-in-singapore" data-cat="foreigners"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-language"/></svg>Foreigners</a>
+            <div class="sf-pills" id="sfLoanTypes" role="group" aria-label="Filter by loan type">
+              <button type="button" class="sf-pill" data-loantype="balance-transfer" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg>Balance Transfer</button>
+              <button type="button" class="sf-pill" data-loantype="debt-consolidation" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg>Debt Consolidation</button>
+              <button type="button" class="sf-pill" data-loantype="fast-cash" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg>Fast Cash</button>
+              <button type="button" class="sf-pill" data-loantype="credit-line" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg>Credit Line</button>
             </div>
           </div>
         </details>
@@ -1469,7 +1466,10 @@
 const LOANS = [
   { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
     rate:0.0148, eir:0.0290, fee:0, rewardMax:130, minAmt:8000, minTenure:36,
-    categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
+    // CHANGE 1 checker round: "balance-transfer" added (Loan Types filter demo data — see the new
+    // #sfAccLoanTypes panel group) alongside the existing persona tags; existing tags/rate/eir/fee/
+    // rewardMax untouched.
+    categories:["singsaver-exclusive","foreigners","balance-transfer"], instantApproval:true, feeWaiver:false,
     steps:["Go to DBS's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents (or apply instantly via digibank if you're an existing DBS/POSB customer)","Wait for approval of your DBS Personal Loan"],
     feats:["Instant approval for existing DBS/POSB customers via digibank.","Cash disbursement as fast as the same day for existing customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
     minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
@@ -1501,9 +1501,10 @@ const LOANS = [
     eligIncome:40000, eligForeignerOk:false },
   { name:"Standard Chartered", full:"Standard Chartered CashOne Personal Loan", tag:"Flexible repayment and instant approvals", logo:"assets/logos/standard-chartered.webp",
     rate:0.0090, eir:0.0175, fee:0, rewardMax:120, minAmt:8000, minTenure:36,
-    // Sort & Filter metadata (redesign step 1 only — drives the new panel's Category/Feature filters;
-    // nothing here changes what's rendered anywhere else on the page).
-    categories:["singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
+    // Sort & Filter metadata (redesign step 1 only — drives the new panel's Loan Types/Feature/Bank
+    // filters; nothing here changes what's rendered anywhere else on the page). "balance-transfer"
+    // added in the Change 1 checker round for the Loan Types filter demo data.
+    categories:["singsaver-exclusive","foreigners","balance-transfer"], instantApproval:true, feeWaiver:false,
     steps:["Go to Standard Chartered's website and click \"Apply Now\" button under Personal Loans","Fill out an application and submit all required documents","Wait for approval of personal loan from Standard Chartered"],
     feats:["Enjoy low interest rates from 0.90% p.a. (EIR ~1.75% p.a.) for longer tenures.","Get instant loan approval and cash disbursement in as quick as 15 minutes.","Min. loan amount of S$1,000, max. up to S$250,000."],
     minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners applying via SingPass, please prepare a copy of Passport, Employment Pass, and one proof-of-address document."],
@@ -1529,14 +1530,16 @@ const LOANS = [
     ] },
   { name:"UOB", full:"UOB Personal Loan", tag:"Instant approval and disbursement", logo:"assets/logos/uob.png",
     rate:0.0100, eir:0.0330, fee:150, rewardMax:150, minAmt:8000, minTenure:12,
-    categories:["fast-cash","singsaver-exclusive","foreigners"], instantApproval:true, feeWaiver:false,
+    // CHANGE 1 checker round: "credit-line" + "balance-transfer" added (Loan Types filter demo data).
+    categories:["fast-cash","singsaver-exclusive","foreigners","credit-line","balance-transfer"], instantApproval:true, feeWaiver:false,
     steps:["Go to UOB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your UOB Personal Loan"],
     feats:["Instant approval and disbursement for existing UOB customers.","Low processing fee, no early-repayment penalty on selected plans.","Suitable for Singaporeans/PRs and eligible foreigners."],
     minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:30000, eligForeignerOk:false },
   { name:"HSBC", full:"HSBC Personal Loan", tag:"Long tenures up to 84 months", logo:"assets/logos/hsbc.webp",
     rate:0.0250, eir:0.0300, fee:0, rewardMax:0, minAmt:0, minTenure:0,
-    categories:["foreigners"], instantApproval:false, feeWaiver:false,
+    // CHANGE 1 checker round: "debt-consolidation" added (Loan Types filter demo data).
+    categories:["foreigners","debt-consolidation"], instantApproval:false, feeWaiver:false,
     steps:["Go to HSBC's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your HSBC Personal Loan"],
     feats:["Long tenures of up to 84 months for lower monthly repayments.","Preferential rates for HSBC Premier/Advance customers.","Suitable for Singaporeans, PRs and eligible foreigners."],
     minAge:21, minIncome:45000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
@@ -1944,14 +1947,17 @@ function closeDrawers(){ backdrop.classList.remove('open'); rewardDrawer.classLi
 // ============================================================
 // REDESIGN STEP 1 — Sort & Filter state + logic (the only proposed
 // change in this file). Sort keys mirror the comparison-table columns;
-// features/bank are simple client-side filters over the LOANS sample.
-// FIX 4: Category is NOT part of this state — it's real navigation to
-// other SingSaver pages (see the #sfCategory markup + click handler
-// further down), so it never narrows these results and there's nothing
-// for Clear All to reset. Guarded throughout so a missing element/empty
-// result set can never throw.
+// features/bank/loan-types are simple client-side filters over the
+// LOANS sample. CHANGE 1 checker round: Category (navigation to other
+// SingSaver pages) has been removed from the panel entirely — it never
+// touched this state and still doesn't; the top .tabs strip it used to
+// live inside of is back to being pure navigation, matching live. In
+// its place, "Loan Types" (loanTypes below) IS a real filter — reuses
+// each LOANS entry's existing `categories` tags, OR'd within the group,
+// AND'd with features/banks. Guarded throughout so a missing element/
+// empty result set can never throw.
 // ============================================================
-const sfState = { sort:'popular', features:{ instant:false, feeWaiver:false, zeroInterest:false }, banks:new Set() };
+const sfState = { sort:'popular', features:{ instant:false, feeWaiver:false, zeroInterest:false }, banks:new Set(), loanTypes:new Set() };
 
 const SORTERS = {
   popular: (a,b)=> a.idx - b.idx,
@@ -1964,14 +1970,14 @@ const SORTERS = {
 
 function applySortFilter(rows){
   const f = sfState.features;
-  // FIX 4: no category clause here — Category is navigation to another page, not a filter on these
-  // results (the live filters are Provider/Bank + Loan Features only). r.categories stays on each LOANS
-  // entry unused, so nothing else needs to change to keep this a small diff.
   const filtered = rows.filter(r=>{
     if (f.instant && !r.instantApproval) return false;
     if (f.feeWaiver && !r.feeWaiver) return false;
     if (f.zeroInterest && r.rate !== 0) return false;
     if (sfState.banks.size && !sfState.banks.has(r.name)) return false;
+    // Loan Types (CHANGE 1 checker round): a loan shows if ANY selected type is in its own
+    // categories[] (OR within this group); combined with every other active filter above via AND.
+    if (sfState.loanTypes.size && !(r.categories||[]).some(c=>sfState.loanTypes.has(c))) return false;
     return true;
   });
   const sorter = SORTERS[sfState.sort] || SORTERS.popular;
@@ -2133,8 +2139,10 @@ $('menuBtn').addEventListener('click', ()=> $('siteNav').classList.toggle('open'
 $('introMore').addEventListener('click', ()=>{ const t=$('introTxt'); t.classList.toggle('clamped'); $('introMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
 $('promoMore').addEventListener('click', ()=>{ const t=$('promoTxt'); t.classList.toggle('clamped'); $('promoMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
 
-// Sticky calculator shadow-on-stuck (guarded IntersectionObserver; CSS position:sticky does the
-// actual pinning in Baseline/Change 1 — this only adds the shadow affordance once it's stuck).
+// Calculator shadow-on-stuck (guarded IntersectionObserver) — kept intentionally inert: .calc is no
+// longer position:sticky (see the .calc CSS comment — it was covering the sticky table header), so this
+// observer still fires and toggles .stuck, but .calc.stuck's box-shadow never shows since the element
+// never actually pins. Left in place rather than deleted since it's harmless and guarded (try/catch).
 const calc = $('calc');
 if ('IntersectionObserver' in window) {
   try {
@@ -2392,17 +2400,19 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     render();
   }));
 
-  // FIX 4 — Category pills are real navigation links (<a href> to another live SingSaver page), per
-  // product decision: Category does not filter in place and does not combine with Provider/Loan
-  // Features. Intercepted here ONLY so a reviewer stays inside this demo instead of leaving it — the
-  // click never touches sfState and never calls render(), so the table/cards below are guaranteed
-  // unchanged; it just names the real destination in the inline note next to the pills.
-  const catHost = $('sfCategory'), catNote = $('sfCatNote');
-  if (catHost) {
-    catHost.addEventListener('click', e=>{
-      const b = e.target.closest('[data-cat]'); if (!b) return;
-      e.preventDefault();
-      if (catNote) catNote.innerHTML = `→ This would open <strong>${b.getAttribute('href')}</strong>. Category is navigation — the results below are unchanged.`;
+  // CHANGE 1 checker round — Loan Types pills: real in-page filter (unlike the old Category pills
+  // they replace), multi-select toggle over sfState.loanTypes, OR'd within the group (see
+  // applySortFilter()). Delegated on the container since the 4 pills are static markup.
+  const loanTypeHost = $('sfLoanTypes');
+  if (loanTypeHost) {
+    loanTypeHost.addEventListener('click', e=>{
+      const b = e.target.closest('[data-loantype]'); if (!b) return;
+      const t = b.getAttribute('data-loantype');
+      const on = !b.classList.contains('on');
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (on) sfState.loanTypes.add(t); else sfState.loanTypes.delete(t);
+      render();
     });
   }
 
@@ -2421,20 +2431,22 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     });
   }
 
-  // Clear All — resets state + every control, re-renders immediately. FIX 4: no category reset here —
-  // Category isn't a filter anymore, so there's nothing on it for Clear All to clear (the "All Loans"
-  // pill's .on look is a permanent default style, not live selection state).
+  // Clear All — resets state + every control, re-renders immediately. Category was never part of
+  // this state (it's back to being pure top-strip navigation, see the .tabs comment), so there's
+  // nothing to reset there; Loan Types (new) IS reset here like every other real filter.
   const clearBtn = $('sfClear');
   function clearAll(){
     sfState.sort = 'popular';
     sfState.features.instant = false; sfState.features.feeWaiver = false; sfState.features.zeroInterest = false;
     sfState.banks.clear();
+    sfState.loanTypes.clear();
     if (sortSel) sortSel.value = 'popular';
     if (window.__sfSyncSortTrigger) window.__sfSyncSortTrigger(); // refresh the custom dropdown's visible label/highlight to match the reset native <select>
     if (fInstant) fInstant.checked = false;
     if (fFee) fFee.checked = false;
     if (fZero) fZero.checked = false;
     if (bankHost) bankHost.querySelectorAll('.fBank').forEach(cb=>{ cb.checked = false; });
+    if (loanTypeHost) loanTypeHost.querySelectorAll('[data-loantype]').forEach(b=>{ b.classList.remove('on'); b.setAttribute('aria-pressed','false'); });
     render();
   }
   if (clearBtn) clearBtn.addEventListener('click', clearAll);
