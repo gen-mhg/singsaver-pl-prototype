@@ -75,15 +75,16 @@
   .promo-card p.clamped { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .promo-card__more { border:0; background:none; color:var(--text-link); font-weight:700; font-size:12px; cursor:pointer; padding:4px 0 0; text-decoration:underline; }
 
-  /* Loan Amount + Tenure calculator (real PersonalLoanFilter — 2 fields). FIX (Change 1 checker
-     round): this bar used to be position:sticky;top:0;z-index:20 — a prototype-only extra that isn't
-     part of Change 1 and doesn't exist on the live site's calc. Because it shared top:0 with the new
-     sticky comparison-table header (.pct-head-shadow, z-index:6) but sat at a HIGHER z-index, it
-     visually covered the header the instant the header tried to pin, making Change 1's sticky header
-     look like it never stuck. Restored to normal (static) flow so nothing competes with the header for
-     the top of the viewport; .calc.stuck below is now dead weight but harmless (see the guarded
-     IntersectionObserver further down the script — left in place, never throws with a static .calc). */
-  .calc { background:var(--fill-base); padding: var(--space-2) 0; margin-bottom:2px; }
+  /* Loan Amount + Tenure calculator (real PersonalLoanFilter — 2 fields). FIX (CDP verification
+     round): a previous edit made this bar non-sticky to unblock the table header below — wrong,
+     since the live site keeps BOTH the calc bar AND the comparison-table header sticky, STACKED
+     (calc pinned at the very top, header pinned directly below it). Restored position:sticky here;
+     the table header's own sticky `top` offset is no longer a hard-coded 0 — it reads a CSS custom
+     property (--pct-head-top) that JS sets to this bar's actual rendered height (see syncHeadShadow()
+     in the script), so the header always pins exactly below the calc bar, stacked with no gap or
+     overlap, at every breakpoint. z-index:20 (calc) vs the header's z-index:6 no longer competes for
+     the same viewport-top real estate since the two now occupy different `top` offsets. */
+  .calc { position:sticky; top:0; z-index:20; background:var(--fill-base); padding: var(--space-2) 0; margin-bottom:2px; }
   .calc__row { display:flex; gap:10px; }
   .calc__fld { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
   .calc__lbl { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--text-secondary); }
@@ -189,8 +190,16 @@
      same `.pct-sticky` class/mechanism as the real table for the left-pinned "Loan" corner — meaning the
      corner cell is provably pinned on BOTH axes by the same, already-proven CSS this page already uses
      for the real table's first column, just running inside the new shadow instead. aria-hidden since
-     it's a purely-visual duplicate of the real (still-present, still-accessible) <thead>. */
-  .pct-head-shadow { position:sticky; top:0; height:0; overflow:visible; z-index:6; pointer-events:none; }
+     it's a purely-visual duplicate of the real (still-present, still-accessible) <thead>.
+
+     CDP verification round: `top` is no longer a hard-coded 0 — the live site stacks this sticky
+     header directly BELOW the also-sticky Loan Amount/Tenure calc bar (.calc, restored to sticky
+     above), not at the very top of the viewport. `top` reads the CSS custom property --pct-head-top,
+     which JS sets to .calc's actual rendered pixel height (varies by breakpoint — see syncHeadShadow()
+     in the script, recomputed on every render()/resize/load/ResizeObserver tick alongside the existing
+     column-width sync); the `0px` fallback covers the moment before that first runs, and also covers
+     any view where .calc is hidden (display:none), so the header still pins to the true top there. */
+  .pct-head-shadow { position:sticky; top:var(--pct-head-top, 0px); height:0; overflow:visible; z-index:6; pointer-events:none; }
   .pct-head-shadow__clip { overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
   .pct-head-shadow__clip::-webkit-scrollbar { display:none; }
   .pct-head-shadow .pct-table { table-layout:fixed; }
@@ -554,11 +563,10 @@
   .sf-panel__close .sf-ic { width:16px; height:16px; }
 
   /* MHG DS icons (sprite at the top of <body>) replacing the emoji this panel used to carry.
-     currentColor + 1.15em sizing means one rule covers every context: the icon inherits the
-     pill's text colour, so .sf-pill.on inverts to white with no extra selector, and it scales
-     with the pill/trigger font-size instead of being pinned to a px value. pointer-events:none
-     keeps the delegated [data-loantype] click handler (Loan Types filter, see initSortFilter())
-     reading the button, never the <svg>/<path>. */
+     currentColor + 1.15em sizing means one rule covers every context: the icon inherits its
+     container's text colour and scales with the surrounding font-size instead of being pinned to a
+     px value. pointer-events:none keeps clicks/taps on a Loan Types icon landing on its checkbox
+     <label>/<input> (see initSortFilter()), never the <svg>/<path>. */
   .ds-sprite { display:none; }
   .sf-ic { width:1.15em; height:1.15em; flex:0 0 auto; fill:currentColor; pointer-events:none; }
   .sf-panel__body { overflow-y:auto; padding:var(--space-1) var(--space-4) var(--space-4); }
@@ -599,19 +607,15 @@
   .sf-dropdown__opt:hover, .sf-dropdown__opt.active { background:var(--fill-alternative-1); }
   .sf-dropdown__opt.on { font-weight:var(--font-weight-bold); color:var(--fill-primary-dark); background:var(--fill-primary-light); }
   .sf-native-sort { display:none; }
-  .sf-pills { display:flex; flex-wrap:wrap; gap:var(--space-2); }
   /* CheckboxSingsaver real classes: "form-checkbox size-6 rounded border …", "mt-2 inline-flex items-center",
      label = "font-small font-bold" (font-small = 14px) — mapped to --font-size-body-2 (14px mobile /
-     16px tablet+), same token used below for .sf-check; .sf-pill (Loan Types) matched to the same
-     token for a consistent scale across the whole panel — this is the control/pill tier, one step
-     below the caption-tier group labels above (see .sf-group__h comment for the full 3-tier scale).
-     Padding also moved to the --space-* scale for comfortable, even pill padding (was 7px/13px). */
-  /* CHANGE 1 checker round: .sf-pill is now used only by the "Loan Types" group — real <button>
-     elements (genuine in-page filters, multi-select), not the old Category <a href> navigation links
-     (Category removed from this panel entirely; it lives back at the top .tabs strip, see nav comment
-     above). .on = actively-selected filter state, toggled in JS (initSortFilter()) on click. */
-  .sf-pill { display:inline-flex; align-items:center; gap:var(--space-2); border:1px solid var(--borders-form-default); background:var(--fill-card); border-radius:var(--r-pill); padding:var(--space-2) var(--space-4); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); cursor:pointer; text-decoration:none; }
-  .sf-pill.on { background:var(--fill-primary); border-color:var(--fill-primary); color:var(--text-on-dark); }
+     16px tablet+) — this is the control/checkbox tier, one step below the caption-tier group labels
+     above (see .sf-group__h comment for the full 3-tier scale). Shared by every checkbox group in the
+     panel: Loan Types, Loan Features and Bank all render this exact markup/class (CDP verification
+     round — Loan Types converted from toggle-pill <button>s to this same checkbox pattern so all
+     three multi-select groups read identically; the old .sf-pill/.sf-pills pill-toggle rules they used
+     are removed as dead code, no longer referenced anywhere in this file). Icons (Loan Types only)
+     sit between the checkbox and label text — the flex row + gap here spaces all three evenly. */
   .sf-check { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) 0; cursor:pointer; font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); }
   .sf-check input { width:20px; height:20px; accent-color:var(--fill-primary); flex-shrink:0; border-radius:var(--r-button); border:1px solid var(--borders-form-default); }
 
@@ -941,8 +945,8 @@
 
 <!-- MHG Alpha Design System icon sprite — 24px Material Symbols + MHG custom finance icons,
      exported from the DS Figma file 82tOs1i8NmsLWxZkHTzB80, Foundations → Icons (node 1638:8155).
-     Used by the Sort & Filter panel in place of emoji (see .sf-ic / .sf-pill below). Paths are
-     verbatim from the DS; fill is currentColor so a pill inverts correctly in its .on state.
+     Used by the Sort & Filter panel in place of emoji (see .sf-ic below, and the Loan Types
+     checkboxes further down). Paths are verbatim from the DS; fill is currentColor throughout.
      Node IDs kept alongside each symbol so they can be re-pulled/verified against Figma. -->
 <svg class="ds-sprite" aria-hidden="true" focusable="false"><defs>
   <symbol id="ic-category" viewBox="0 0 24 24"><!-- 8735:53084 -->
@@ -1205,24 +1209,6 @@
           <label class="sf-radio"><input type="radio" name="rmode" value="max" checked> Show &ldquo;up to&rdquo; (max reward)</label>
           <label class="sf-radio"><input type="radio" name="rmode" value="real"> Show the gift for my loan amount</label>
         </div>
-        <!-- CHANGE 1 checker round: Category (navigation-only, never filtered these results — see the
-             old FIX 4 note this replaces) is REMOVED from the panel; category browsing now lives back
-             at the top .tabs strip (matches live — see the nav comment above). In its place: a new
-             "Loan Types" filter group — unlike Category, these 4 pills are genuine in-page filters
-             (multi-select, OR within the group / AND with Loan Features + Bank below), reusing the same
-             LOANS[].categories tags Category used to just link out to. Collapsed-by-default pattern kept
-             consistent with Loan Features/Bank below. -->
-        <details class="sf-acc" id="sfAccLoanTypes" open>
-          <summary class="sf-group__h sf-acc__sum">Loan Types<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
-          <div class="sf-acc__body">
-            <div class="sf-pills" id="sfLoanTypes" role="group" aria-label="Filter by loan type">
-              <button type="button" class="sf-pill" data-loantype="balance-transfer" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg>Balance Transfer</button>
-              <button type="button" class="sf-pill" data-loantype="debt-consolidation" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg>Debt Consolidation</button>
-              <button type="button" class="sf-pill" data-loantype="fast-cash" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg>Fast Cash</button>
-              <button type="button" class="sf-pill" data-loantype="credit-line" aria-pressed="false"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg>Credit Line</button>
-            </div>
-          </div>
-        </details>
         <details class="sf-acc" id="sfAccFeatures" open>
           <summary class="sf-group__h sf-acc__sum">Loan Features<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body">
@@ -1234,6 +1220,27 @@
         <details class="sf-acc" id="sfAccBank" open>
           <summary class="sf-group__h sf-acc__sum">Bank<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
           <div class="sf-acc__body" id="sfBank"><!-- populated from LOANS at init so the list can never drift out of sync --></div>
+        </details>
+        <!-- CHANGE 1 checker round: Category (navigation-only, never filtered these results — see the
+             old FIX 4 note this replaces) is REMOVED from the panel; category browsing now lives back
+             at the top .tabs strip (matches live — see the nav comment above). In its place: a new
+             "Loan Types" filter group — unlike Category, these are genuine in-page filters (multi-select,
+             OR within the group / AND with Loan Features + Bank above), reusing the same LOANS[].categories
+             tags Category used to just link out to. CDP verification round: converted from toggle-pill
+             <button>s to checkboxes (same .sf-check markup as Loan Features/Bank above) so the group
+             reads unambiguously as multi-select and matches the other two groups visually; each option
+             keeps its DS icon between the checkbox and label. Also moved to LAST in panel order (was
+             first) per the CDP verification round: Sort By → Loan Features → Bank → Loan Types. -->
+        <details class="sf-acc" id="sfAccLoanTypes" open>
+          <summary class="sf-group__h sf-acc__sum">Loan Types<svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="sf-acc__body">
+            <div id="sfLoanTypes" role="group" aria-label="Filter by loan type">
+              <label class="sf-check"><input type="checkbox" data-loantype="balance-transfer"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-balance-transfer"/></svg><span>Balance Transfer</span></label>
+              <label class="sf-check"><input type="checkbox" data-loantype="debt-consolidation"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-extension"/></svg><span>Debt Consolidation</span></label>
+              <label class="sf-check"><input type="checkbox" data-loantype="fast-cash"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-bolt"/></svg><span>Fast Cash</span></label>
+              <label class="sf-check"><input type="checkbox" data-loantype="credit-line"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-credit-card"/></svg><span>Credit Line</span></label>
+            </div>
+          </div>
         </details>
       </div>
       <div class="sf-panel__foot">
@@ -2047,6 +2054,16 @@ function render(){
 // present on this page) can never throw.
 // ============================================================
 function syncHeadShadow(){
+  // CDP verification round: pin the sticky header directly below the sticky calc bar (.calc) —
+  // measure the calc bar's actual rendered height (varies by breakpoint, and is 0 in any view where
+  // .calc is display:none) and expose it as --pct-head-top, which .pct-head-shadow's `top` reads
+  // (see CSS comment above). Placed before the early-return below so it always runs, independent of
+  // whether the table itself has rendered rows/columns yet.
+  try {
+    const calcEl = document.getElementById('calc');
+    const h = (calcEl && calcEl.getBoundingClientRect) ? calcEl.getBoundingClientRect().height : 0;
+    document.documentElement.style.setProperty('--pct-head-top', h + 'px');
+  } catch(e) { /* non-fatal — header falls back to pinning at top:0px */ }
   const realThs = document.querySelectorAll('#pctTable thead th');
   const shadowThs = document.querySelectorAll('#pctHeadShadowTable thead th');
   if (!realThs.length || !shadowThs.length) return;
@@ -2075,6 +2092,14 @@ function syncHeadShadow(){
   // is a belt-and-suspenders re-sync once every logo is fully loaded.
   const realTable = $('pctTable');
   if (realTable && window.ResizeObserver) new ResizeObserver(()=>syncHeadShadow()).observe(realTable);
+  // CDP verification round: also observe the calc bar itself — its rendered height (which
+  // --pct-head-top, and therefore the header's stacked position, is derived from) can shift by a
+  // pixel after first paint once the web font finishes swapping in (changes input/label line-height),
+  // independent of anything happening to the table. Without this, --pct-head-top can bake in a
+  // pre-font-swap height and leave the header pinned a hair above/below the calc bar's true edge.
+  const calcEl = $('calc');
+  if (calcEl && window.ResizeObserver) new ResizeObserver(()=>syncHeadShadow()).observe(calcEl);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncHeadShadow).catch(()=>{});
   window.addEventListener('load', syncHeadShadow);
 })();
 
@@ -2139,16 +2164,23 @@ $('menuBtn').addEventListener('click', ()=> $('siteNav').classList.toggle('open'
 $('introMore').addEventListener('click', ()=>{ const t=$('introTxt'); t.classList.toggle('clamped'); $('introMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
 $('promoMore').addEventListener('click', ()=>{ const t=$('promoTxt'); t.classList.toggle('clamped'); $('promoMore').textContent = t.classList.contains('clamped') ? 'Show more' : 'Show less'; });
 
-// Calculator shadow-on-stuck (guarded IntersectionObserver) — kept intentionally inert: .calc is no
-// longer position:sticky (see the .calc CSS comment — it was covering the sticky table header), so this
-// observer still fires and toggles .stuck, but .calc.stuck's box-shadow never shows since the element
-// never actually pins. Left in place rather than deleted since it's harmless and guarded (try/catch).
+// Calculator shadow-on-stuck (guarded IntersectionObserver) — .calc is position:sticky again (CDP
+// verification round, see the .calc CSS comment), so this now does real work: once the calc bar
+// scrolls to its pinned position, the sentinel above it stops intersecting and .stuck is added,
+// showing the box-shadow/border that visually confirms it's pinned (matches the live site).
+// .calc.stuck's border-bottom:1px genuinely grows the bar's rendered (border-box) height by 1px —
+// a change the default ResizeObserver (content-box only) never reports — so re-run syncHeadShadow()
+// right here too, or the sticky table header (pinned via --pct-head-top, sourced from this same
+// height) would be left a pixel out of place the moment .calc becomes stuck.
 const calc = $('calc');
 if ('IntersectionObserver' in window) {
   try {
     const sentinel = document.createElement('div');
     calc.parentNode.insertBefore(sentinel, calc);
-    new IntersectionObserver(([e])=>{ calc.classList.toggle('stuck', !e.isIntersecting); }, { threshold:1 }).observe(sentinel);
+    new IntersectionObserver(([e])=>{
+      calc.classList.toggle('stuck', !e.isIntersecting);
+      if (typeof syncHeadShadow === 'function') syncHeadShadow();
+    }, { threshold:1 }).observe(sentinel);
   } catch(e){ /* non-fatal — sticky positioning still works without the shadow affordance */ }
 }
 
@@ -2400,18 +2432,17 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     render();
   }));
 
-  // CHANGE 1 checker round — Loan Types pills: real in-page filter (unlike the old Category pills
-  // they replace), multi-select toggle over sfState.loanTypes, OR'd within the group (see
-  // applySortFilter()). Delegated on the container since the 4 pills are static markup.
+  // Loan Types checkboxes (CDP verification round — converted from toggle-pill <button>s to
+  // checkboxes, same pattern as Loan Features/Bank): real in-page filter (unlike the old Category
+  // pills they replace), multi-select toggle over sfState.loanTypes, OR'd within the group (see
+  // applySortFilter()). Delegated on the container + a 'change' listener, since checkboxes report
+  // their own checked state natively (no manual .on/aria-pressed toggling needed).
   const loanTypeHost = $('sfLoanTypes');
   if (loanTypeHost) {
-    loanTypeHost.addEventListener('click', e=>{
-      const b = e.target.closest('[data-loantype]'); if (!b) return;
-      const t = b.getAttribute('data-loantype');
-      const on = !b.classList.contains('on');
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-pressed', on ? 'true' : 'false');
-      if (on) sfState.loanTypes.add(t); else sfState.loanTypes.delete(t);
+    loanTypeHost.addEventListener('change', e=>{
+      const cb = e.target.closest('[data-loantype]'); if (!cb) return;
+      const t = cb.getAttribute('data-loantype');
+      if (cb.checked) sfState.loanTypes.add(t); else sfState.loanTypes.delete(t);
       render();
     });
   }
@@ -2446,7 +2477,7 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
     if (fFee) fFee.checked = false;
     if (fZero) fZero.checked = false;
     if (bankHost) bankHost.querySelectorAll('.fBank').forEach(cb=>{ cb.checked = false; });
-    if (loanTypeHost) loanTypeHost.querySelectorAll('[data-loantype]').forEach(b=>{ b.classList.remove('on'); b.setAttribute('aria-pressed','false'); });
+    if (loanTypeHost) loanTypeHost.querySelectorAll('[data-loantype]').forEach(cb=>{ cb.checked = false; });
     render();
   }
   if (clearBtn) clearBtn.addEventListener('click', clearAll);
