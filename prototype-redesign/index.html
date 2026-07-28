@@ -91,7 +91,7 @@
      entirely (hidden here) by the v20-pattern "Your details" grouped
      block below, which bundles Loan amount + Tenure + Citizenship +
      Monthly income into one collapsible card. */
-  body[data-proto-view="change2"] .calc , body[data-proto-view="change3"] .calc , body[data-proto-view="change4"] .calc { display:none; }
+  body[data-proto-view="change2"] .calc , body[data-proto-view="change3"] .calc , body[data-proto-view="change4"] .calc , body[data-proto-view="change5"] .calc { display:none; }
 
   /* ============================================================
      CHANGE 2 — "Your details" grouped block (matches prototype-v20.html's
@@ -103,7 +103,7 @@
      CSS further down + the IntersectionObserver in the script, also reused
      from v20). Shown only under Change 2 — see body[data-proto-view] rule. */
   .details { display:none; background: var(--fill-card); border:1px solid var(--borders-default); border-radius: var(--r-card-inner); margin-bottom: var(--space-3); }
-  body[data-proto-view="change2"] .details , body[data-proto-view="change3"] .details , body[data-proto-view="change4"] .details { display:block; }
+  body[data-proto-view="change2"] .details , body[data-proto-view="change3"] .details , body[data-proto-view="change4"] .details , body[data-proto-view="change5"] .details { display:block; }
   .details > summary { list-style:none; cursor:pointer; padding: 10px 14px; display:flex; align-items:center; justify-content:space-between; gap: 8px; }
   .details > summary::-webkit-details-marker { display:none; }
   .details__label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; display:block; }
@@ -136,12 +136,6 @@
      never adds a vertical border between tbody cells; this replica drops the header's border-l too so nothing reads as a grid). */
   .pct-table td { font-size:13px; font-weight:500; }
   .pct-table thead th { background:var(--fill-alternative-1); font-size:14px; font-weight:700; color:var(--text-primary); white-space:normal; line-height:1.3; }
-  /* #3 fix: "Total Cost of Loan" was collapsing to a 4-word-column, wrapping onto 4 lines on
-     narrower viewports. Give this header enough min-width to settle on 1-2 lines (em-based, so it
-     scales with the thead font-size bump at 768px below); text-wrap:balance keeps the 2-line case
-     even instead of a lonely trailing word (progressive enhancement, no-op where unsupported). Only
-     this table header is targeted — the Sort By dropdown's identical option text is untouched. */
-  .pct-table thead th.pct-th--cost { min-width:7.5em; text-wrap:balance; }
   .pct-table tbody td { border-top:1px solid var(--borders-default); }
   .pct-table tbody tr:hover td { background:var(--fill-base); }
   @media (min-width:768px){
@@ -179,7 +173,7 @@
   /* SingSaver Tips */
   .tips { border-radius: var(--r-card); overflow:hidden; border:1px solid var(--borders-default); margin: var(--space-4) 0; }
   .tips__h { background: var(--fill-primary); color:var(--text-on-dark); font-weight:700; padding:10px 14px; font-size:14px; }
-  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; line-height:1.5; color:var(--text-secondary); }
+  .tips__b { background: var(--fill-primary-light); padding:12px 14px; font-size:13px; color:var(--text-secondary); }
 
   /* Why Trust SingSaver */
   .wts { border:1px solid var(--borders-default); border-radius: var(--r-card); background: var(--fill-card); margin: var(--space-3) 0; }
@@ -224,7 +218,6 @@
   .gifttile { border:1px solid var(--borders-default); border-radius:12px; overflow:hidden; background:var(--fill-card); display:flex; flex-direction:column; }
   .gifttile__tag { background:var(--highlight-red-light); color:var(--highlight-red-dark); font-size:10px; font-weight:700; text-align:center; padding:3px 4px; }
   .gifttile__body { flex:1; display:flex; align-items:center; justify-content:center; padding:12px 8px; min-height:64px; }
-  .gifttile__band { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); text-align:center; margin-bottom:4px; }
   .gifttile__ic { font-size:22px; line-height:1; margin-bottom:4px; }
   .gifttile__amt { font-size:11px; font-weight:700; color:var(--text-primary); text-align:center; line-height:1.3; }
   .gifttile__worth { background:var(--fill-alternative-1); color:var(--text-secondary); font-size:10.5px; font-weight:600; text-align:center; padding:5px 4px; }
@@ -596,7 +589,7 @@
      sticky offset to match (was 96px/112px sized for the taller sticky calculator), same "small gap"
      logic as the comment above. */
   @media (min-width:1024px){
-    body[data-proto-view="change2"] .sf-panel , body[data-proto-view="change3"] .sf-panel , body[data-proto-view="change4"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
+    body[data-proto-view="change2"] .sf-panel , body[data-proto-view="change3"] .sf-panel , body[data-proto-view="change4"] .sf-panel , body[data-proto-view="change5"] .sf-panel { top:56px; max-height:calc(100vh - 72px); }
   }
 
   /* ============================================================
@@ -628,7 +621,7 @@
   .pct-header .sf-trigger-row { margin:0; flex-shrink:0; }
   .pct-header .section-h { margin:0; min-width:0; }
   /* Change 2 swaps the "Compare Personal Loans" heading for the compact loan count (v20 layout). */
-  body[data-proto-view="change2"] #pctHeading , body[data-proto-view="change3"] #pctHeading , body[data-proto-view="change4"] #pctHeading { display:none; }
+  body[data-proto-view="change2"] #pctHeading , body[data-proto-view="change3"] #pctHeading , body[data-proto-view="change4"] #pctHeading , body[data-proto-view="change5"] #pctHeading { display:none; }
 
   /* Baseline ⇄ Change 1 ⇄ Change 2: which chrome shows (persona tabs vs Sort & Filter trigger/
      panel) and whether .pl-layout reserves a left column at all. Change 1's chrome (sf-trigger-row/
@@ -636,7 +629,7 @@
      else on the page (table, cards, promo blocks, FAQ, footer) renders identically in all views. */
   body[data-proto-view="baseline"] .tabs { display:flex; }
   body[data-proto-view="change1"] .tabs,
-  body[data-proto-view="change2"] .tabs , body[data-proto-view="change3"] .tabs , body[data-proto-view="change4"] .tabs { display:none; }
+  body[data-proto-view="change2"] .tabs , body[data-proto-view="change3"] .tabs , body[data-proto-view="change4"] .tabs , body[data-proto-view="change5"] .tabs { display:none; }
   body[data-proto-view="baseline"] .sf-trigger-row,
   body[data-proto-view="baseline"] .sf-panel,
   body[data-proto-view="baseline"] .sf-backdrop { display:none !important; }
@@ -649,15 +642,15 @@
      automatically in Baseline (where those panels are hidden anyway). */
   .ann { display:none; background:var(--fill-secondary); color:var(--fill-primary-dark); font-size:9px; font-weight:800; border-radius:4px; padding:2px 7px; white-space:nowrap; box-shadow:var(--shadow-md); }
   body.marks[data-proto-view="change1"] .ann,
-  body.marks[data-proto-view="change2"] .ann , body.marks[data-proto-view="change3"] .ann , body.marks[data-proto-view="change4"] .ann { display:inline-block; }
+  body.marks[data-proto-view="change2"] .ann , body.marks[data-proto-view="change3"] .ann , body.marks[data-proto-view="change4"] .ann , body.marks[data-proto-view="change5"] .ann { display:inline-block; }
   body.marks[data-proto-view="change1"] .x-new,
-  body.marks[data-proto-view="change2"] .x-new , body.marks[data-proto-view="change3"] .x-new , body.marks[data-proto-view="change4"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
+  body.marks[data-proto-view="change2"] .x-new , body.marks[data-proto-view="change3"] .x-new , body.marks[data-proto-view="change4"] .x-new , body.marks[data-proto-view="change5"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
   body.marks[data-proto-view="change1"] #sfPanel,
-  body.marks[data-proto-view="change2"] #sfPanel , body.marks[data-proto-view="change3"] #sfPanel , body.marks[data-proto-view="change4"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
+  body.marks[data-proto-view="change2"] #sfPanel , body.marks[data-proto-view="change3"] #sfPanel , body.marks[data-proto-view="change4"] #sfPanel , body.marks[data-proto-view="change5"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
   /* Change-1 (persists under Change 2): sort/state caption under the results heading */
   .sortcap { display:none; font-size:13px; color:var(--text-muted); margin:2px 0 12px; }
   body[data-proto-view="change1"] .sortcap,
-  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap { display:block; }
+  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap , body[data-proto-view="change5"] .sortcap { display:block; }
   .sortcap b { color:var(--text-primary); font-weight:700; }
 
   /* ============================================================
@@ -668,8 +661,8 @@
      Change-1 sort caption sits on its own line below, tightened to v20's 12px in this view. */
   .qualifycap { display:none; flex:1; min-width:0; font-size:14px; font-weight:700; color:var(--text-primary); margin:0; line-height:1.3; }
   .qualifycap span { color:var(--text-muted); font-weight:400; font-size:12px; }
-  body[data-proto-view="change2"] .qualifycap , body[data-proto-view="change3"] .qualifycap , body[data-proto-view="change4"] .qualifycap { display:block; }
-  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap { font-size:12px; margin:2px 0 12px; }
+  body[data-proto-view="change2"] .qualifycap , body[data-proto-view="change3"] .qualifycap , body[data-proto-view="change4"] .qualifycap , body[data-proto-view="change5"] .qualifycap { display:block; }
+  body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap , body[data-proto-view="change5"] .sortcap { font-size:12px; margin:2px 0 12px; }
 
   /* Per-loan soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate).
      TABLE: a small "ⓘ Check eligibility" text link in the Apply cell (.tinfo--no, link colour).
@@ -679,7 +672,7 @@
      not the amber-accent tokens, to match the old prototype. Eligibility elements hidden outside
      Change 2 (badge--excl is merchandising, always shown). */
   .tinfo--ok, .tinfo--no { display:none; margin:6px 0 0; font-size:11px; line-height:1.2; font-weight:700; }
-  body[data-proto-view="change2"] .tinfo--no , body[data-proto-view="change3"] .tinfo--no , body[data-proto-view="change4"] .tinfo--no { display:block; }
+  body[data-proto-view="change2"] .tinfo--no , body[data-proto-view="change3"] .tinfo--no , body[data-proto-view="change4"] .tinfo--no , body[data-proto-view="change5"] .tinfo--no { display:block; }
   .tinfo--no { white-space:nowrap; color:var(--text-link); cursor:help; }
   .badge { display:inline-block; font-size:12px; font-weight:700; border-radius:var(--r-pill); padding:3px 10px; }
   .badge--excl { background:var(--color-olive-700,#5d8433); color:#fff; }
@@ -688,9 +681,9 @@
   .loan__elig--no { color:#8a5a00; }
   .loan__elig--ok { color:var(--success-dark,#33691e); }
   .badge--excl, .badge--warn, .loan__elig { display:none; }
-  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl, body[data-proto-view="change4"] .badge--excl,
-  body[data-proto-view="change2"] .badge--warn , body[data-proto-view="change3"] .badge--warn , body[data-proto-view="change4"] .badge--warn { display:inline-block; }
-  body[data-proto-view="change2"] .loan__elig , body[data-proto-view="change3"] .loan__elig , body[data-proto-view="change4"] .loan__elig { display:block; }
+  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl, body[data-proto-view="change4"] .badge--excl , body[data-proto-view="change5"] .badge--excl,
+  body[data-proto-view="change2"] .badge--warn , body[data-proto-view="change3"] .badge--warn , body[data-proto-view="change4"] .badge--warn , body[data-proto-view="change5"] .badge--warn { display:inline-block; }
+  body[data-proto-view="change2"] .loan__elig , body[data-proto-view="change3"] .loan__elig , body[data-proto-view="change4"] .loan__elig , body[data-proto-view="change5"] .loan__elig { display:block; }
   .loan__badges { display:flex; flex-wrap:wrap; gap:6px; }
   .loan__badges:empty { display:none; }
   .pct-table td.pct-applycell { white-space:normal; }
@@ -700,13 +693,13 @@
   /* Grey-out for ineligible products (old-prototype ".soft") — Change 2 only. Dims the row/card and
      desaturates the logo so eligible options stand out; "Apply" and the eligibility flag stay full
      colour and clickable (never a gate). Hidden in Baseline/Change 1 (rows/cards render normally). */
-  body[data-proto-view="change2"] .pct-table tbody tr.soft > td , body[data-proto-view="change3"] .pct-table tbody tr.soft > td , body[data-proto-view="change4"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
-  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change4"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
-  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change4"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
-  body[data-proto-view="change2"] .loan.soft , body[data-proto-view="change3"] .loan.soft , body[data-proto-view="change4"] .loan.soft { background:#fafbfc; }
-  body[data-proto-view="change2"] .loan.soft .loan__logobox img , body[data-proto-view="change3"] .loan.soft .loan__logobox img , body[data-proto-view="change4"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
-  body[data-proto-view="change2"] .loan.soft .loan__name, body[data-proto-view="change3"] .loan.soft .loan__name, body[data-proto-view="change4"] .loan.soft .loan__name,
-  body[data-proto-view="change2"] .loan.soft .g2 .v , body[data-proto-view="change3"] .loan.soft .g2 .v , body[data-proto-view="change4"] .loan.soft .g2 .v { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft > td , body[data-proto-view="change3"] .pct-table tbody tr.soft > td , body[data-proto-view="change4"] .pct-table tbody tr.soft > td , body[data-proto-view="change5"] .pct-table tbody tr.soft > td { background:#f6f7f8; }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change4"] .pct-table tbody tr.soft .pct-loan span , body[data-proto-view="change5"] .pct-table tbody tr.soft .pct-loan span { color:var(--text-muted); }
+  body[data-proto-view="change2"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change3"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change4"] .pct-table tbody tr.soft .pct-loan img , body[data-proto-view="change5"] .pct-table tbody tr.soft .pct-loan img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft , body[data-proto-view="change3"] .loan.soft , body[data-proto-view="change4"] .loan.soft , body[data-proto-view="change5"] .loan.soft { background:#fafbfc; }
+  body[data-proto-view="change2"] .loan.soft .loan__logobox img , body[data-proto-view="change3"] .loan.soft .loan__logobox img , body[data-proto-view="change4"] .loan.soft .loan__logobox img , body[data-proto-view="change5"] .loan.soft .loan__logobox img { filter:grayscale(1); opacity:.5; }
+  body[data-proto-view="change2"] .loan.soft .loan__name, body[data-proto-view="change3"] .loan.soft .loan__name, body[data-proto-view="change4"] .loan.soft .loan__name , body[data-proto-view="change5"] .loan.soft .loan__name,
+  body[data-proto-view="change2"] .loan.soft .g2 .v , body[data-proto-view="change3"] .loan.soft .g2 .v , body[data-proto-view="change4"] .loan.soft .g2 .v , body[data-proto-view="change5"] .loan.soft .g2 .v { color:var(--text-muted); }
 
   /* ============================================================
      CHANGE 3 — Merchandising: consolidate the scattered promos into ONE carousel (cumulative on
@@ -721,9 +714,9 @@
   /* Fold in only the redundant STACKED banners — the top Limited-Time bar, Fastest Fulfilment card,
      and bottom Hot Pick. The "Don't miss out" campaign-details block STAYS (per epic Req 4: "one
      carousel that links to the campaign details") — the carousel's "See deal details" scrolls to it. */
-  body[data-proto-view="change3"] .annbar, body[data-proto-view="change4"] .annbar,
-  body[data-proto-view="change3"] .promo-card , body[data-proto-view="change4"] .promo-card { display:none !important; }
-  body[data-proto-view="change3"] .hotpick , body[data-proto-view="change4"] .hotpick { display:none !important; }
+  body[data-proto-view="change3"] .annbar, body[data-proto-view="change4"] .annbar , body[data-proto-view="change5"] .annbar,
+  body[data-proto-view="change3"] .promo-card , body[data-proto-view="change4"] .promo-card , body[data-proto-view="change5"] .promo-card { display:none !important; }
+  body[data-proto-view="change3"] .hotpick , body[data-proto-view="change4"] .hotpick , body[data-proto-view="change5"] .hotpick { display:none !important; }
   /* Ad-landing demo note (EN chrome) — shown only when ?cms_amount/?cms_tenure/?provider present */
   .ad-note { display:flex; align-items:center; gap:10px; background:#fff7e6; border-bottom:1px solid #f0d9a0; color:#6b4e00; font-size:12px; line-height:1.4; padding:8px 14px; }
   .ad-note b { color:#5a4300; }
@@ -732,11 +725,53 @@
   .promoblk--flash { animation:promoFlash 1.6s ease; }
   @keyframes promoFlash { 0%,100%{ box-shadow:0 0 0 0 rgba(246,183,60,0); } 25%{ box-shadow:0 0 0 3px var(--fill-secondary,#f6b73c); } }
   .mcarousel { display:none; }
-  body[data-proto-view="change3"] .mcarousel , body[data-proto-view="change4"] .mcarousel { display:block; margin:var(--space-4) 0 var(--space-5); }
+  body[data-proto-view="change3"] .mcarousel , body[data-proto-view="change4"] .mcarousel , body[data-proto-view="change5"] .mcarousel { display:block; margin:var(--space-4) 0 var(--space-5); }
   .mcarousel__ann { margin-bottom:8px; }
   /* CHANGE 4 — reward-view toggle in the Sort & Filter panel (shown only in Change 4) */
   .sf-reward-group { display:none; }
-  body[data-proto-view="change4"] .sf-reward-group { display:block; }
+  body[data-proto-view="change4"] .sf-reward-group , body[data-proto-view="change5"] .sf-reward-group { display:block; }
+
+  /* CHANGE 5 — Interest rate column (CMS-1895). The two separate columns (Annual Interest Rate +
+     EIR) collapse into ONE cell: top line = AIR ("From X% p.a."), bottom line = EIR ("EIR X% p.a.").
+     This is shown IN PLACE OF the two columns, freeing one slot (the freed slot is left empty here —
+     the new min-loan-tenure column is a separate ticket). Desktop/tablet swap the header label and
+     hide the EIR header via CSS; the body cells are JS-rendered (see isChange5() in renderPct /
+     renderCards). The row stays a consistent two-line height — no card-like block. */
+  .th-air .lbl-ir { display:none; }                 /* default: header reads "Annual Interest Rate" */
+  body[data-proto-view="change5"] .th-air .lbl-air { display:none; }
+  body[data-proto-view="change5"] .th-air .lbl-ir  { display:inline; }
+  body[data-proto-view="change5"] .th-eir { display:none; }   /* EIR column removed — slot freed */
+
+  /* Two-line cell — matches the agreed /product-table/ sandbox exactly (same MHG type tokens): the
+     ACTIVE-SORT line is body-1 / semibold / primary; the other line is caption / regular / muted, so
+     there's a clear size + weight + colour step between them. Default = AIR prominent, EIR muted;
+     sorting by EIR (.eir-active) swaps the emphasis so the visible order always reads by the top,
+     prominent line. */
+  /* Emphasis is WEIGHT + COLOUR only — NOT size. Both lines stay at the table's base cell size so
+     the prominent line doesn't tower over the rest of the table; the active-sort line is bold +
+     primary, the other is regular + muted. Sorting by EIR (.eir-active) swaps which line is bold. */
+  .pct-ir { line-height:1.35; }
+  .pct-ir .ir-air , .pct-ir .ir-eir { display:block; }
+  .pct-ir .ir-air { font-weight:var(--font-weight-bold); color:var(--text-primary); }
+  .pct-ir .ir-eir { font-weight:var(--font-weight-regular); color:var(--text-muted); margin-top:3px; }
+  .pct-ir.eir-active .ir-air { font-weight:var(--font-weight-regular); color:var(--text-muted); }
+  .pct-ir.eir-active .ir-eir { font-weight:var(--font-weight-bold); color:var(--text-primary); }
+  /* Mobile card: AIR + EIR merge into one "Interest rate" tile, same bold-not-bigger treatment + swap */
+  .ir-card { display:flex; flex-direction:column; gap:3px; }
+  .ir-card > span:first-child { font-weight:var(--font-weight-bold); color:var(--text-primary); }
+  .ir-card__eir { font-weight:var(--font-weight-regular); color:var(--text-muted); }
+  .ir-card.eir-active > span:first-child { font-weight:var(--font-weight-regular); color:var(--text-muted); }
+  .ir-card.eir-active .ir-card__eir { font-weight:var(--font-weight-bold); color:var(--text-primary); }
+
+  /* Change-5 annotation (marks mode only): ONE clear "NEW · CHANGE 5" chip on the column header + a
+     tinted box drawn around the whole Interest-rate column — replaces the noisy per-cell dashed
+     outlines so stakeholders read the change as a single labelled unit (per Genevieve's callout). */
+  .th-air .ann-ir { display:none !important; }
+  body.marks[data-proto-view="change5"] .th-air .ann-ir { display:inline-block !important; margin-left:6px; vertical-align:middle; }
+  body.marks[data-proto-view="change5"] .th-air ,
+  body.marks[data-proto-view="change5"] .pct-ir { border-left:2px dashed var(--fill-secondary); border-right:2px dashed var(--fill-secondary); }
+  body.marks[data-proto-view="change5"] .th-air { border-top:2px dashed var(--fill-secondary); }
+  body.marks[data-proto-view="change5"] tbody tr:last-child .pct-ir { border-bottom:2px dashed var(--fill-secondary); }
   .sf-radio { display:flex; align-items:center; gap:var(--space-2); font-size:var(--font-size-body-2); color:var(--text-primary); padding:var(--space-1) 0; cursor:pointer; }
   .sf-radio input { flex-shrink:0; }
   .mcarousel__h { font-size:15px; font-weight:700; margin:0 0 4px; }
@@ -796,7 +831,7 @@
      viewport; only relevant/shown under Change 2 (harmless no-op in Baseline/Change 1 since
      `display:none` wins regardless). */
   .sticky-summary { position:fixed; top:0; left:0; right:0; z-index:41; background:var(--fill-primary-dark); box-shadow:0 4px 12px rgba(15,23,42,.14); transform:translateY(-100%); transition:transform .25s ease; display:none; }
-  body[data-proto-view="change2"] .sticky-summary , body[data-proto-view="change3"] .sticky-summary , body[data-proto-view="change4"] .sticky-summary { display:block; }
+  body[data-proto-view="change2"] .sticky-summary , body[data-proto-view="change3"] .sticky-summary , body[data-proto-view="change4"] .sticky-summary , body[data-proto-view="change5"] .sticky-summary { display:block; }
   .sticky-summary.show { transform:translateY(0); }
   .sticky-summary__inner { max-width:1130px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; box-sizing:border-box; }
   .sticky-summary__text { flex:1; min-width:0; display:flex; flex-direction:column; }
@@ -829,7 +864,7 @@
   .gate__err { color:var(--danger); font-size:12px; margin:10px 0 0; }
 </style>
 </head>
-<body class="marks" data-proto-view="change4">
+<body class="marks" data-proto-view="change5">
 <!-- password gate (demo, client-side only) -->
 <div id="gate" class="gate">
   <div class="gate__box">
@@ -857,7 +892,7 @@
   })();
 </script>
 
-<div class="baseline-tag">REDESIGN (from baseline) — Step 1: Sort &amp; Filter · Step 2: Calculator + eligibility · Step 3: Merchandising carousel · Step 4: Reward headline (each cumulative on the previous). Everything else on this page is unchanged from the production baseline. Use the Prototype view toggle below to compare against the live baseline.</div>
+<div class="baseline-tag">REDESIGN (from baseline) — Step 1: Sort &amp; Filter · Step 2: Calculator + eligibility · Step 3: Merchandising carousel · Step 4: Reward headline · Step 5: Interest rate column (each cumulative on the previous). Everything else on this page is unchanged from the production baseline. Use the Prototype view toggle below to compare against the live baseline.</div>
 
 <!-- Prototype view toggle (demo chrome, EN) — Baseline ⇄ Change 1 ⇄ Change 2 (cumulative), built
      to extend with Change 3/4 later (see PROTO_VIEWS in the script + the CSS rules keyed off
@@ -1035,7 +1070,7 @@
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-monthly" data-value="monthly" aria-selected="false">Monthly Repayment</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-total" data-value="total" aria-selected="false">Total Cost of Loan</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-rate" data-value="rate" aria-selected="false">Lowest Annual Interest Rate</li>
-              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-eir" data-value="eir" aria-selected="false">EIR</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-eir" data-value="eir" aria-selected="false">Lowest EIR</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-reward" data-value="reward" aria-selected="false">SingSaver Reward</li>
             </ul>
             <select class="sf-native-sort" id="sfSort" aria-hidden="true" tabindex="-1">
@@ -1043,7 +1078,7 @@
               <option value="monthly">Monthly Repayment</option>
               <option value="total">Total Cost of Loan</option>
               <option value="rate">Lowest Annual Interest Rate</option>
-              <option value="eir">EIR</option>
+              <option value="eir">Lowest EIR</option>
               <option value="reward">SingSaver Reward</option>
             </select>
           </div>
@@ -1120,11 +1155,11 @@
           <thead>
             <tr>
               <th class="pct-sticky">Loan</th>
-              <th>Annual Interest Rate</th>
+              <th class="th-air"><span class="lbl-air">Annual Interest Rate</span><span class="lbl-ir">Interest rate</span><span class="ann ann-ir">NEW · CHANGE 5</span></th>
               <th>SingSaver Reward</th>
               <th>Monthly Repayment</th>
-              <th class="pct-th--cost">Total Cost of Loan</th>
-              <th>EIR</th>
+              <th>Total Cost of Loan</th>
+              <th class="th-eir">EIR</th>
               <th>Apply</th>
             </tr>
           </thead>
@@ -1408,12 +1443,12 @@ const DEALS = [
       "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
     ],
     tiers:[
-      {band:"S$200,000 and above", amt:"3% Unlimited Cashback (worth S$6,000 w/ S$200,000 loan amount), plus S$900 Bonus Cash", worth:6900},
-      {band:"S$50,000 – S$199,999", amt:"3% Unlimited Cashback (worth S$1,500 w/ S$50,000 loan amount), plus S$900 Bonus Cash", worth:2400},
-      {band:"S$30,000 – S$49,999", amt:"3% Unlimited Cashback (worth S$900 w/ S$30,000 loan amount), plus S$500 Bonus Cash", worth:1400},
-      {band:"S$20,000 – S$29,999", amt:"3% Unlimited Cashback (worth S$600 w/ S$20,000 loan amount), plus S$400 Bonus Cash", worth:1000},
-      {band:"S$15,000 – S$19,999", amt:"3% Unlimited Cashback (worth S$450 w/ S$15,000 loan amount), plus S$300 Bonus Cash", worth:750},
-      {band:"S$10,000 – S$14,999", amt:"3% Unlimited Cashback (worth S$300 w/ S$10,000 loan amount), plus S$200 Bonus Cash", worth:500},
+      {amt:"S$900 Cash + 3% Cashback", worth:6900},
+      {amt:"S$900 Cash + 3% Cashback", worth:2400},
+      {amt:"S$500 Cash + 3% Cashback", worth:1400},
+      {amt:"S$400 Cash + 3% Cashback", worth:1000},
+      {amt:"S$300 Cash + 3% Cashback", worth:750},
+      {amt:"S$200 Cash + 3% Cashback", worth:500},
     ] },
   { name:"SCB CashOne Personal Loan", head:"Up to S$5,825 Cashback", logo:"assets/logos/standard-chartered.webp",
     color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
@@ -1431,16 +1466,14 @@ const DEALS = [
       "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
     ],
     tiers:[
-      {band:"S$250,000 and above", amt:"S$1,800 Cash + 1.61% Cashback (worth S$4,025 w/ S$250,000 loan amount)", worth:5825},
-      {band:"S$120,000 – S$249,999", amt:"S$1,800 Cash + 1.61% Cashback (worth S$1,932 w/ S$120,000 loan amount)", worth:3732},
-      {band:"S$80,000 – S$119,999", amt:"S$1,400 Cash + 1.61% Cashback (worth S$1,288 w/ S$80,000 loan amount)", worth:2688},
-      {band:"S$50,000 – S$79,999", amt:"S$1,000 Cash + 1.61% Cashback (worth S$805 w/ S$50,000 loan amount)", worth:1805},
-      {band:"S$30,000 – S$49,999", amt:"S$800 Cash + 0.61% Cashback (worth S$183 w/ S$30,000 loan amount)", worth:983},
-      {band:"S$20,000 – S$29,999", amt:"S$600 Cash + 0.61% Cashback (worth S$122 w/ S$20,000 loan amount)", worth:722},
-      {band:"S$18,000 – S$19,999", amt:"S$410 Cash + 0.61% Cashback (worth S$109 w/ S$18,000 loan amount)", worth:519},
-      {band:"S$15,000 – S$17,999", amt:"S$410 Cash via PayNow", worth:410},
-      {band:"S$10,000 – S$14,999", amt:"S$230 Cash via PayNow", worth:230},
-      {band:"S$8,000 – S$9,999", amt:"S$120 Cash via PayNow", worth:120},
+      {amt:"S$1,800 Cash + 1.61% Cashback", worth:4025},
+      {amt:"S$1,800 Cash + 1.61% Cashback", worth:1932},
+      {amt:"S$1,400 Cash + 1.61% Cashback", worth:1288},
+      {amt:"S$1,000 Cash + 1.61% Cashback", worth:805},
+      {amt:"S$800 Cash + 0.61% Cashback", worth:183},
+      {amt:"S$600 Cash + 0.61% Cashback", worth:122},
+      {amt:"S$410 Cash + 0.61% Cashback", worth:109},
+      {amt:"S$410 Cash via PayNow", worth:410},
     ] },
   { name:"UOB Personal Loan", head:"Up to S$1,800 cashback", logo:"assets/logos/uob.png",
     color:"pink", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
@@ -1456,14 +1489,14 @@ const DEALS = [
       "<a href=\"https://singsaver.link/pl-rewards-campaign\" target=\"_blank\" rel=\"noopener\">Terms and Conditions</a> apply.",
     ],
     tiers:[
-      {band:"S$120,000 and above", amt:"S$1,800 Cash via PayNow", worth:1800},
-      {band:"S$80,000 – S$119,999", amt:"S$1,400 Cash via PayNow", worth:1400},
-      {band:"S$50,000 – S$79,999", amt:"S$1,000 Cash via PayNow", worth:1000},
-      {band:"S$30,000 – S$49,999", amt:"S$800 Cash via PayNow", worth:800},
-      {band:"S$20,000 – S$29,999", amt:"S$600 Cash via PayNow", worth:600},
-      {band:"S$15,000 – S$19,999", amt:"S$430 Cash via PayNow", worth:430},
-      {band:"S$10,000 – S$14,999", amt:"S$230 Cash via PayNow", worth:230},
-      {band:"S$8,000 – S$9,999", amt:"S$120 Cash via PayNow", worth:120},
+      {amt:"Cash via PayNow", worth:1800},
+      {amt:"Cash via PayNow", worth:1400},
+      {amt:"Cash via PayNow", worth:1000},
+      {amt:"Cash via PayNow", worth:800},
+      {amt:"Cash via PayNow", worth:600},
+      {amt:"Cash via PayNow", worth:430},
+      {amt:"Cash via PayNow", worth:230},
+      {amt:"Cash via PayNow", worth:120},
     ] },
   { name:"Trust Bank Instant Loan", head:"Up to S$1,750 Cash", logo:"assets/logos/trust.png",
     color:"green", // BASELINE-FIDELITY FIX 1 — campaign-background tint key (see .promoblk__bg--*)
@@ -1489,14 +1522,14 @@ const DEALS = [
       ["S$120,000 and above","S$1,750 Cash","S$1,730 Cash"],
     ] },
     tiers:[
-      {band:"S$120,000 and above", amt:"S$1,750 Cash via PayNow", worth:1750},
-      {band:"S$80,000 – S$119,999", amt:"S$1,400 Cash via PayNow", worth:1400},
-      {band:"S$50,000 and above", amt:"S$1,000 Cash via PayNow", worth:1000},
-      {band:"S$30,000 – S$49,999", amt:"S$800 Cash via PayNow", worth:800},
-      {band:"S$20,000 – S$29,999", amt:"S$600 Cash via PayNow", worth:600},
-      {band:"S$15,000 – S$19,999", amt:"S$410 Cash via PayNow", worth:410},
-      {band:"S$10,000 – S$14,999", amt:"S$280 Upsized Cash via PayNow", worth:280},
-      {band:"S$8,000 – S$9,999", amt:"S$100 Cash via PayNow", worth:100},
+      {amt:"Cash via PayNow", worth:1750},
+      {amt:"Cash via PayNow", worth:1400},
+      {amt:"Cash via PayNow", worth:1000},
+      {amt:"Cash via PayNow", worth:800},
+      {amt:"Cash via PayNow", worth:600},
+      {amt:"Cash via PayNow", worth:410},
+      {amt:"Cash via PayNow", worth:230},
+      {amt:"Cash via PayNow", worth:100},
     ] },
 ];
 
@@ -1529,7 +1562,10 @@ function rewardTiers(l){ const m=rewardUpTo(l); return REWARD_BANDS.map(([lo,hi,
 function giftLabel(l,amt){ const g=REWARD_GIFT[l.name]||{kind:'cash'}; if(g.kind==='cashback') return `${sgd(amt)} cash + ${g.pct}% cashback`; if(g.kind==='points') return `${sgd(amt)} cash, or points for a gift`; return `${sgd(amt)} cash via PayNow`; }
 function bandLabel(t){ return `${sgd(t.lo)}${t.hi===Infinity?'+':' – '+sgd(t.hi)}`; }
 let rewardMode = 'max';   // 'max' = headline "up to"; 'real' = the gift for the entered amount
-function isChange4(){ return document.body.getAttribute('data-proto-view') === 'change4'; }
+// Change 5 (Interest rate column) is cumulative on Change 4, so isChange4() — which gates the
+// reward-headline logic — must also be true under change5. isChange5() gates the merged column only.
+function isChange4(){ const v = document.body.getAttribute('data-proto-view'); return v === 'change4' || v === 'change5'; }
+function isChange5(){ return document.body.getAttribute('data-proto-view') === 'change5'; }
 // CHANGE 4 — Provider Gift / Welcome Offer gift tiles (reuses the existing .gifttile). Driven by
 // l.welcomeOffer (Strapi "Welcome Offers": List of Gifts + Period → the "N days left" tag).
 function woGiftTilesHTML(wo){
@@ -1628,11 +1664,13 @@ function renderPct(rows){
     return `
     <tr class="${eligDimClass(r)}">
       <td class="pct-sticky"><div class="pct-loan">${nameCell(r,'',26)}<span>${r.full}</span></div></td>
-      <td>From ${(r.rate*100).toFixed(2)} % p.a.</td>
+      ${isChange5()
+        ? `<td class="pct-ir${sfState.sort==='eir'?' eir-active':''}"><span class="ir-air">From ${(r.rate*100).toFixed(2)}% p.a.</span><span class="ir-eir">EIR ${(r.eir*100).toFixed(2)}% p.a.</span></td>`
+        : `<td>From ${(r.rate*100).toFixed(2)} % p.a.</td>`}
       <td>${rewardCell}</td>
       <td class="pct-monthly">${sgd(r.monthly)}<span style="color:var(--text-muted);font-weight:400">/mo</span></td>
       <td>${sgd(r.total)}</td>
-      <td>From ${(r.eir*100).toFixed(2)} % p.a.</td>
+      ${isChange5() ? '' : `<td>From ${(r.eir*100).toFixed(2)} % p.a.</td>`}
       <td class="pct-applycell"><div class="pct-apply"><button class="mhg-btn mhg-btn--outline-cta mhg-btn--small" data-apply="${r.idx}">Apply</button>${eligLinkHTML(r)}</div></td>
     </tr>`; }).join('');
 }
@@ -1650,8 +1688,10 @@ function renderCards(rows){
       </div>
       <div class="loan__grid2 g2">
         <div><div class="l">Monthly Repayment</div><div class="v">${sgd(r.monthly)}<small>/mo</small></div></div>
-        <div><div class="l">Annual Interest Rate</div><div class="v">From ${(r.rate*100).toFixed(2)} %<small> p.a.</small></div></div>
-        <div><div class="l">EIR</div><div class="v">From ${(r.eir*100).toFixed(2)} %<small> p.a.</small></div></div>
+        ${isChange5()
+          ? `<div class="x-new"><div class="l">Interest rate</div><div class="v ir-card${sfState.sort==='eir'?' eir-active':''}"><span>From ${(r.rate*100).toFixed(2)}%<small> p.a.</small></span><span class="ir-card__eir">EIR ${(r.eir*100).toFixed(2)}%<small> p.a.</small></span></div></div>`
+          : `<div><div class="l">Annual Interest Rate</div><div class="v">From ${(r.rate*100).toFixed(2)} %<small> p.a.</small></div></div>
+        <div><div class="l">EIR</div><div class="v">From ${(r.eir*100).toFixed(2)} %<small> p.a.</small></div></div>`}
         <div><div class="l">Processing Fee</div><div class="v">${r.fee?sgd(r.fee):'S$0'}</div></div>
       </div>
       ${r.rewardMax>0 ? (() => {
@@ -1833,7 +1873,7 @@ function render(){
   curP = P; curMonths = months;
   const shown = applySortFilter(rows);
   if (!shown.length) {
-    $('pctBody').innerHTML = `<tr><td colspan="7" style="padding:0">${emptyStateHTML()}</td></tr>`;
+    $('pctBody').innerHTML = `<tr><td colspan="${isChange5()?6:7}" style="padding:0">${emptyStateHTML()}</td></tr>`;
     cardResults.innerHTML = emptyStateHTML();
   } else {
     $('pctBody').innerHTML = renderPct(shown);
@@ -1938,7 +1978,7 @@ const campTabs=$('campTabs'), campBody=$('campBody');
 campTabs.innerHTML = DEALS.map((d,i)=>`<button class="promoblk__tab ${i===0?'on':''}" data-deal="${i}"><b>${d.name}</b><span>${d.head}</span></button>`).join('');
 
 function giftTileHTML(t){
-  return `<div class="gifttile"><div class="gifttile__tag" title="Limited time only">Limited time only</div><div class="gifttile__body"><div><div class="gifttile__band">${t.band}</div><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${t.amt}</div></div></div><div class="gifttile__worth">Worth ${sgd(t.worth)}</div></div>`;
+  return `<div class="gifttile"><div class="gifttile__tag" title="Limited time only">Limited time only</div><div class="gifttile__body"><div><div class="gifttile__ic">🎁</div><div class="gifttile__amt">${t.amt}</div></div></div><div class="gifttile__worth">Worth ${sgd(t.worth)}</div></div>`;
 }
 function giftBlockHTML(d){
   return `<p class="promoblk__applyby">Apply by ${d.applyBy} to claim your reward.</p><div class="promoblk__grid">${d.tiers.map(giftTileHTML).join('')}</div>`;
@@ -2079,7 +2119,7 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
 
   let idx = 0, timer = null;
   const REVOLVE = 5000;   // CH-437: auto-rotate every 5 seconds
-  const active = ()=> { const v = document.body.getAttribute('data-proto-view'); return v === 'change3' || v === 'change4'; };
+  const active = ()=> { const v = document.body.getAttribute('data-proto-view'); return v === 'change3' || v === 'change4' || v === 'change5'; };
   function apply(){
     track.style.transform = `translateX(-${idx*100}%)`;
     [...track.children].forEach((sl,i)=> sl.setAttribute('aria-hidden', String(i!==idx)));
@@ -2312,8 +2352,9 @@ const PROTO_VIEWS = [
   { id:'change2',  label:'Change 2 · Calculator + eligibility' },
   { id:'change3',  label:'Change 3 · Merchandising' },
   { id:'change4',  label:'Change 4 · Reward headline' },
+  { id:'change5',  label:'Change 5 · Interest rate column' },
 ];
-let currentProtoView = document.body.getAttribute('data-proto-view') || 'change4';
+let currentProtoView = document.body.getAttribute('data-proto-view') || 'change5';
 
 function renderProtoViewToggle(){
   const host = $('protoViewToggle');
@@ -2332,8 +2373,12 @@ function setProtoView(id){
   if (id === 'baseline' && typeof window.__sfClosePanel === 'function') window.__sfClosePanel();
   // The promo carousel auto-rotates while it's visible — Change 3 (where it was introduced) and
   // Change 4 (cumulative on top of Change 3, so the carousel is still shown).
-  if (id === 'change3' || id === 'change4') { if (window.__mcStart) window.__mcStart(); }
+  if (id === 'change3' || id === 'change4' || id === 'change5') { if (window.__mcStart) window.__mcStart(); }
   else if (window.__mcStop) window.__mcStop();
+  // The comparison table is JS-rendered and the merged Interest-rate column (Change 5) plus the
+  // Change-4 reward cells are decided at render time, so re-render on every view switch to reflect
+  // the active view (setProtoView previously changed only CSS, leaving those cells stale on toggle).
+  if (typeof render === 'function') render();
 }
 const protoViewHost = $('protoViewToggle');
 if (protoViewHost) protoViewHost.addEventListener('click', e=>{
