@@ -114,6 +114,7 @@
   .details .imoney, .details .iunit { display:flex; align-items:center; border:1px solid var(--borders-form-default); border-radius: var(--r-button); overflow:hidden; }
   .details .imoney span, .details .iunit span { padding: 0 8px; color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
   .details .imoney input, .details .iunit input { border:0; outline:0; width:100%; padding:8px 8px 8px 0; font:inherit; font-size:16px; font-weight:700; color:var(--text-primary); }
+  .details .iunit input { padding-left:12px; }
   .details .fld select { width:100%; padding: 8px; border:1px solid var(--borders-form-default); border-radius: var(--r-button); font:inherit; font-family:var(--font-sans); font-size:16px; background:var(--fill-card); color:var(--text-primary); }
   /* v20 groups 4 fields at 2 cols on mobile, growing to 3/5 cols on a narrower (640px) max-width
      page; this redesign's wrap is wider (1130px desktop) and only ever holds these same 4 fields,
@@ -284,7 +285,7 @@
   .acc { border-top:1px solid var(--borders-soft); }
   .acc > summary { list-style:none; cursor:pointer; padding:10px 0; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:13px; }
   .acc > summary::-webkit-details-marker { display:none; }
-  .acc > summary::after { content:"▾"; color:var(--text-muted); font-size:10px; } .acc[open] > summary::after { content:"▴"; }
+  .acc > summary::after { content:""; flex-shrink:0; width:16px; height:16px; background-color:var(--text-muted); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; transition:transform .15s ease; } .acc[open] > summary::after { transform:rotate(180deg); }
   .acc__body { padding: 0 0 12px; font-size:12px; color:var(--text-secondary); }
   .acc--reward { background:var(--fill-primary-light); border-radius:var(--r-card-inner); border-top:0; padding:0 12px; margin:0 0 4px; }
   .acc--reward > summary { padding:12px 0; }
