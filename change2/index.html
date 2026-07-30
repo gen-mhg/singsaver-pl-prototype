@@ -718,13 +718,19 @@
      Change 1 OR Change 2 is the active view (cumulative — Step 1's own additions stay marked when
      viewing Step 2 too, since they're still a diff vs the true production baseline), hides
      automatically in Baseline (where those panels are hidden anyway). */
+  /* CHANGE 2 checker round: Baseline (change1) is no longer a "before" that carries its own dashed
+     marks — it's the true baseline for THIS review, so it must show zero green annotations, ever
+     (removed entirely from every rule below). Change 2 must also mark ONLY its own additions, not
+     any Change-1 furniture (Sort & Filter panel/trigger, persona tabs, Loan Types, Sort By, sort
+     caption) that happens to still render underneath it — so `change2` is dropped from the #sfPanel
+     outline rule too, and the two Change-1 "NEW · CHANGE 1" <span class="ann"> chips (Sort & Filter
+     panel head + mobile/tablet trigger) plus the trigger's own `.x-new` outline class have been
+     removed from the markup below (nothing left to select). change3/4/5 stay listed — dormant/
+     unreachable since PROTO_VIEWS only offers change1/change2 — so a future step can still reuse them. */
   .ann { display:none; background:var(--fill-secondary); color:var(--fill-primary-dark); font-size:9px; font-weight:800; border-radius:4px; padding:2px 7px; white-space:nowrap; box-shadow:var(--shadow-md); }
-  body.marks[data-proto-view="change1"] .ann,
   body.marks[data-proto-view="change2"] .ann , body.marks[data-proto-view="change3"] .ann , body.marks[data-proto-view="change4"] .ann , body.marks[data-proto-view="change5"] .ann { display:inline-block; }
-  body.marks[data-proto-view="change1"] .x-new,
   body.marks[data-proto-view="change2"] .x-new , body.marks[data-proto-view="change3"] .x-new , body.marks[data-proto-view="change4"] .x-new , body.marks[data-proto-view="change5"] .x-new { position:relative; outline:2px dashed var(--fill-secondary); outline-offset:3px; border-radius:10px; }
-  body.marks[data-proto-view="change1"] #sfPanel,
-  body.marks[data-proto-view="change2"] #sfPanel , body.marks[data-proto-view="change3"] #sfPanel , body.marks[data-proto-view="change4"] #sfPanel , body.marks[data-proto-view="change5"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
+  body.marks[data-proto-view="change3"] #sfPanel , body.marks[data-proto-view="change4"] #sfPanel , body.marks[data-proto-view="change5"] #sfPanel { outline:2px dashed var(--fill-secondary); outline-offset:-3px; }
   /* Change-1 (persists under Change 2): sort/state caption under the results heading */
   .sortcap { display:none; font-size:13px; color:var(--text-muted); margin:2px 0 12px; }
   body[data-proto-view="change1"] .sortcap,
@@ -743,24 +749,23 @@
   body[data-proto-view="change2"] .sortcap , body[data-proto-view="change3"] .sortcap , body[data-proto-view="change4"] .sortcap , body[data-proto-view="change5"] .sortcap { font-size:12px; margin:2px 0 12px; }
 
   /* Per-loan soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate).
-     TABLE: a small "ⓘ Check eligibility" text link in the Apply cell (.tinfo--no, link colour).
-     CARDS: pills in the badges row — green "SingSaver Exclusive" (.badge--excl) + amber
-     "Check eligibility" (.badge--warn) — plus a bottom note (.loan__elig): amber reason when short,
-     green "meet the basic criteria" when it clears. Concrete colours (SingSaver green + warm amber),
-     not the amber-accent tokens, to match the old prototype. Eligibility elements hidden outside
-     Change 2 (badge--excl is merchandising, always shown). */
+     TABLE: a small "ⓘ Check eligibility" text link in the Apply cell (.tinfo--no, link colour) — left
+     as-is for now. CARDS: CHANGE 5 checker round — the amber "Check eligibility" pill (.badge--warn)
+     in the card header is REMOVED entirely; the bottom note (.loan__elig) is now the ONLY eligibility
+     indicator in the card (amber reason when short, green "meet the basic criteria" when it clears).
+     .badge--excl (green "SingSaver Exclusive") is unused merchandising left in place, harmless.
+     Concrete colours (SingSaver green + warm amber), not the amber-accent tokens, to match the old
+     prototype. Eligibility elements hidden outside Change 2. */
   .tinfo--ok, .tinfo--no { display:none; margin:6px 0 0; font-size:11px; line-height:1.2; font-weight:700; }
   body[data-proto-view="change2"] .tinfo--no , body[data-proto-view="change3"] .tinfo--no , body[data-proto-view="change4"] .tinfo--no , body[data-proto-view="change5"] .tinfo--no { display:block; }
   .tinfo--no { white-space:nowrap; color:var(--text-link); cursor:help; }
   .badge { display:inline-block; font-size:12px; font-weight:700; border-radius:var(--r-pill); padding:3px 10px; }
   .badge--excl { background:var(--color-olive-700,#5d8433); color:#fff; }
-  .badge--warn { background:#fff7e0; color:#8a5a00; border:1px solid #e6c667; }
   .loan__elig { font-size:12px; font-weight:600; line-height:1.35; margin:10px 0 0; }
   .loan__elig--no { color:#8a5a00; }
   .loan__elig--ok { color:var(--success-dark,#33691e); }
-  .badge--excl, .badge--warn, .loan__elig { display:none; }
-  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl, body[data-proto-view="change4"] .badge--excl , body[data-proto-view="change5"] .badge--excl,
-  body[data-proto-view="change2"] .badge--warn , body[data-proto-view="change3"] .badge--warn , body[data-proto-view="change4"] .badge--warn , body[data-proto-view="change5"] .badge--warn { display:inline-block; }
+  .badge--excl, .loan__elig { display:none; }
+  body[data-proto-view="change2"] .badge--excl, body[data-proto-view="change3"] .badge--excl, body[data-proto-view="change4"] .badge--excl , body[data-proto-view="change5"] .badge--excl { display:inline-block; }
   body[data-proto-view="change2"] .loan__elig , body[data-proto-view="change3"] .loan__elig , body[data-proto-view="change4"] .loan__elig , body[data-proto-view="change5"] .loan__elig { display:block; }
   .loan__badges { display:flex; flex-wrap:wrap; gap:6px; }
   .loan__badges:empty { display:none; }
@@ -912,8 +917,16 @@
      .details CSS above) once it scrolls out of view, driven by the same guarded IntersectionObserver
      approach as v20 (observes #detailsBox directly — see script). Fixed to the very top of the
      viewport; only relevant/shown under Change 2 (harmless no-op in Change 1 since `display:none`
-     wins regardless). */
-  .sticky-summary { position:fixed; top:0; left:0; right:0; z-index:41; background:var(--fill-primary-dark); box-shadow:0 4px 12px rgba(15,23,42,.14); transform:translateY(-100%); transition:transform .25s ease; display:none; }
+     wins regardless).
+     CHANGE 6 checker round: this bar previously turned solid navy (`--fill-primary-dark`) with white
+     text once stuck — reads as a different, heavier component than the calculator it's standing in
+     for. Restyled to a light/white surface matching `#detailsBox` itself: `--fill-card` background +
+     a `--borders-default` bottom border (replacing the navy fill), keeping only the drop shadow for
+     the "stuck" affordance; every text/control colour below switches from the on-dark set to the
+     matching dark-surface tokens. This only changes fill/border/text colours — height, padding and
+     font-size are untouched, so syncHeadShadow()'s getBoundingClientRect().height read (which sets
+     --pct-head-top, pinning the sticky table header directly below this bar) is unaffected. */
+  .sticky-summary { position:fixed; top:0; left:0; right:0; z-index:41; background:var(--fill-card); border-bottom:1px solid var(--borders-default); box-shadow:0 4px 12px rgba(15,23,42,.14); transform:translateY(-100%); transition:transform .25s ease; display:none; }
   body[data-proto-view="change2"] .sticky-summary , body[data-proto-view="change3"] .sticky-summary , body[data-proto-view="change4"] .sticky-summary , body[data-proto-view="change5"] .sticky-summary { display:block; }
   .sticky-summary.show { transform:translateY(0); }
   /* BUG FIX (found while CDP-verifying Change 2's sticky summary bar under the default "✨ Show
@@ -928,10 +941,10 @@
   #stickySummary { position:fixed; }
   .sticky-summary__inner { max-width:1130px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; box-sizing:border-box; }
   .sticky-summary__text { flex:1; min-width:0; display:flex; flex-direction:column; }
-  .sticky-summary__lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:rgba(255,255,255,.65); }
-  .sticky-summary__txt { font-size:12px; font-weight:600; color:var(--text-on-dark); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .sticky-summary__edit { border:1px solid rgba(255,255,255,.5); background:none; color:var(--text-on-dark); border-radius:var(--r-pill); padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; }
-  .sticky-summary__edit:hover { background:rgba(255,255,255,.15); }
+  .sticky-summary__lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); }
+  .sticky-summary__txt { font-size:12px; font-weight:600; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sticky-summary__edit { border:1px solid var(--borders-default); background:none; color:var(--text-link); border-radius:var(--r-pill); padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; }
+  .sticky-summary__edit:hover { background:var(--fill-alternative-1); }
   @media (min-width:768px){ .sticky-summary__inner { padding:9px 24px; } }
   @media (min-width:1280px){ .sticky-summary__inner { padding:9px 40px; } }
   /* demo chrome: approximate mobile first-fold guideline (illustrative) */
@@ -1028,9 +1041,9 @@
   })();
 </script>
 
-<div class="baseline-tag">CHANGE 2 — "Your details" calculator + per-loan eligibility (built on top of Change 1 — Sort &amp; Filter, CMS-1871). Change 1 is the before/baseline for this review; Change 2 layers the calculator + eligibility additions on top. Use the toggle below to compare Change 1 against Change 2.</div>
+<div class="baseline-tag">CHANGE 2 — "Your details" calculator + per-loan eligibility (built on top of the refined Sort &amp; Filter panel, CMS-1871). Baseline is the refined Sort &amp; Filter view for this review; Change 2 layers the calculator + eligibility additions on top. Use the toggle below to compare Baseline against Change 2.</div>
 
-<!-- Prototype view toggle (demo chrome, EN) — Change 1 ⇄ Change 2 (cumulative: Change 2 = Change 1's
+<!-- Prototype view toggle (demo chrome, EN) — Baseline ⇄ Change 2 (cumulative: Change 2 = Baseline's
      Sort & Filter furniture PLUS the calculator/eligibility additions), built to extend with Change
      3/4/5 later (see PROTO_VIEWS in the script + the CSS rules keyed off body[data-proto-view] — those
      rules already exist, dormant, and stay out of reach since PROTO_VIEWS only lists change1/change2).
@@ -1185,7 +1198,8 @@
     <aside class="sf-panel" id="sfPanel" aria-label="Sort and filter personal loans" aria-hidden="true">
       <div class="sf-panel__head">
         <b>Sort &amp; Filter</b>
-        <span class="ann">NEW · CHANGE 1</span>
+        <!-- CHANGE 2 checker round: the "NEW · CHANGE 1" chip is removed — this panel is Change-1
+             (now Baseline) furniture and must never carry a Change-2 green mark. -->
         <button type="button" class="sf-panel__close" id="sfClose" aria-label="Close sort and filter"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-close"/></svg></button>
       </div>
       <div class="sf-panel__body">
@@ -1207,7 +1221,10 @@
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-total" data-value="total" aria-selected="false">Total Cost of Loan</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-rate" data-value="rate" aria-selected="false">Lowest Annual Interest Rate</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-eir" data-value="eir" aria-selected="false">Lowest EIR</li>
-              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-reward" data-value="reward" aria-selected="false">SingSaver Reward</li>
+              <!-- CHANGE 3: "SingSaver Reward" sort removed; "Shortest Tenure" added, sorting by each
+                   loan's maxTenure (LOANS[].maxTenure) ascending (shortest first) — see the `tenure` comparator in
+                   SORTERS. -->
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-tenure" data-value="tenure" aria-selected="false">Shortest Tenure</li>
             </ul>
             <select class="sf-native-sort" id="sfSort" aria-hidden="true" tabindex="-1">
               <option value="popular">Popular</option>
@@ -1215,7 +1232,7 @@
               <option value="total">Total Cost of Loan</option>
               <option value="rate">Lowest Annual Interest Rate</option>
               <option value="eir">Lowest EIR</option>
-              <option value="reward">SingSaver Reward</option>
+              <option value="tenure">Shortest Tenure</option>
             </select>
           </div>
         </div>
@@ -1277,11 +1294,12 @@
       <div class="section-h" id="pctHeading">Compare Personal Loans</div>
       <!-- CHANGE 2: plain loan count only (no eligibility claim). -->
       <span class="qualifycap x-new" id="qualifyCap"></span>
-      <!-- Change 1, mobile/tablet (<1024px): open the Sort & Filter panel from here (beside the heading, above the table); ≥1024px the persistent left panel is used instead (this button hidden by CSS there). -->
+      <!-- Change 1 (Baseline), mobile/tablet (<1024px): open the Sort & Filter panel from here (beside the heading, above the table); ≥1024px the persistent left panel is used instead (this button hidden by CSS there).
+           CHANGE 2 checker round: dropped the "NEW · CHANGE 1" chip + `.x-new` outline class from this
+           wrapper — Sort & Filter is Baseline furniture and must never carry a Change-2 green mark. -->
       <div class="sf-trigger-row">
-        <span class="sf-trigger-wrap x-new" style="display:inline-block">
+        <span class="sf-trigger-wrap" style="display:inline-block">
           <button type="button" class="sf-trigger" id="sfOpen" aria-haspopup="true" aria-expanded="false" aria-controls="sfPanel"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-tune"/></svg>Sort &amp; Filter</button>
-          <span class="ann">NEW · CHANGE 1</span>
         </span>
       </div>
     </div>
@@ -1489,7 +1507,7 @@
 // Sample data — 7 lenders, structure/labels match production; rates & reward figures are illustrative.
 const LOANS = [
   { name:"DBS", full:"DBS Personal Loan", tag:"Biggest stacked reward", logo:"assets/logos/dbs.webp",
-    rate:0.0148, eir:0.0290, fee:0, rewardMax:130, minAmt:8000, minTenure:36,
+    rate:0.0148, eir:0.0290, fee:0, rewardMax:130, minAmt:8000, minTenure:36, maxTenure:60,
     // CHANGE 1 checker round: "balance-transfer" added (Loan Types filter demo data — see the new
     // #sfAccLoanTypes panel group) alongside the existing persona tags; existing tags/rate/eir/fee/
     // rewardMax untouched.
@@ -1499,7 +1517,7 @@ const LOANS = [
     minAge:21, minIncome:20000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:20000, eligForeignerOk:false },
   { name:"Trust Bank", full:"Trust Instant Loan", tag:"Fully in-app, quick approval", logo:"assets/logos/trust.png",
-    rate:0.0102, eir:0.0230, fee:0, rewardMax:100, minAmt:5000, minTenure:12,
+    rate:0.0102, eir:0.0230, fee:0, rewardMax:100, minAmt:5000, minTenure:12, maxTenure:60,
     // Real live "Welcome Offer" — maps to the Strapi "Welcome Offers" collection entry
     // (2026-07-01.PL.TRBX.10FAIRPRICE): Offer Title, Combine Gift=TRUE (→ stacks "on top of" the
     // SingSaver reward), List of Gifts, Period. Rendered as its own offer section (card accordion +
@@ -1524,7 +1542,7 @@ const LOANS = [
     minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the Trust app for Singaporeans / PRs."],
     eligIncome:40000, eligForeignerOk:false },
   { name:"Standard Chartered", full:"Standard Chartered CashOne Personal Loan", tag:"Flexible repayment and instant approvals", logo:"assets/logos/standard-chartered.webp",
-    rate:0.0090, eir:0.0175, fee:0, rewardMax:120, minAmt:8000, minTenure:36,
+    rate:0.0090, eir:0.0175, fee:0, rewardMax:120, minAmt:8000, minTenure:36, maxTenure:84,
     // Sort & Filter metadata (redesign step 1 only — drives the new panel's Loan Types/Feature/Bank
     // filters; nothing here changes what's rendered anywhere else on the page). "balance-transfer"
     // added in the Change 1 checker round for the Loan Types filter demo data.
@@ -1553,7 +1571,7 @@ const LOANS = [
       {range:"S$8,000 – S$9,999", cash:"S$120 Cash via PayNow"},
     ] },
   { name:"UOB", full:"UOB Personal Loan", tag:"Instant approval and disbursement", logo:"assets/logos/uob.png",
-    rate:0.0100, eir:0.0330, fee:150, rewardMax:150, minAmt:8000, minTenure:12,
+    rate:0.0100, eir:0.0330, fee:150, rewardMax:150, minAmt:8000, minTenure:12, maxTenure:60,
     // CHANGE 1 checker round: "credit-line" + "balance-transfer" added (Loan Types filter demo data).
     categories:["fast-cash","singsaver-exclusive","foreigners","credit-line","balance-transfer"], instantApproval:true, feeWaiver:false,
     steps:["Go to UOB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your UOB Personal Loan"],
@@ -1561,7 +1579,7 @@ const LOANS = [
     minAge:21, minIncome:30000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:30000, eligForeignerOk:false },
   { name:"HSBC", full:"HSBC Personal Loan", tag:"Long tenures up to 84 months", logo:"assets/logos/hsbc.webp",
-    rate:0.0250, eir:0.0300, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    rate:0.0250, eir:0.0300, fee:0, rewardMax:0, minAmt:0, minTenure:0, maxTenure:84,
     // CHANGE 1 checker round: "debt-consolidation" added (Loan Types filter demo data).
     categories:["foreigners","debt-consolidation"], instantApproval:false, feeWaiver:false,
     steps:["Go to HSBC's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your HSBC Personal Loan"],
@@ -1569,14 +1587,14 @@ const LOANS = [
     minAge:21, minIncome:45000, docs:["No documents required for Singaporeans / PRs applying via SingPass.","For foreigners: passport, Employment Pass, and one proof-of-address document."],
     eligIncome:45000, eligForeignerOk:true, eligForeignerIncome:60000 },
   { name:"GXS", full:"GXS FlexiLoan", tag:"Flexible drawdown, no early-repay fee", logo:"assets/logos/gxs.png",
-    rate:0.0180, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0,
+    rate:0.0180, eir:0.0250, fee:0, rewardMax:0, minAmt:0, minTenure:0, maxTenure:48,
     categories:["credit-line"], instantApproval:false, feeWaiver:true,
     steps:["Open the GXS Bank app and select FlexiLoan","Set your credit limit and draw down what you need","Repay flexibly — interest is charged only on what you draw"],
     feats:["Draw down only what you need, interest charged on the drawn amount only.","No early-repayment fee.","Fully digital application via the GXS app."],
     minAge:21, minIncome:20000, docs:["No documents required — application is completed fully within the GXS app for Singaporeans / PRs."],
     eligIncome:30000, eligForeignerOk:false },
   { name:"CIMB", full:"CIMB Personal Loan", tag:"Low income requirement", logo:"assets/logos/cimb.png",
-    rate:0.0130, eir:0.0400, fee:250, rewardMax:0, minAmt:0, minTenure:0,
+    rate:0.0130, eir:0.0400, fee:250, rewardMax:0, minAmt:0, minTenure:0, maxTenure:84,
     categories:["debt-consolidation","foreigners"], instantApproval:false, feeWaiver:false,
     steps:["Go to CIMB's website and click \"Apply Now\" under Personal Loans","Fill out an application and submit all required documents","Wait for approval of your CIMB Personal Loan"],
     feats:["Low minimum annual income requirement of S$24,000.","Open to Singaporeans, PRs and eligible foreigners.","Fixed monthly instalments for the full loan tenure."],
@@ -1777,19 +1795,22 @@ function computeEligibility(l, citizenshipVal, monthlyIncome){
 function currentCitizenship(){ return citizenship ? citizenship.value : 'sgpr'; }
 function currentMonthlyIncome(){ return income ? parseNum(income.value) : 5000; }
 // Soft eligibility flag — old-prototype handling (illustrative thresholds; never a gate, "Apply"
-// always works). Two placements, matching the old prototype exactly:
-//  • TABLE Apply cell — a small "ⓘ Check eligibility" text LINK (only when the loan falls short).
-//  • CARDS — a "Check eligibility" pill in the badges row (beside the green "SingSaver Exclusive"
-//    pill), plus a one-line note at the bottom: amber reason when short, green "meet the basic
-//    criteria" when the details clear the illustrative minimum.
+// always works). Placement, matching the CHANGE 5 checker round:
+//  • TABLE Apply cell — a small "ⓘ Check eligibility" text LINK (only when the loan falls short) —
+//    left as-is for now.
+//  • CARDS — the yellow "Check eligibility" pill in the badges row is REMOVED entirely; the one-line
+//    note at the bottom (.loan__elig) is now the ONLY eligibility indicator in the card: amber reason
+//    when short, green "meet the basic criteria" when the details clear the illustrative minimum.
 function eligLinkHTML(l){
   const e = computeEligibility(l, currentCitizenship(), currentMonthlyIncome());
   return e.ok ? `` : `<span class="tinfo--no x-new" title="${e.reason.replace(/"/g,'&quot;')}. You can still apply — the lender makes the final decision.">ⓘ Check eligibility</span>`;
 }
 function eligBadgesHTML(l){
-  const e = computeEligibility(l, currentCitizenship(), currentMonthlyIncome());
-  // "SingSaver Exclusive" pill removed per request — only the neutral "Check eligibility" flag remains.
-  return e.ok ? `` : `<span class="badge badge--warn x-new">Check eligibility</span>`;
+  // CHANGE 5 checker round: the "Check eligibility" pill is removed from the card header — the
+  // subtle bottom note (eligNoteHTML) is the sole eligibility indicator now. Kept as a function (vs.
+  // deleting the call site in renderCards()) so the .loan__badges wrapper markup/CSS need no other
+  // changes — it collapses via the existing `.loan__badges:empty { display:none; }` rule.
+  return '';
 }
 function eligNoteHTML(l){
   const e = computeEligibility(l, currentCitizenship(), currentMonthlyIncome());
@@ -1989,7 +2010,8 @@ const SORTERS = {
   total:   (a,b)=> a.total - b.total,
   rate:    (a,b)=> a.rate - b.rate,
   eir:     (a,b)=> a.eir - b.eir,
-  reward:  (a,b)=> (b.rewardMax||0) - (a.rewardMax||0),
+  // CHANGE 3: "SingSaver Reward" sort removed; "Shortest Tenure" — ascending by LOANS[].maxTenure.
+  tenure:  (a,b)=> (a.maxTenure||0) - (b.maxTenure||0),
 };
 
 function applySortFilter(rows){
@@ -2618,7 +2640,7 @@ $('annLearnMore').addEventListener('click', ()=> document.querySelector('.promob
 // every view a given piece of Change-1 chrome should keep showing under, i.e. "change1, change2").
 // ============================================================
 const PROTO_VIEWS = [
-  { id:'change1', label:'Change 1 · Sort & Filter' },
+  { id:'change1', label:'Baseline' },
   { id:'change2', label:'Change 2 · Calculator + eligibility' },
 ];
 let currentProtoView = document.body.getAttribute('data-proto-view') || 'change2';
