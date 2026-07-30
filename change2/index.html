@@ -1218,7 +1218,7 @@
             <ul class="sf-dropdown__list" id="sfSortListbox" role="listbox" aria-labelledby="sfSortLabel" tabindex="-1" hidden>
               <li role="option" class="sf-dropdown__opt on" id="sfSortOpt-popular" data-value="popular" aria-selected="true">Popular</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-monthly" data-value="monthly" aria-selected="false">Monthly Repayment</li>
-              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-total" data-value="total" aria-selected="false">Total Cost of Loan</li>
+              <li role="option" class="sf-dropdown__opt" id="sfSortOpt-total" data-value="total" aria-selected="false">Total Repayment</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-rate" data-value="rate" aria-selected="false">Lowest Annual Interest Rate</li>
               <li role="option" class="sf-dropdown__opt" id="sfSortOpt-eir" data-value="eir" aria-selected="false">Lowest EIR</li>
               <!-- CHANGE 3: "SingSaver Reward" sort removed; "Shortest Tenure" added, sorting by each
@@ -1229,7 +1229,7 @@
             <select class="sf-native-sort" id="sfSort" aria-hidden="true" tabindex="-1">
               <option value="popular">Popular</option>
               <option value="monthly">Monthly Repayment</option>
-              <option value="total">Total Cost of Loan</option>
+              <option value="total">Total Repayment</option>
               <option value="rate">Lowest Annual Interest Rate</option>
               <option value="eir">Lowest EIR</option>
               <option value="tenure">Shortest Tenure</option>
@@ -1318,7 +1318,7 @@
                 <th class="th-air"><span class="lbl-air">Annual Interest Rate</span><span class="lbl-ir">Interest rate</span><span class="ann ann-ir">NEW · CHANGE 5</span></th>
                 <th>SingSaver Reward</th>
                 <th>Monthly Repayment</th>
-                <th>Total Cost of Loan</th>
+                <th>Total Repayment</th>
                 <th class="th-eir">EIR</th>
                 <th>Apply</th>
               </tr>
@@ -1334,7 +1334,7 @@
               <th class="th-air"><span class="lbl-air">Annual Interest Rate</span><span class="lbl-ir">Interest rate</span><span class="ann ann-ir">NEW · CHANGE 5</span></th>
               <th>SingSaver Reward</th>
               <th>Monthly Repayment</th>
-              <th>Total Cost of Loan</th>
+              <th>Total Repayment</th>
               <th class="th-eir">EIR</th>
               <th>Apply</th>
             </tr>
@@ -1826,7 +1826,7 @@ function compute(){
   const P = Math.max(1000, parseNum(amt.value) || 8000);
   const months = Math.max(1, parseNum(tenure.value) || 12);
   const years = months/12;
-  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:ti+(l.fee||0), real:realReward(l,P)}; }), P, months };
+  return { rows: LOANS.map((l,idx)=>{ const ti = l.rate*P*years; return {...l, idx, monthly:(P+ti)/months, total:P+ti+(l.fee||0), real:realReward(l,P)}; }), P, months };
 }
 
 function renderPct(rows){
