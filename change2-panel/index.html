@@ -575,10 +575,13 @@
   .sf-fld { margin:0 0 var(--space-3); }
   .sf-fld:last-child { margin-bottom:0; }  /* group already has its own 16px bottom padding */
   .sf-fld label { display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin:0 0 6px; }
-  .sf-fld select { width:100%; box-sizing:border-box; font-family:inherit; font-size:14px; color:var(--text-primary); background:var(--fill-card); border:1px solid var(--borders-soft); border-radius:8px; padding:9px 10px; }
-  .sf-fld .imoney { display:flex; align-items:center; box-sizing:border-box; background:var(--fill-card); border:1px solid var(--borders-soft); border-radius:8px; overflow:hidden; }
-  .sf-fld .imoney span { padding:0 0 0 10px; color:var(--text-muted); font-size:14px; white-space:nowrap; }
-  .sf-fld .imoney input { flex:1 1 auto; min-width:0; border:0; outline:0; background:transparent; font-family:inherit; font-size:14px; color:var(--text-primary); padding:9px 10px 9px 6px; }
+  /* Metrics copied from .sf-dropdown__trigger so these controls match every other control in the
+     panel (same border, radius, padding, type scale). Previously they were 37-39px tall against the
+     panel's 46px, which read as inconsistent padding. */
+  .sf-fld select { width:100%; box-sizing:border-box; border:1px solid var(--borders-form-default); border-radius:var(--r-button); padding:var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); background:var(--fill-card); color:var(--text-primary); cursor:pointer; }
+  .sf-fld .imoney { display:flex; align-items:center; box-sizing:border-box; border:1px solid var(--borders-form-default); border-radius:var(--r-button); background:var(--fill-card); overflow:hidden; }
+  .sf-fld .imoney span { padding:var(--space-3) 0 var(--space-3) var(--space-3); font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); color:var(--text-muted); white-space:nowrap; }
+  .sf-fld .imoney input { flex:1 1 auto; min-width:0; border:0; outline:0; background:transparent; padding:var(--space-3) var(--space-3) var(--space-3) 6px; font-family:var(--font-sans); font-size:var(--font-size-body-2); line-height:var(--line-height-body-2); font-weight:var(--font-weight-semibold); color:var(--text-primary); }
   /* CHANGE 2 — "Your details" is a Change-2 addition, so it must not appear in Baseline. */
   #sfAccDetails { display:none; }
   body[data-proto-view="change2"] #sfAccDetails { display:block; }
