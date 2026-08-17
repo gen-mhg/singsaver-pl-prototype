@@ -1056,7 +1056,7 @@
   })();
 </script>
 
-<div class="baseline-tag">CHANGE 2 (revised placement, 11 Aug) — Citizenship and Monthly income now sit INSIDE the Sort &amp; Filter panel as a "Your details" group, first and expanded. The Loan amount / Tenure calculator is unchanged and stays where it is today. These two inputs never remove a loan: they only mark which loans your details meet the criteria for. Use the toggle below to compare Baseline against Change 2.</div>
+<div class="baseline-tag">CHANGE 2 (revised placement, 11 Aug) — Citizenship and Monthly income now sit INSIDE the Sort &amp; Filter panel as a "Your details" group, directly below Sort By and expanded. The Loan amount / Tenure calculator is unchanged and stays where it is today. These two inputs never remove a loan: they only mark which loans your details meet the criteria for. Use the toggle below to compare Baseline against Change 2.</div>
 
 <!-- Prototype view toggle (demo chrome, EN) — Baseline ⇄ Change 2 (cumulative: Change 2 = Baseline's
      Sort & Filter furniture PLUS the calculator/eligibility additions), built to extend with Change
@@ -1184,26 +1184,6 @@
         <button type="button" class="sf-panel__close" id="sfClose" aria-label="Close sort and filter"><svg class="sf-ic" aria-hidden="true" focusable="false"><use href="#ic-close"/></svg></button>
       </div>
       <div class="sf-panel__body">
-        <!-- CHANGE 2 (2026-08-11): "Your details" is the FIRST group in the panel because it is about
-             the user, not about the products. Expanded by default. These two inputs NEVER remove a
-             loan from the results — they only mark which loans the entered details meet the published
-             criteria for. That is why the group carries the "no loans are removed" note. -->
-        <details class="sf-acc x-new" id="sfAccDetails" open>
-          <summary class="sf-group__h sf-acc__sum">Your details<span class="ann">NEW · CHANGE 2</span><svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
-          <div class="sf-acc__body">
-            <div class="sf-fld">
-              <label for="dCitizenship">Citizenship</label>
-              <select id="dCitizenship">
-                <option value="sgpr" selected>Singaporean / PR</option>
-                <option value="foreigner">Foreigner</option>
-              </select>
-            </div>
-            <div class="sf-fld">
-              <label for="dIncome">Monthly income (S$)</label>
-              <div class="imoney"><span>S$</span><input type="text" id="dIncome" inputmode="numeric" value="5,000"></div>
-            </div>
-          </div>
-        </details>
         <div class="sf-group">
           <h4 class="sf-group__h" id="sfSortLabel">Sort By</h4>
           <!-- Custom dropdown (button trigger + listbox popup) — see .sf-dropdown CSS comment above
@@ -1237,6 +1217,27 @@
             </select>
           </div>
         </div>
+        <!-- CHANGE 2 (2026-08-11, placement revised 2026-08-17): "Your details" sits directly BELOW
+             Sort By — Sort By stays the panel's first control, and the user-about-me inputs follow it,
+             ahead of the product filters. Expanded by default. These two inputs NEVER remove a loan
+             from the results — they only mark which loans the entered details meet the published
+             criteria for. That is why the group carries the "no loans are removed" note. -->
+        <details class="sf-acc x-new" id="sfAccDetails" open>
+          <summary class="sf-group__h sf-acc__sum">Your details<span class="ann">NEW · CHANGE 2</span><svg class="sf-acc__chev" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+          <div class="sf-acc__body">
+            <div class="sf-fld">
+              <label for="dCitizenship">Citizenship</label>
+              <select id="dCitizenship">
+                <option value="sgpr" selected>Singaporean / PR</option>
+                <option value="foreigner">Foreigner</option>
+              </select>
+            </div>
+            <div class="sf-fld">
+              <label for="dIncome">Monthly income (S$)</label>
+              <div class="imoney"><span>S$</span><input type="text" id="dIncome" inputmode="numeric" value="5,000"></div>
+            </div>
+          </div>
+        </details>
         <!-- CHANGE 4: reward-view toggle — flips the SingSaver Reward column between the headline
              "up to" max and the actual gift for the entered loan amount. Shown only in Change 4. -->
         <div class="sf-group sf-reward-group">
